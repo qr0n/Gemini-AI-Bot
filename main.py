@@ -191,40 +191,50 @@ class Memories:
             else:
                 return ""
             
-    def save_to_memory(self, message : Message):
+    def save_to_memory(self, message : Message, force=False):
         user_id = f"{message.guild.id}-{message.author.id}"
+        if force:
+            sql = "INSERT INTO memories (user_id, special_phrase, memory) VALUES (%s, %s, %s)"
+            summary_of_context_window = self.summarize_context_window(user_id)
+            special_phrase = self.is_worth_remembering(context='\n'.join(context_window[user_id]))["special_phrase"]
+            values = (user_id, special_phrase, summary_of_context_window)
+            cursor.execute(sql, values)
+            conn.commit()
+            print(f"Saved message: {message.content}\nTo memory: {summary_of_context_window}\nFor: {user_id}")
         if len(context_window[user_id]) == max_context_window:
             is_worth = self.is_worth_remembering(context='\n'.join(context_window[user_id]))
             if is_worth['is_worth']:
-                sql = "INSERT INTO memories (user_id, memory) VALUES (%s, %s)"
-                summary_of_context_window = self.summarize_context_window(user_id) 
+                sql = "INSERT INTO memories (user_id, special_phrase, memory) VALUES (%s, %s)"
+                summary_of_context_window = self.summarize_context_window(user_id)
                 values = (user_id, summary_of_context_window)
                 cursor.execute(sql, values)
                 conn.commit()
                 print(f"Saved message: {message.content}\nTo memory: {summary_of_context_window}\nFor: {user_id}")
     
-    def fetch_and_sort_entries(self, user_input, user_id):
-        # SQL query to fetch user-specific memories ordered by timestamp
-        sql = f"SELECT memory FROM memories WHERE user_id = {user_id} ORDER BY timestamp DESC"
-        cursor.execute(sql)
+    def fetch_and_sort_entries(self, user_id):
+        sql = """
+        SELECT special_phrase, memory
+        FROM memories
+        WHERE user_id = %s
+        ORDER BY timestamp
+        """
+        cursor.execute(sql, (user_id,))
         rows = cursor.fetchall()
-        print(rows)
-
-        # Convert to a list of strings
-        entries = [row[0] for row in rows]
-
-        # Use fuzzywuzzy to find and sort entries by relevance
-        results = process.extract(user_input, entries, scorer=fuzz.partial_ratio)
-        print(results)
-
-        # Sort results by relevance score in descending order
-        sorted_results = sorted(results, key=lambda x: x[1], reverse=True)
-
-        return sorted_results
+        
+        # Initializing an empty dictionary to store the results
+        result = {}
+    
+        # Iterating over the rows and populating the dictionary
+        for row_num, row in enumerate(rows):
+            print(row_num)
+            special_phrase, memory = row
+            result[special_phrase] = memory
+    
+        return result
 
     def remember_from_memory(self, user_id, user_input):
         # Call fetch_and_sort_entries to get sorted results based on user input and user id
-        sorted_results = self.fetch_and_sort_entries(user_input, user_id)
+        sorted_results = self.fetch_and_sort_entries(user_id)
         print(sorted_results)
 
         # Extract only the message content from the sorted results
@@ -264,36 +274,8 @@ Provide your response in a JSON format {"is_worth" : true/false, "special_phrase
         except Exception as E:
             print(E)
         
-    def is_this_simmilar(self, message):
-        json_format = """{"is_similar" : true/false, "similarity_reason" : "reason"}"""
-        sql = "SELECT special_phrase FROM memories ORDER BY timestamp"
-        cursor.execute(sql)
-        special_phrases = cursor.fetchall()
-        for row in special_phrases:
-            print(row)
-        return
-        prompt = f"""
-Objective:
-Determine if the provided message is similar to another given message based on predefined criteria.
-
-Guidelines:
-1. **Content Overlap**: Examine if the majority of content in both messages overlap.
-2. **Contextual Similarity**: Check if the context or the main idea presented in both messages is alike.
-3. **Linguistic Patterns**: Identify if similar linguistic patterns, phrases, or keywords are used.
-4. **Semantic Similarity**: Evaluate if both messages convey the same meaning even if different words are used.
-Instructions:
-1. Read the provided messages.
-2. Assess each message based on the provided guidelines.
-3. Determine if the messages meet one or more of the criteria:
-   a. The content of both messages overlaps significantly.
-   b. The contexts or main ideas of both messages align.
-   c. Similar linguistic patterns or keywords are used in both messages.
-   d. The overall meaning conveyed by both messages is the same.
-4. Provide your response in a JSON format {json_format} without ANY formatting.
-Messages:
-Message 1: {message}
-Message 2: {memory_message}
-"""
+    def compare_memories(self, user_id, message):
+        
 
 @bot.listen('on_message')
 async def testtest(msg: Message):
@@ -349,10 +331,6 @@ async def summarize(ctx):
     await ctx.send(mem_handler.summarize_context_window(user_id))
 
 @bot.command()
-async def is_this_simmilar(ctx):
-    await ctx.send(Memories().is_this_simmilar(ctx.message.content))
-
-@bot.command()
 async def delete(ctx, message_id : Message):
     try:
         if message_id.author.id is not bot.user.id:
@@ -383,5 +361,19 @@ async def dump_ctx_window(ctx):
     with open("context_window", "w") as ctx_window:
         ctx_window.write(str(context_window))
         await ctx.send("dumped")
+
+@bot.command()
+async def compare_memories(ctx):
+    await ctx.send(Memories().compare_memories(message=None))
+
+@bot.command()
+async def force_save(ctx):
+    user_id = f"{ctx.guild.id}-{ctx.author.id}"
+    Memories().save_to_memory(ctx.message, force=True)
+
+@bot.command()
+async def fetch_mem(ctx):
+    user_id = f"{ctx.guild.id}-{ctx.author.id}"
+    await ctx.send(Memories().fetch_and_sort_entries(user_id))
 
 bot.run(config["BOT-TOKEN"])

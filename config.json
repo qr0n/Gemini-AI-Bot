@@ -1,11 +1,11 @@
 {
     "SQL-CREDENTIALS" : {
-        "username" : "",
-        "password" : "",
-        "host" : "",
-        "database" : ""
+        "username" : "root",
+        "password" : "iron",
+        "host" : "localhost",
+        "database" : "bot_memory"
     },
-    "API-KEY" : "",
-    "BOT-TOKEN" : "",
+    "API-KEY" : "AIzaSyDfNg6w9UZGjRfEjZsUqTctqPTMFDIq3fY",
+    "BOT-TOKEN" : "MTI0NTkyMTYwOTQzMzQ4MTIzNg.GzF7lL.Zsd96M_VHg1zdI-qqhjxsunLXPYRqTPKNPJcO0",
     "AI-MODEL" : "gemini-1.5-flash-latest"
 }
