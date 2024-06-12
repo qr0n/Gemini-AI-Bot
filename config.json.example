@@ -1,0 +1,11 @@
+{
+    "SQL-CREDENTIALS" : {
+        "username" : "",
+        "password" : "",
+        "host" : "",
+        "database" : ""
+    },
+    "API-KEY" : "",
+    "BOT-TOKEN" : "",
+    "AI-MODEL" : "gemini-1.5-flash-latest"
+}
