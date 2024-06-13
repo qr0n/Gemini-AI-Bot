@@ -27,7 +27,7 @@ conn = mysql.connector.connect(**db_config)
 cursor = conn.cursor()
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-max_context_window = 20
+max_context_window = 10
 context_window = {}
 
 def read_prompt(message: Message = None, memory=None):
@@ -56,29 +56,25 @@ def read_prompt(message: Message = None, memory=None):
     # If memory is present, append to the prompt | TODO : append to prompt for context window
     if memory: 
         return f"""
-    ---- BEGIN SYSTEM NOTE ----
-
-
-    !! IMPORTANT TO NOTE !!
-    If you see [user] replace it with {author_name} <- | These instructions relate to the person you are in a conversation with
-    If you see [you] replace it with {bot_name} <- | These instructions relate to you in character
+---- BEGIN SYSTEM NOTE ----
+    {system_note}
 
     -- PERSONALITY INFORMATION --
     You are {name}, a {role}, {age} years old, described as {description}.
     People in conversation [{bot_name}, {author_name}], your job is to respond to the last message of {author_name}.
     You can use the messages in your context window, but do not ever reference them.
 
-    -- CURRENT RELEVANT MEMORIES --
-    {memory}
-
     -- CONVERSATION EXAMPLES --
     {"\n".join([f"{author_name}: {example['user']}\n{bot_name}: {example['bot']}" for example in conversation_examples])}
 
-    -- SYSTEM NOTE EXTENSION --
-    {system_note}
+    -- CURRENT RELEVANT MEMORIES --
+    {memory}
+
     ---- END SYSTEM NOTE ----
+From here on out, this is the conversation you will be responding to.
     ---- CONVERSATION ----
-    """
+"""
+    
     # If not
     return f"""
     ---- BEGIN SYSTEM NOTE ----
@@ -97,8 +93,8 @@ def read_prompt(message: Message = None, memory=None):
     You can use the messages in your context window, but do not ever reference them.
 
     -- CONVERSATION EXAMPLES --
-    {"\n".join([f"{author_name}: {example['user']} | {bot_name}: {example['bot']}" for example in conversation_examples])}
-
+    {"\n".join([f"{author_name}: {example['user']}\n{bot_name}: {example['bot']}" for example in conversation_examples])}
+    
     -- SYSTEM NOTE EXTENSION --
     {system_note}
     ---- END SYSTEM NOTE ----
@@ -273,7 +269,8 @@ Provide your response in a JSON format {"is_worth" : true/false, "special_phrase
             print(E)
         
     def compare_memories(self, user_id, message):
-        json_format = """{"is_similar" : true/false, "similar_phrase"}"""
+        json_format = """{"is_similar" : true/false, "similar_phrase" : the phrase in [Message 2]}"""
+        entries = self.fetch_and_sort_entries(user_id)
         prompt = f"""
 Objective:
     Determine if the provided phrase or message is similar to another given phrase or message based on predefined criteria.
@@ -292,12 +289,13 @@ Objective:
        b. The contexts or main ideas of both messages align.
        c. Similar linguistic patterns or keywords are used in both messages.
        d. The overall meaning conveyed by both messages is the same.
+       e. be lenient in your comparision, if a phrase has 2/3 keywords return the 
     4. If the phrase is simmilar, provide it in the JSON-type response ONLY provide the MOST similar phrase.
     5. Provide your response in a JSON format {json_format} without ANY formatting ie.. no backticks '`' no syntax highlighting, no numbered lists.
-
+    
     Messages:
     Message 1: {message}
-    Message 2: {self.fetch_and_sort_entries(user_id)}
+    Message 2: {entries}
 """
         print(prompt)
         try:
@@ -334,8 +332,11 @@ async def testtest(msg: Message):
         context_window[user_id].pop(0)
     await ctx.channel.typing()
 
-    remembered_memories = Memories().fetch_and_sort_entries(user_id)
-    prompt = read_prompt(msg, remembered_memories)
+    remembered_memories = Memories().compare_memories(user_id, msg.content)
+    if remembered_memories['is_similar']:
+        prompt = read_prompt(msg, remembered_memories['similar_phrase'])
+    else:
+        prompt = read_prompt(msg)
     print(remembered_memories)
     print(prompt)
     response = BotModel.generate_content(prompt, user_id=user_id)
@@ -369,7 +370,6 @@ async def wack(ctx):
         await ctx.send("No context window found. :pensive:")
         return
     await ctx.send(f"Context window cleared [Removed {len_delete} memories] :ok_hand:")
-
 
 @bot.command()
 async def delete(ctx, message_id : Message):
