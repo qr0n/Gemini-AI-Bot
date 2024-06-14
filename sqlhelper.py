@@ -2,9 +2,10 @@ import mysql.connector
 
 # Connect to MySQL
 db = mysql.connector.connect(
-    host="",
-    user="",
-    password=""
+    host="localhost",
+    user="root",
+    password="iron",
+    database="bot_memory"
 )
 
 cursor = db.cursor()
@@ -15,7 +16,7 @@ cursor.execute("CREATE DATABASE IF NOT EXISTS bot_memory")
 
 cursor.execute(
 """
-CREATE TABLE memories (
+CREATE TABLE memory (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id VARCHAR(255) NOT NULL,
     memory TEXT NOT NULL,

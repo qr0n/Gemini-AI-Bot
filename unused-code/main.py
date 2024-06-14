@@ -2,32 +2,32 @@ from discord.ext import commands, tasks
 from discord import Intents, Message, DMChannel
 import google.generativeai as genai
 import mysql.connector
+
 import json
-from fuzzywuzzy import fuzz, process
 # Imports
 
 with open("config.json", "r") as ul_config:
     config = json.load(ul_config)
 
-genai.configure(api_key=config["API-KEY"])
-model = genai.GenerativeModel(config["AI-MODEL"])
+genai.configure(api_key=config["API_KEY"])
+model = genai.GenerativeModel(config["AI_MODEL"])
 
 intents = Intents.default()
 intents.members = True
 intents.message_content = True
 
 db_config = {
-    'user': config["SQL-CREDENTIALS"]["username"],
-    'password': config["SQL-CREDENTIALS"]["password"],
-    'host': config["SQL-CREDENTIALS"]["host"],
-    'database': config["SQL-CREDENTIALS"]["database"],
+    'user': config["SQL_CREDENTIALS"]["username"],
+    'password': config["SQL_CREDENTIALS"]["password"],
+    'host': config["SQL_CREDENTIALS"]["host"],
+    'database': config["SQL_CREDENTIALS"]["database"],
 }
 
 conn = mysql.connector.connect(**db_config)
 cursor = conn.cursor()
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-max_context_window = 10
+max_context_window = config["MAX_CONTEXT_WINDOW"]
 context_window = {}
 
 def read_prompt(message: Message = None, memory=None):
@@ -61,7 +61,7 @@ def read_prompt(message: Message = None, memory=None):
 
     -- PERSONALITY INFORMATION --
     You are {name}, a {role}, {age} years old, described as {description}.
-    People in conversation [{bot_name}, {author_name}], your job is to respond to the last message of {author_name}.
+    People in conversation {bot_name}, {author_name}, your job is to respond to the last message of {author_name}.
     You can use the messages in your context window, but do not ever reference them.
 
     -- CONVERSATION EXAMPLES --
@@ -270,7 +270,7 @@ Provide your response in a JSON format {"is_worth" : true/false, "special_phrase
         
     def compare_memories(self, user_id, message):
         json_format = """{"is_similar" : true/false, "similar_phrase" : the phrase in [Message 2]}"""
-        entries = self.fetch_and_sort_entries(user_id)
+        entries = self.fetch_and_sort_entries(user_id).keys()
         prompt = f"""
 Objective:
     Determine if the provided phrase or message is similar to another given phrase or message based on predefined criteria.
@@ -282,20 +282,20 @@ Objective:
     4. **Semantic Similarity**: Evaluate if both messages convey the same meaning even if different words are used.
 
     Instructions:
-    1. Read the provided messages.
+    1. Read the provided message and phrases.
     2. Assess each message based on the provided guidelines.
     3. Determine if the messages meet one or more of the criteria:
        a. The content of both messages overlaps significantly.
        b. The contexts or main ideas of both messages align.
        c. Similar linguistic patterns or keywords are used in both messages.
        d. The overall meaning conveyed by both messages is the same.
-       e. be lenient in your comparision, if a phrase has 2/3 keywords return the 
+       e. be lenient in your comparision, if a phrase has 2/3 keywords return complete the rest.
     4. If the phrase is simmilar, provide it in the JSON-type response ONLY provide the MOST similar phrase.
     5. Provide your response in a JSON format {json_format} without ANY formatting ie.. no backticks '`' no syntax highlighting, no numbered lists.
     
     Messages:
     Message 1: {message}
-    Message 2: {entries}
+    List of phrases: {entries}
 """
         print(prompt)
         try:
@@ -305,7 +305,24 @@ Objective:
             return json_parsed
         except Exception as E:
             print(E)
-        
+
+class ContextWindow:
+    def __init__(self) -> None:
+        self.context_window: dict = {}
+
+    def count_tokens(self, user_id):
+        ctx_as_string = "\n".join(context_window[user_id]) # TODO : switch to localized ctx window.
+        prompt = read_prompt() + "\n" + ctx_as_string
+        return genai.list_models()
+    
+    def add_to_window(self, author, message, user_id):
+        if self.context_window[user_id]:
+            ctx_as_string = "\n".join(self.context_window[user_id])
+            self.context_window[user_id].append(f"{author} : {message}")
+        else:
+            self.context_window[user_id] = []
+            self.context_window[user_id].append(f"{author} : {message}")
+
 @bot.listen('on_message')
 async def testtest(msg: Message):
     character_name = Memories.load_character_details()["name"]
@@ -323,6 +340,7 @@ async def testtest(msg: Message):
         return
 
     user_id = f"{msg.guild.id}-{msg.author.id}"
+
     if user_id not in context_window:
         context_window[user_id] = []
 
@@ -330,19 +348,24 @@ async def testtest(msg: Message):
 
     if len(context_window[user_id]) > max_context_window:  # Adjust the window size as needed
         context_window[user_id].pop(0)
+        print(context_window)
+
     await ctx.channel.typing()
 
     remembered_memories = Memories().compare_memories(user_id, msg.content)
-    if remembered_memories['is_similar']:
-        prompt = read_prompt(msg, remembered_memories['similar_phrase'])
-    else:
-        prompt = read_prompt(msg)
+    try:
+        if remembered_memories['is_similar']:
+            prompt = read_prompt(msg, remembered_memories['similar_phrase'])
+        else:
+            prompt = read_prompt(msg)
+    except Exception:
+        print()
     print(remembered_memories)
     print(prompt)
     response = BotModel.generate_content(prompt, user_id=user_id)
     Memories().save_to_memory(msg)
     
-    # Strip bot's name from the final response before sending it
+    # Strip bot's name from the final response before replying it
     if response.startswith(f"{character_name}: "):
                 response = response[len(f"{character_name}: "):]
 
@@ -352,13 +375,9 @@ async def testtest(msg: Message):
         try:
             await ctx.reply(chunk, mention_author=False)
         except Exception as E:
-            print(f"Error sending response: {E}")
+            print(f"Error replying response: {E}")
 
     print(len(response) / 2000)
-
-@bot.listen("on_reaction_add")
-async def do_something():
-    pass
 
 @bot.command()
 async def wack(ctx):
@@ -367,9 +386,9 @@ async def wack(ctx):
         len_delete = len(context_window[user_id])
         del context_window[f"{ctx.guild.id}-{ctx.author.id}"]
     except KeyError:
-        await ctx.send("No context window found. :pensive:")
+        await ctx.reply("No context window found. :pensive:")
         return
-    await ctx.send(f"Context window cleared [Removed {len_delete} memories] :ok_hand:")
+    await ctx.reply(f"Context window cleared [Removed {len_delete} memories] :ok_hand:")
 
 @bot.command()
 async def delete(ctx, message_id : Message):
@@ -382,19 +401,33 @@ async def delete(ctx, message_id : Message):
         print("Error")
 
 @bot.command()
+async def activate(ctx):
+    with open("activated.json", "r") as unloaded_activated:
+        activated = json.load(unloaded_activated)
+        if activated[ctx.channel.id]:
+            activated[ctx.channel.id] = False
+            x = await ctx.reply("Bot activated previously, deactivating.", mention_author=False)
+        else:
+            activated[ctx.channel.id] = True
+            x = await ctx.reply("Bot activated.")
+    with open("activated.json", "w") as unloaded_activated:
+        json.dump(activated, unloaded_activated)
+        await x.edit("Done.", delete_after=2)
+
+@bot.command()
 async def is_worth(ctx):
     user_id = f"{ctx.guild.id}-{ctx.author.id}"
-    await ctx.send(Memories().is_worth_remembering(context="\n".join(context_window[user_id])))
+    await ctx.reply(Memories().is_worth_remembering(context="\n".join(context_window[user_id])), mention_author=False)
 
 @bot.command()
 async def dump_ctx_window(ctx):
     with open("context_window", "w") as ctx_window:
         ctx_window.write(str(context_window))
-        await ctx.send("dumped")
+        await ctx.reply("dumped", mention_author=False)
 
 @bot.command()
 async def compare_memories(ctx):
-    await ctx.send(Memories().compare_memories(message=None))
+    await ctx.reply(Memories().compare_memories(message=None), mention_author=False)
 
 @bot.command()
 async def force_save(ctx):
@@ -404,11 +437,16 @@ async def force_save(ctx):
 @bot.command()
 async def fetch_mem(ctx):
     user_id = f"{ctx.guild.id}-{ctx.author.id}"
-    await ctx.send(Memories().fetch_and_sort_entries(user_id))
+    await ctx.reply(Memories().fetch_and_sort_entries(user_id), mention_author=False)
 
 @bot.command()
 async def compare_mem(ctx, *memory):
     user_id = f"{ctx.guild.id}-{ctx.author.id}"
-    await ctx.send(Memories().compare_memories(user_id, message=memory))
+    await ctx.reply(Memories().compare_memories(user_id, message=memory), mention_author=False)
 
-bot.run(config["BOT-TOKEN"])
+@bot.command()
+async def count_token(ctx):
+    user_id = f"{ctx.guild.id}-{ctx.author.id}"
+    await ctx.reply(ContextWindow().count_tokens(user_id))
+
+bot.run(config["BOT_TOKEN"])

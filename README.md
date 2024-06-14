@@ -22,5 +22,5 @@ pip install -r requirements.txt
     "BOT-TOKEN" : "",
     "AI-MODEL" : "gemini-1.5-flash-latest"
 }
-```
+``` 
 ###### Also, if there is need of a database helper, run `sqlhelper.py`, just remember to put your SQL credentials in.
