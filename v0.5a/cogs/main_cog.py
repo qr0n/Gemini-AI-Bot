@@ -6,14 +6,14 @@ class DevCommands(commands.Cog, name='Developer Commands'):
 	'''These are the developer commands'''
 
 	def __init__(self, bot):
-		self.bot = bot
+		self.bot: commands.Bot = bot
 		print("Cog Manager Loaded")
 
 	async def cog_check(self, ctx):  
 		'''
 		The default check for this cog whenever a command is used. Returns True if the command is allowed.
 		'''
-		return ctx.author.id == self.bot.owner_id
+		return ctx.author.id == 578789460141932555
 
 	@commands.command(  # Decorator to declare where a command is.
 		name='reload',  # Name of the command, defaults to function name.

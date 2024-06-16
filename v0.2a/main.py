@@ -359,7 +359,7 @@ async def testtest(msg: Message):
         else:
             prompt = read_prompt(msg)
     except Exception:
-        print()
+        print("error!")
     print(remembered_memories)
     print(prompt)
     response = BotModel.generate_content(prompt, user_id=user_id)

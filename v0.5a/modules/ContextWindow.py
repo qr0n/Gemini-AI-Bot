@@ -1,20 +1,33 @@
-from modules.BotModel import BotModel
+import google.generativeai as genai
+import json
+
+with open("./config.json", "r") as ul_config:
+    config = json.load(ul_config)
+
+genai.configure(api_key=config["API_KEY"])
+model = genai.GenerativeModel(config["AI_MODEL"])
+
+max_context_window = config["MAX_CONTEXT_WINDOW"]
 
 class ContextWindow:
-    def __init__(self) -> None:
-        self.context_window: dict = {}
+    context_window: dict = {}
 
-    def count_tokens(self, user_id):
-        ctx_as_string = "\n".join(self.context_window[user_id]) # TODO : switch to localized ctx window.
-        prompt = BotModel.read_prompt() + "\n" + ctx_as_string
-        return 
-    
-    def add_to_window(self, author, message, user_id):
-        if self.context_window[user_id]:
-            ctx_as_string = "\n".join(self.context_window[user_id])
-            self.context_window[user_id].append(f"{author} : {message}")
-        else:
-            self.context_window[user_id] = []
-            self.context_window[user_id].append(f"{author} : {message}")
+    # def check_context_length_with_prompt(prompt, context_window, user_id) -> bool:
+    #     """
+    #     This function is used by `add_to_window`, it checks token
+    #     """
+    #     full_prompt = prompt + "\n" + "\n".join(context_window[user_id])
+    #     tokens = genai.count_text_tokens(model=config["AI_MODEL"], prompt=full_prompt)
+            
+    #     return type(tokens)
 
-ContextWindow().context_window
+    # def add_to_window(author, message, user_id):
+    #     """
+    #     This function auto-handles all token limits.
+    #     """
+    #     context_as_string = "\n".join(self.context_window[user_id])
+    #     if self.check_context_length_with_prompt():
+    #         return
+
+
+# TODO : Reimplement this lol.

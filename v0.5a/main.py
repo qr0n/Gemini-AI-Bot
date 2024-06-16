@@ -20,6 +20,5 @@ async def setup_hook():
     for filename in os.listdir('D:/Python/Gemini-AI-Bot/v0.5a/cogs'):
         if filename.endswith('.py'):
             await bot.load_extension(f'cogs.{filename[:-3]}')
-            print("Rizz")
 
 bot.run(config["BOT_TOKEN"])

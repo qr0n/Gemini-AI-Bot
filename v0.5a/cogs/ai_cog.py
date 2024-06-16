@@ -1,9 +1,11 @@
 import json
+import datetime
 from discord.ext import commands
 from discord import Message
 from modules.Memories import Memories
 from modules.ContextWindow import ContextWindow
-from modules.BotModel import BotModel
+from modules.BotModel import BotModel, read_prompt
+from PIL import Image
 
 context_window = ContextWindow().context_window
 
@@ -17,48 +19,35 @@ class Messager(commands.Cog, name="Gemini AI Bot"):
 
     @commands.Cog.listener('on_message')
     async def message_generator(self, msg : Message):
-
-        character_name = Memories.load_character_details()["name"]
-
-        if msg.author.id == self.bot.user.id:
+        ctx = await self.bot.get_context(msg)
+        
+        if ctx.author.id == self.bot.user.id:
             return
-
+        
         if not self.bot.user.mentioned_in(msg):
             return
-
-        try:
-            ctx = await self.bot.get_context(msg)
-        except Exception as e:
-            print(f"Error getting context: {e}")
-            return
-
-        user_id = f"{msg.guild.id}-{msg.author.id}"
+        
+        user_id = f"{ctx.guild.id}-{ctx.author.id}"
 
         if user_id not in context_window:
             context_window[user_id] = []
-
+        
         context_window[user_id].append(f"{msg.author.name}: {msg.content}")
 
-        if len(context_window[user_id]) > config["MAX_CONTEXT_WINDOW"]:  # Adjust the window size as needed
+        if len(context_window[user_id]) > config["MAX_CONTEXT_WINDOW"]:
             context_window[user_id].pop(0)
-            print(context_window)
-
+        
         await ctx.channel.typing()
 
         remembered_memories = Memories().compare_memories(user_id, msg.content)
-        try:
-            if remembered_memories['is_similar']:
-                prompt = BotModel.read_prompt(msg, remembered_memories['similar_phrase'])
-            else:
-                prompt = BotModel.read_prompt(msg)
-        except Exception:
-            print()
-        print(remembered_memories)
-        print(prompt)
+        if remembered_memories['is_similar']:
+            prompt = read_prompt(msg, remembered_memories['similar_phrase'])
+        else:
+            prompt = read_prompt(msg)
         response = BotModel.generate_content(prompt, user_id=user_id)
         Memories().save_to_memory(msg)
-    
-        # Strip bot's name from the final response before replying it
+
+        character_name = Memories.load_character_details()["name"]
         if response.startswith(f"{character_name}: "):
                 response = response[len(f"{character_name}: "):]
 
@@ -69,3 +58,40 @@ class Messager(commands.Cog, name="Gemini AI Bot"):
                 await ctx.reply(chunk, mention_author=False)
             except Exception as E:
                 print(f"Error replying response: {E}")
+
+    @commands.Cog.listener('on_message')
+    async def ai_listen(self, message : Message):
+        ctx = await self.bot.get_context(message)
+        if ctx.message.attachments[0].save():
+            attachment = Image.open()
+
+    @commands.command()
+    async def wack(self, ctx):
+        try:
+            user_id = f"{(ctx.guild.id)}-{ctx.author.id}"
+            len_delete = len(context_window[user_id])
+            del context_window[f"{ctx.guild.id}-{ctx.author.id}"]
+        except KeyError:
+            await ctx.reply("No context window found. :pensive:", mention_author=False)
+            return
+        await ctx.reply(f"Context window cleared [Removed {len_delete} memories] :ok_hand:", mention_author=False)
+    
+    @commands.command()
+    async def dump_ctx_window(self, ctx):
+        filename = str(datetime.datetime.now().timestamp()) + ".json" 
+        with open(filename, "w") as new_context_window:
+            new_context_window.write(str(context_window))
+            new_context_window.close()
+        await ctx.reply(f"Saved context window to {filename}", mention_author=False)
+
+    @commands.command()
+    async def activate(self, ctx):
+        with open("activation.json", "r") as unloaded_activated_channel:
+            activated_channels = json.load(unloaded_activated_channel)
+            activated_channels[ctx.channel.id] = True
+        with open("activation.json", "w") as unloaded_activated_channel:
+            json.dump(activated_channels, unloaded_activated_channel)
+            await ctx.reply("Activated.", mention_author=False)
+            
+async def setup(bot : commands.Bot):
+	await bot.add_cog(Messager(bot))
