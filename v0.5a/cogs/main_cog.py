@@ -74,7 +74,6 @@ class DevCommands(commands.Cog, name='Developer Commands'):
       "title" : "Current Loaded Cogs",
     "description" : f"{base_string}"
     }))
-  
-
+		
 async def setup(bot):
 	await bot.add_cog(DevCommands(bot))

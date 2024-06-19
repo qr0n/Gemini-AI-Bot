@@ -2,6 +2,7 @@ import json
 import google.generativeai as genai
 import mysql.connector
 from discord import Message
+from google.generativeai.types import HarmCategory, HarmBlockThreshold
 
 with open("./config.json", "r") as ul_config:
     config = json.load(ul_config)
@@ -162,9 +163,10 @@ Provide your response in a JSON format {"is_worth" : true/false, "special_phrase
             print(E)
         
     def compare_memories(self, user_id, message):
+        
         json_format = """{"is_similar" : true/false, "similar_phrase" : the phrase in [Message 2]}"""
         entries = self.fetch_and_sort_entries(user_id).keys()
-        prompt = f"""
+        system_instruction = f"""
 Objective:
     Determine if the provided phrase or message is similar to another given phrase or message based on predefined criteria.
 
@@ -184,17 +186,20 @@ Objective:
        d. The overall meaning conveyed by both messages is the same.
        e. be lenient in your comparision, if a phrase has 2/3 keywords return complete the rest.
     4. If the phrase is simmilar, provide it in the JSON-type response ONLY provide the MOST similar phrase.
-    5. Provide your response in a JSON format {json_format} without ANY formatting ie.. no backticks '`' no syntax highlighting, no numbered lists.
     
-    Messages:
-    Message 1: {message}
-    List of phrases: {entries}
+    5. Provide your response in this JSON schema {json_format} without ANY formatting ie.. no backticks '`' no syntax highlighting, no numbered lists.
+
+"""     
+        comparing_model = genai.GenerativeModel(config["AI_MODEL"], system_instruction=system_instruction)
+        message_list = f"""
+Message: {message}
+List of phrases: {", ".join(entries)}
 """
-        print(prompt)
         try:
-            unloaded_json = model.generate_content(prompt).text
+            unloaded_json = comparing_model.generate_content(message_list).text
             print(unloaded_json)
             json_parsed = json.loads(unloaded_json)
             return json_parsed
         except Exception as E:
             print(E)
+            return {"is_similar" : False, "special_phrase" : None}
