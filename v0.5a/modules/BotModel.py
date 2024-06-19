@@ -13,7 +13,6 @@ with open("./config.json", "r") as ul_config:
 context_window = ContextWindow().context_window
 
 genai.configure(api_key=config["API_KEY"])
-model = genai.GenerativeModel(config["AI_MODEL"])
 
 def load_character_details():
     """
@@ -43,7 +42,6 @@ def load_character_details():
         "age": age,
         "description": description
     }
-
 
 def read_prompt(message: Message = None, memory=None):
         try:
@@ -105,7 +103,7 @@ def read_prompt(message: Message = None, memory=None):
         ---- CONVERSATION ----
         """
 
-model = genai.GenerativeModel(config["AI_MODEL"], system_instruction=read_prompt())
+model = genai.GenerativeModel(config["AI_MODEL"], system_instruction=read_prompt(), safety_settings={})
 
 class BotModel:
     # Generate content
@@ -121,7 +119,7 @@ class BotModel:
         context = '\n'.join(context_window[user_id])
         _prompt = prompt + "\n" + context
         if attachment:
-            image_addon = "Describe this image to yourself and use it to answer any question the user asks"
+            image_addon = "Describe this peice of media to yourself in a way that if referenced again, you will be able to answer any potential question asked."
             full_prompt = [_prompt, "\n", image_addon, "\n", attachment]
             try:
                 response = model.generate_content(full_prompt).text
@@ -161,7 +159,7 @@ class BotModel:
                     retry_count += 1
             else:
                 try:
-                    context_window.pop(0)
+                    context_window[user_id].pop(0)
                 except KeyError or IndexError:
                     pass
                 return "Sorry, could you please repeat that?"

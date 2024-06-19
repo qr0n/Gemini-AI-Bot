@@ -2,7 +2,7 @@ import json
 import datetime
 import aiohttp
 from discord.ext import commands
-from discord import Message, Attachment
+from discord import Message, Reaction, User
 from modules.Memories import Memories
 from modules.ContextWindow import ContextWindow
 from modules.BotModel import read_prompt, BotModel
@@ -36,7 +36,13 @@ class MessagerBeta(commands.Cog, name="Gemini AI Bot - Beta"):
         ctx = await self.bot.get_context(message)
         user_id = f"{ctx.guild.id}-{ctx.author.id}"
         
-        if message.author.id == self.bot.user.id or not self.bot.user.mentioned_in(message):
+        with open("activation.json", "r") as ul_activated_channels:
+            activated_channels: dict = json.load(ul_activated_channels)
+
+        if message.author.id == self.bot.user.id:
+            return
+        
+        if not self.bot.user.mentioned_in(message) or activated_channels.get(ctx.channel.id, False):
             return
         
         if user_id not in context_window:
@@ -45,7 +51,7 @@ class MessagerBeta(commands.Cog, name="Gemini AI Bot - Beta"):
         context_window[user_id].append(f"{message.author.name}: {message.content}")
 
         if len(context_window[user_id]) > config["MAX_CONTEXT_WINDOW"]:
-            context_window.pop(0)
+            context_window[user_id].pop(0)
         
         await ctx.channel.typing()
 
@@ -61,10 +67,24 @@ class MessagerBeta(commands.Cog, name="Gemini AI Bot - Beta"):
             save_name = f"{message.guild.id}-{message.id}-{ctx.message.attachments[0].filename}"
             await ctx.message.attachments[0].save(save_name)
             image = Image.open(save_name)
-            context_window[user_id].append(image)
-            await ctx.reply(BotModel.generate_content(prompt, user_id, image), mention_author=False) # download attachments[0] in `attachments` 
+            await ctx.reply(BotModel.generate_content(prompt, user_id, image), mention_author=False)
+            image.close() # download attachments[0] in `attachments` 
         else:
-            await ctx.reply(BotModel.generate_content(prompt, user_id), mention_author=False) 
+            await ctx.reply(BotModel.generate_content(prompt, user_id), mention_author=False)
+
+
+    @commands.Cog.listener("on_reaction_add")
+    async def on_rxn_add(self, reaction : Reaction, user):
+        
+        if reaction.message.author.id is not self.bot.user.id: 
+            return
+        
+        user_id = f"{reaction.message.guild.id}-{user.id}"
+        
+        if user_id not in context_window:
+            context_window[user_id] = []
+            
+        context_window[user_id].append(f"{user.name} reacted with '{reaction.emoji}' to your message '{reaction.message.content}'")
 
     @commands.command()
     async def wack(self, ctx):

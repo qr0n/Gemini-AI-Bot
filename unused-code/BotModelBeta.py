@@ -107,3 +107,5 @@ class BotModel:
 #     x = input("> ")
 #     response = BotModel.send_message(prompt=x)
 #     print(response)
+
+# This file will be removed on version 0.7 alpha as it is no longer needed.

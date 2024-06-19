@@ -16,3 +16,6 @@ Make sure to keep the past 3 models alive
 Make sure to delete models that aren't worthy
 Make sure to collect user data.
 """
+
+# UNIMPLEMENTED | Not compliant with new developer ToS
+# This file will be removed in version 0.7 alpha.
