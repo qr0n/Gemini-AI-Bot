@@ -42,7 +42,7 @@ class MessagerBeta(commands.Cog, name="Gemini AI Bot - Beta"):
         if message.author.id == self.bot.user.id:
             return
         
-        if not self.bot.user.mentioned_in(message) or activated_channels.get(ctx.channel.id, False):
+        if not self.bot.user.mentioned_in(message):
             return
         
         if user_id not in context_window:
