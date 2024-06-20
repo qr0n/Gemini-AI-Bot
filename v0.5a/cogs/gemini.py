@@ -72,7 +72,6 @@ class MessagerBeta(commands.Cog, name="Gemini AI Bot - Beta"):
         else:
             await ctx.reply(BotModel.generate_content(prompt, user_id), mention_author=False)
 
-
     @commands.Cog.listener("on_reaction_add")
     async def on_rxn_add(self, reaction : Reaction, user):
         

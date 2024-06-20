@@ -55,11 +55,11 @@ class Memories:
             "description": description
         }
     
-    def summarize_context_window(self, user_id, retry=3):
+    def summarize_context_window(self, channel_id, retry=3):
         prompt = (
             "You're an AI LLM, who's only purpose is to summarize large but concise summaries on text provided to you, try to retain most of the information!"
             f"Your first task is to summarize this conversation from the perspective of {self.character_name}"
-            f"--- Conversation Start ---\n{'\n'.join(context_window[user_id])} --- Conversation End ---"
+            f"--- Conversation Start ---\n{'\n'.join(context_window[channel_id])} --- Conversation End ---"
             )
         
         try:
@@ -79,34 +79,34 @@ class Memories:
                 return ""
             
     def save_to_memory(self, message : Message, force=False):
-        user_id = f"{message.guild.id}-{message.author.id}"
+        channel_id = message.channel.id
         if force:
-            sql = "INSERT INTO memories (user_id, special_phrase, memory) VALUES (%s, %s, %s)"
-            summary_of_context_window = self.summarize_context_window(user_id)
-            special_phrase = self.is_worth_remembering(context='\n'.join(context_window[user_id]))["special_phrase"]
-            values = (user_id, special_phrase, summary_of_context_window)
+            sql = "INSERT INTO memories (channel_id, special_phrase, memory) VALUES (%s, %s, %s)" # change this on DB
+            summary_of_context_window = self.summarize_context_window(channel_id)
+            special_phrase = self.is_worth_remembering(context='\n'.join(context_window[channel_id]))["special_phrase"]
+            values = (channel_id, special_phrase, summary_of_context_window)
             cursor.execute(sql, values)
             conn.commit()
-            print(f"Saved message: {message.content}\nTo memory: {summary_of_context_window}\nFor: {user_id}")
-        if len(context_window[user_id]) == max_context_window:
-            is_worth = self.is_worth_remembering(context='\n'.join(context_window[user_id]))
+            print(f"Saved message: {message.content}\nTo memory: {summary_of_context_window}\nFor: {channel_id}")
+        if len(context_window[channel_id]) == max_context_window:
+            is_worth = self.is_worth_remembering(context='\n'.join(context_window[channel_id]))
             if is_worth['is_worth']:
-                sql = "INSERT INTO memories (user_id, special_phrase, memory) VALUES (%s, %s, %s)"
-                summary_of_context_window = self.summarize_context_window(user_id)
-                special_phrase = self.is_worth_remembering(context='\n'.join(context_window[user_id]))["special_phrase"]
-                values = (user_id, special_phrase, summary_of_context_window)
+                sql = "INSERT INTO memories (channel_id, special_phrase, memory) VALUES (%s, %s, %s)"
+                summary_of_context_window = self.summarize_context_window(channel_id)
+                special_phrase = self.is_worth_remembering(context='\n'.join(context_window[channel_id]))["special_phrase"]
+                values = (channel_id, special_phrase, summary_of_context_window)
                 cursor.execute(sql, values)
                 conn.commit()
-                print(f"Saved message: {message.content}\nTo memory: {summary_of_context_window}\nFor: {user_id}")
+                print(f"Saved message: {message.content}\nTo memory: {summary_of_context_window}\nFor: {channel_id}")
     
-    def fetch_and_sort_entries(self, user_id):
+    def fetch_and_sort_entries(self, channel_id):
         sql = """
         SELECT special_phrase, memory
         FROM memories
-        WHERE user_id = %s
+        WHERE channel_id = %s
         ORDER BY timestamp
         """
-        cursor.execute(sql, (user_id,))
+        cursor.execute(sql, (channel_id,))
         rows = cursor.fetchall()
         
         # Initializing an empty dictionary to store the results
@@ -119,17 +119,6 @@ class Memories:
             result[special_phrase] = memory
     
         return result
-
-    def remember_from_memory(self, user_id, user_input):
-        # Call fetch_and_sort_entries to get sorted results based on user input and user id
-        sorted_results = self.fetch_and_sort_entries(user_id)
-        print(sorted_results)
-
-        # Extract only the message content from the sorted results
-        remembered_entries = [result[0] for result in sorted_results]
-        print(remembered_entries)
-
-        return remembered_entries
     
     def is_worth_remembering(self, context):
         prompt = """
@@ -162,10 +151,10 @@ Provide your response in a JSON format {"is_worth" : true/false, "special_phrase
         except Exception as E:
             print(E)
         
-    def compare_memories(self, user_id, message):
+    def compare_memories(self, channel_id, message):
         
         json_format = """{"is_similar" : true/false, "similar_phrase" : the phrase in [Message 2]}"""
-        entries = self.fetch_and_sort_entries(user_id).keys()
+        entries = self.fetch_and_sort_entries(channel_id).keys()
         system_instruction = f"""
 Objective:
     Determine if the provided phrase or message is similar to another given phrase or message based on predefined criteria.

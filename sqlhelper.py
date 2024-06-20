@@ -10,19 +10,17 @@ db = mysql.connector.connect(
 
 cursor = db.cursor()
 
-print("Enter SQL query or 'exit' to quit.")
-
 cursor.execute("CREATE DATABASE IF NOT EXISTS bot_memory")
+
+cursor.execute("DROP TABLE memories")
 
 cursor.execute(
 """
-CREATE TABLE memory (
+CREATE TABLE memories (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id VARCHAR(255) NOT NULL,
+    channel_id VARCHAR(255) NOT NULL,
     memory TEXT NOT NULL,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 """
 )
-
-cursor.execute("DROP DATABASE notes")

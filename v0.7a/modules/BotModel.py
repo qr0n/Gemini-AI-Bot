@@ -107,23 +107,23 @@ model = genai.GenerativeModel(config["GEMINI"]["AI_MODEL"], system_instruction=r
 
 class BotModel:
     # Generate content
-    def generate_content(prompt, user_id=None, attachment=None, retry=3):
+    def generate_content(prompt, channel_id=None, attachment=None, retry=3):
         """
         prompt: str
-        user_id : str (guild-user)
+        channel_id : str (guild-user)
         attachment : Image (PIL) = None
         retry : int = 3
         Assumes if attachment is present, it will be appended to the context window from cog
         """
         character_name = load_character_details()['name']
-        context = '\n'.join(context_window[user_id])
+        context = '\n'.join(context_window[channel_id])
         _prompt = prompt + "\n" + context
         if attachment:
             image_addon = "Describe this peice of media to yourself in a way that if referenced again, you will be able to answer any potential question asked."
             full_prompt = [_prompt, "\n", image_addon, "\n", attachment]
             try:
                 response = model.generate_content(full_prompt).text
-                context_window[user_id].append(f"{character_name}: {response.strip()}")
+                context_window[channel_id].append(f"{character_name}: {response.strip()}")
                 return response
             except Exception as error:
                 print("BotModel.py: Error: While generating a response, this exception occured", error)
@@ -133,7 +133,7 @@ class BotModel:
                     return response[0]
                 else:
                     try:
-                        context_window[user_id].pop(0)
+                        context_window[channel_id].pop(0)
                     except IndexError or KeyError:
                         pass
                     return "Sorry, could you please repeat that?"
@@ -141,7 +141,7 @@ class BotModel:
             response = model.generate_content(_prompt).text
             # Strip bot's name from the response
             response = response[len(f"{character_name}: "):] if response.startswith(f"{character_name}: ") else response
-            context_window[user_id].append(f"{character_name}: {response.strip()}")
+            context_window[channel_id].append(f"{character_name}: {response.strip()}")
             return response
         except Exception as error:
             print(f"Botmodel.py: Error: generating response: {error}")
@@ -152,14 +152,14 @@ class BotModel:
                     response = response_goog.candidates[0]
                     # Strip bot's name from the response
                     response = response[len(f"{character_name}: "):] if response.startswith(f"{character_name}: ") else response
-                    context_window[user_id].append(f"{character_name}: {response.strip()}")
+                    context_window[channel_id].append(f"{character_name}: {response.strip()}")
                     return response
                 except Exception as E:
                     print(f"Error generating response (retry {retry_count}): {E}")
                     retry_count += 1
             else:
                 try:
-                    context_window[user_id].pop(0)
+                    context_window[channel_id].pop(0)
                 except KeyError or IndexError:
                     pass
                 return "Sorry, could you please repeat that?"
