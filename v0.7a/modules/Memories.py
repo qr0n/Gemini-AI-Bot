@@ -56,11 +56,7 @@ class Memories:
         }
     
     def summarize_context_window(self, channel_id, retry=3):
-        prompt = (
-            "You're an AI LLM, who's only purpose is to summarize large but concise summaries on text provided to you, try to retain most of the information!"
-            f"Your first task is to summarize this conversation from the perspective of {self.character_name}"
-            f"--- Conversation Start ---\n{'\n'.join(context_window[channel_id])} --- Conversation End ---"
-            )
+        prompt = f"You're an AI LLM, who's only purpose is to summarize large but concise summaries on text provided to you, try to retain most of the information! Your first task is to summarize this conversation from the perspective of {self.character_name} --- Conversation Start ---\n{'\n'.join(context_window[channel_id])} --- Conversation End ---"
         
         try:
             response = model.generate_content(prompt).text
@@ -119,6 +115,7 @@ class Memories:
             result[special_phrase] = memory
     
         return result
+
     
     def is_worth_remembering(self, context):
         prompt = """

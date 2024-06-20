@@ -86,7 +86,7 @@ class MessagerBeta(commands.Cog, name="Gemini AI Bot - Beta"):
         context_window[user_id].append(f"{user.name} reacted with '{reaction.emoji}' to your message '{reaction.message.content}'")
 
     @commands.command()
-    async def wack(self, ctx):
+    async def wack(self, ctx : Message):
         try:
             user_id = f"{ctx.guild.id}-{ctx.author.id}"
             len_delete = len(context_window[user_id])

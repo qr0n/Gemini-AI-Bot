@@ -2,3 +2,16 @@ config.json
 context_window
 TODO
 venv/*
+v0.5a/cogs/__pycache__/gemini.cpython-311.pyc
+v0.5a/cogs/__pycache__/gemini.cpython-312.pyc
+v0.5a/cogs/__pycache__/main_cog.cpython-312.pyc
+v0.5a/modules/__pycache__/BotModel.cpython-312.pyc
+v0.5a/modules/__pycache__/ContextWindow.cpython-312.pyc
+v0.5a/modules/__pycache__/Memories.cpython-311.pyc
+v0.5a/modules/__pycache__/Memories.cpython-312.pyc
+v0.7a/cogs/__pycache__/gemini.cpython-311.pyc
+v0.7a/cogs/__pycache__/gemini.cpython-312.pyc
+v0.7a/cogs/__pycache__/main_cog.cpython-312.pyc
+v0.7a/modules/__pycache__/BotModel.cpython-312.pyc
+v0.7a/modules/__pycache__/ContextWindow.cpython-312.pyc
+v0.7a/modules/__pycache__/Memories.cpython-312.pyc

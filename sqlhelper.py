@@ -18,7 +18,8 @@ cursor.execute(
 """
 CREATE TABLE memories (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    channel_id VARCHAR(255) NOT NULL,
+    user_id VARCHAR(255) NOT NULL,
+    special_phrase TEXT NOT NULL,
     memory TEXT NOT NULL,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
