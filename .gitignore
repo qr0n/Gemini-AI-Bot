@@ -1,3 +1,4 @@
 config.json
 context_window
 TODO
+venv/*
