@@ -12,15 +12,25 @@ pip install -r requirements.txt
 ##### Make sure to edit the `config.json`
 ```json
 {
-    "SQL-CREDENTIALS" : {
+    "SQL_CREDENTIALS" : {
         "username" : "",
         "password" : "",
         "host" : "",
         "database" : ""
     },
-    "API-KEY" : "",
-    "BOT-TOKEN" : "",
-    "AI-MODEL" : "gemini-1.5-flash-latest"
-}
+    "GEMINI" : {
+        "API_KEY" : "",
+        "AI_MODEL" : "models/gemini-1.5-flash-latest",
+        "MAX_CONTEXT_WINDOW" : 20
+    },
+    "FREEWILL": {
+        "enabled" : true,
+        "text_frequency" : 1,
+        "reaction_frequency" : 1
+    },
+    "API_KEY" : "",
+    "AI_MODEL" : "models/gemini-1.5-flash-latest",
+    "MAX_CONTEXT_WINDOW" : 20,
+    "BOT_TOKEN" : ""}
 ``` 
 ###### Also, if there is need of a database helper, run `sqlhelper.py`, just remember to put your SQL credentials in.
