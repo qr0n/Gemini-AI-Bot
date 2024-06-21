@@ -30,7 +30,7 @@ class Freewill(commands.Cog):
             text_frequency = config["FREEWILL"]["text_frequency"]
             reaction_frequency = config["FREEWILL"]["reaction_frequency"]
             keywords = config["FREEWILL"]["keywords"]
-            keyword_multiplier = config["FREEWILL"]["keywords_multiplier"]
+            keyword_multiplier = config["FREEWILL"]["keywords_multiplier"] or 0
             
             if channel_id not in context_window:
                 context_window[message.channel.id] = []
@@ -69,7 +69,7 @@ class Freewill(commands.Cog):
                     save_name = f"{message.guild.id}-{message.id}-{message.attachments[0].filename}"
                     await message.attachments[0].save(save_name)
                     image = Image.open(save_name)
-                    content = BotModel.generate_reaction(prompt_plus, channel_id[channel_id], image)
+                    content = BotModel.generate_reaction(prompt_plus, context_window[channel_id], image)
                     print("space" + content + "space")
                     await message.add_reaction(content)
                     image.close() # download attachments[0] in `attachments` 

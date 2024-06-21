@@ -147,7 +147,7 @@ class BotModel:
             retry_count = 0
             while retry_count < retry:  # Adjust the retry count as needed
                 try:
-                    response_goog = model.generate_content(full_prompt)
+                    response_goog = model.generate_content(_prompt)
                     response = response_goog.candidates[0]
                     # Strip bot's name from the response
                     response = response[len(f"{character_name}: "):] if response.startswith(f"{character_name}: ") else response
