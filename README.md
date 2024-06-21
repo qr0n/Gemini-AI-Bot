@@ -26,11 +26,13 @@ pip install -r requirements.txt
     "FREEWILL": {
         "enabled" : true,
         "text_frequency" : 1,
-        "reaction_frequency" : 1
+        "reaction_frequency" : 1,
+        "keywords_added_chance" : 1,
+        "keywords" : [""]
     },
     "API_KEY" : "",
     "AI_MODEL" : "models/gemini-1.5-flash-latest",
     "MAX_CONTEXT_WINDOW" : 20,
     "BOT_TOKEN" : ""}
 ``` 
-###### Also, if there is need of a database helper, run `sqlhelper.py`, just remember to put your SQL credentials in.
+#### Also, if there is need of a database helper, run `sqlhelper.py`, just remember to put your SQL credentials in.
