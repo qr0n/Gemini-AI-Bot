@@ -2,13 +2,14 @@ import json
 import datetime
 import aiohttp
 from discord.ext import commands
-from discord import Message, Reaction, User
+from discord import Message, Reaction, AllowedMentions
 from modules.Memories import Memories
 from modules.ContextWindow import ContextWindow
 from modules.BotModel import read_prompt, BotModel
 from PIL import Image
 
 context_window = ContextWindow().context_window
+allowed_mentions = AllowedMentions(everyone=False, users=False, roles=False)
 
 with open("./config.json", "r") as ul_config:
     config = json.load(ul_config)
@@ -67,10 +68,10 @@ class MessagerBeta(commands.Cog, name="Gemini AI Bot - Beta"):
             save_name = f"{message.guild.id}-{message.id}-{ctx.message.attachments[0].filename}"
             await ctx.message.attachments[0].save(save_name)
             image = Image.open(save_name)
-            await ctx.reply(BotModel.generate_content(prompt, channel_id, image), mention_author=False)
+            await ctx.reply(BotModel.generate_content(prompt, channel_id, image), mention_author=False, allowed_mentions=allowed_mentions)
             image.close() # download attachments[0] in `attachments` 
         else:
-            await ctx.reply(BotModel.generate_content(prompt, channel_id), mention_author=False)
+            await ctx.reply(BotModel.generate_content(prompt, channel_id), mention_author=False, allowed_mentions=allowed_mentions)
 
     @commands.Cog.listener("on_reaction_add")
     async def on_rxn_add(self, reaction : Reaction, user):

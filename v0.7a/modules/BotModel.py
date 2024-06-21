@@ -1,7 +1,6 @@
-# TODO add multimodal support.
 import google.generativeai as genai
 import json
-# from modules.Memories import Memories
+import re
 from modules.ContextWindow import ContextWindow # TODO Implement context window
 from discord import Message
 from PIL import Image
@@ -163,3 +162,58 @@ class BotModel:
                 except KeyError or IndexError:
                     pass
                 return "Sorry, could you please repeat that?"
+    
+    # def generate_reaction(prompt, context_window : list, attachment=None):
+    #     reaction_model = genai.GenerativeModel(model_name=config["GEMINI"]["AI_MODEL"], system_instruction=prompt)
+
+    #     emoji_patten = re.compile("["   
+    #     "\U0001F600-\U0001F64F"  # emoticons
+    #     "\U0001F300-\U0001F5FF"  # symbols & pictographs
+    #     "\U0001F680-\U0001F6FF"  # transport & map symbols
+    #     "\U0001F1E0-\U0001F1FF"  # flags (iOS)
+    #     "\U00002702-\U000027B0"  # Dingbats
+    #     "\U000024C2-\U0001F251" 
+    #     "]+", flags=re.UNICODE)
+
+    #     if attachment:
+    #         prompt_with_image = ["\n".join(context_window), attachment]
+    #         emoji = reaction_model.generate_content(prompt_with_image)
+    #         try:
+    #             re_match = emoji_patten.search(emoji.text.strip())
+    #             if re_match:
+    #                 return re_match.group(0)
+    #             else:
+    #                 return emoji.text.strip()
+    #         except Exception:
+    #             re_match = emoji_patten.search(emoji.text.strip())
+    #             if re_match:
+    #                 return re_match.group(0)
+    #             return emoji.candidates[0].strip()
+
+    #     emoji = reaction_model.generate_content("\n".join(context_window))
+    #     try:
+    #         return str(emoji.text)
+    #     except Exception:
+    #         return str(emoji.candidates[0])
+
+    # This needs to be reworked. 
+    def generate_reaction(prompt, channel_id, attachment=None):
+        reaction_model = genai.GenerativeModel(model_name=config["GEMINI"]["AI_MODEL"], system_instruction=prompt)
+
+        if attachment:
+            prompt_with_image = ["\n".join(context_window[channel_id]), attachment]
+            emoji = reaction_model.generate_content(prompt_with_image)
+            
+            response = emoji.text or emoji.candidates[0]
+            context_window[channel_id].append(f"You reacted with this emoji {response}")
+            
+            return response
+        
+        else:
+            ctx_window = "\n".join(context_window[channel_id])
+            emoji = reaction_model.generate_content(ctx_window[channel_id])
+            
+            response = emoji.text or emoji.candidates[0]
+            context_window[channel_id].append(f"You reacted with this emoji {response}")
+            return response
+        

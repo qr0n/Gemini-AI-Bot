@@ -17,8 +17,12 @@ bot = commands.Bot(command_prefix=commands.when_mentioned_or("!"), intents=inten
 
 @bot.event
 async def setup_hook():
-    for filename in os.listdir('D:/Python/Gemini-AI-Bot/v0.5a/cogs'):
+    for filename in os.listdir('D:/Python/Gemini-AI-Bot/v0.7a/cogs'):
         if filename.endswith('.py'):
             await bot.load_extension(f'cogs.{filename[:-3]}')
+
+@bot.command()
+async def test(ctx):
+    await ctx.send("+:fire:")
 
 bot.run(config["BOT_TOKEN"])
