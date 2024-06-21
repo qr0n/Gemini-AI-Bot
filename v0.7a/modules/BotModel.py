@@ -205,15 +205,15 @@ class BotModel:
             emoji = reaction_model.generate_content(prompt_with_image)
             
             response = emoji.text or emoji.candidates[0]
-            context_window[channel_id].append(f"You reacted with this emoji {response}")
+            #context_window[channel_id].append(f"You reacted with this emoji {response}")
             
             return response
         
         else:
-            ctx_window = "\n".join(context_window[channel_id])
-            emoji = reaction_model.generate_content(ctx_window[channel_id])
+            context = '\n'.join(context_window[channel_id])
+            emoji = reaction_model.generate_content(context)
             
             response = emoji.text or emoji.candidates[0]
-            context_window[channel_id].append(f"You reacted with this emoji {response}")
+            #context_window[channel_id].append(f"You reacted with this emoji {response}")
             return response
         

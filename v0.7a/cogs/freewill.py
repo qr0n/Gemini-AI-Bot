@@ -20,6 +20,7 @@ class Freewill(commands.Cog):
     @commands.Cog.listener("on_message")
     async def freewill(self, message : Message):
         if config["FREEWILL"]["enabled"]:
+
             if message.author.id == self.bot.user.id:
                 return
             
@@ -29,8 +30,8 @@ class Freewill(commands.Cog):
             channel_id = message.channel.id
             text_frequency = config["FREEWILL"]["text_frequency"]
             reaction_frequency = config["FREEWILL"]["reaction_frequency"]
-            keywords = config["FREEWILL"]["keywords"]
-            keyword_multiplier = config["FREEWILL"]["keywords_multiplier"] or 0
+            keywords = config["FREEWILL"]["keywords"] or None
+            keyword_added_chance = 0
             
             if channel_id not in context_window:
                 context_window[message.channel.id] = []
@@ -40,8 +41,13 @@ class Freewill(commands.Cog):
 
             context_window[message.channel.id].append(f"{message.author.display_name}: {message.content}")
 
+            print(context_window)
 
-            if random.random() < text_frequency:
+            for i in keywords:
+                if i.lower() in message.content.lower():
+                    keyword_added_chance = config["FREEWILL"]["keywords_added_chance"]
+
+            if random.random() < min(text_frequency + keyword_added_chance, 1.0):
                 prompt_plus = "You are now engaging or adding your own thoughts to this conversation, keep your reply as short as possible but make sure it makes sense and is relevant to the current topic. You will never roleplay as someone you are not instructed to roleplay as, you will use the language last used in your context window to make a response. You must not assume the conversation relates to you."
 
                 remembered_memories = Memories().compare_memories(channel_id, message.content)
@@ -56,25 +62,24 @@ class Freewill(commands.Cog):
                     save_name = f"{message.guild.id}-{message.id}-{message.attachments[0].filename}"
                     await message.attachments[0].save(save_name)
                     image = Image.open(save_name)
-                    full_prompt = prompt_plus
-                    await message.reply(BotModel.generate_content(full_prompt, channel_id, image), mention_author=False, allowed_mentions=allowed_mentions)
+                    await message.reply(BotModel.generate_content(prompt_plus, channel_id, image), mention_author=False, allowed_mentions=allowed_mentions)
                     image.close() # download attachments[0] in `attachments`
                 else:
                     await message.reply(BotModel.generate_content(prompt, channel_id), mention_author=False, allowed_mentions=allowed_mentions)
 
-            if random.random() < reaction_frequency:
+            if random.random() < min(reaction_frequency + keyword_added_chance, 1.0):
                 prompt_plus = "You are 'Sponge'. You have been given the ability to be allowed to express your current thoughts on this conversation via means of a reaction, use any standard emoji to react you must use unicode to react, you can only use ONE emoji to react you MUST represent this emoji in unicode ()"
                 
                 if message.attachments:
                     save_name = f"{message.guild.id}-{message.id}-{message.attachments[0].filename}"
                     await message.attachments[0].save(save_name)
                     image = Image.open(save_name)
-                    content = BotModel.generate_reaction(prompt_plus, context_window[channel_id], image)
+                    content = BotModel.generate_reaction(prompt_plus, channel_id, image)
                     print("space" + content + "space")
                     await message.add_reaction(content)
                     image.close() # download attachments[0] in `attachments` 
                 else:
-                    content = BotModel.generate_reaction(prompt_plus, context_window[channel_id])
+                    content = BotModel.generate_reaction(prompt_plus, channel_id)
                     print("space" + content + "space")
                     await message.add_reaction(content)
 
