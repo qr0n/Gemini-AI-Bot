@@ -106,64 +106,7 @@ model = genai.GenerativeModel(config["GEMINI"]["AI_MODEL"], system_instruction=r
 
 class BotModel:
     # Generate content
-    def old_generate_content(prompt, channel_id=None, attachment=None, retry=3):
-        """
-        prompt: str
-        channel_id : str (guild-user)
-        attachment : Image (PIL) = None
-        retry : int = 3
-        Assumes if attachment is present, it will be appended to the context window from cog
-        """
-        character_name = load_character_details()['name']
-        context = '\n'.join(context_window[channel_id])
-        _prompt = prompt + "\n" + context
-        if attachment:
-            image_addon = "Describe this peice of media to yourself in a way that if referenced again, you will be able to answer any potential question asked."
-            full_prompt = [_prompt, "\n", image_addon, "\n", attachment]
-            try:
-                response = model.generate_content(full_prompt).text
-                context_window[channel_id].append(f"{character_name}: {response.strip()}")
-                return response
-            except Exception as error:
-                print("BotModel.py: Error: While generating a response, this exception occured", error)
-                retry_count = 0
-                while retry_count < retry:
-                    response = model.generate_content(full_prompt).candidates
-                    return response[0]
-                else:
-                    try:
-                        context_window[channel_id].pop(0)
-                    except IndexError or KeyError:
-                        pass
-                    return "Sorry, could you please repeat that?"
-        try:
-            response = model.generate_content(_prompt).text
-            # Strip bot's name from the response
-            response = response[len(f"{character_name}: "):] if response.startswith(f"{character_name}: ") else response
-            context_window[channel_id].append(f"{character_name}: {response.strip()}")
-            return response
-        except Exception as error:
-            print(f"Botmodel.py: Error: generating response: {error}")
-            retry_count = 0
-            while retry_count < retry:  # Adjust the retry count as needed
-                try:
-                    response_goog = model.generate_content(_prompt)
-                    response = response_goog.candidates[0]
-                    # Strip bot's name from the response
-                    response = response[len(f"{character_name}: "):] if str(response).startswith(f"{character_name}: ") else response
-                    context_window[channel_id].append(f"{character_name}: {response.strip()}")
-                    return response
-                except Exception as E:
-                    print(f"Error generating response (retry {retry_count}): {E}")
-                    retry_count += 1
-            else:
-                try:
-                    context_window[channel_id].pop(0)
-                except KeyError or IndexError:
-                    pass
-                return "Sorry, could you please repeat that?"
-            
-    def generate_content(prompt, channel_id=None, attachment=None, retry=3):
+    async def generate_content(prompt, channel_id=None, attachment=None, retry=3):
         """
         prompt: str
         channel_id : str (guild-user)
@@ -181,19 +124,20 @@ class BotModel:
         else:
             full_prompt = [_prompt]
 
+        response = await model.generate_content_async(full_prompt)
+
         try:
-            response = model.generate_content(full_prompt).text
-            context_window[channel_id].append(f"{character_name}: {response.strip()}")
-            return response
+            context_window[channel_id].append(f"{character_name}: {response.text.strip()}")
+            return response.text
         except Exception as error:
             print("BotModel.py: Error: While generating a response, this exception occurred", error)
     
         retry_count = 0
         while retry_count < retry:
-            try:
-                response = model.generate_content(full_prompt).candidates[0].content.parts
-                context_window[channel_id].append(f"{character_name}: {str(response).strip()}")
-                return response
+            try: 
+                fall_back_response = response.candidates[0].content.parts
+                context_window[channel_id].append(f"{character_name}: {str(fall_back_response).strip()}")
+                return fall_back_response
             except Exception as E:
                 print(f"Error generating response (retry {retry_count}): {E}")
                 retry_count += 1
@@ -204,23 +148,23 @@ class BotModel:
             pass
         return config["MESSAGES"]["error"] or "Sorry, could you please repeat that?"
     
-    def generate_reaction(prompt, channel_id, attachment=None):
-        reaction_model = genai.GenerativeModel(model_name=config["GEMINI"]["AI_MODEL"], system_instruction=prompt)
+    # async def generate_reaction(prompt, channel_id, attachment=None):
+    #     reaction_model = genai.GenerativeModel(model_name=config["GEMINI"]["AI_MODEL"], system_instruction=prompt)
 
-        if attachment:
-            prompt_with_image = ["\n".join(context_window[channel_id]), attachment]
-            emoji = reaction_model.generate_content(prompt_with_image)
+    #     if attachment:
+    #         prompt_with_image = ["\n".join(context_window[channel_id]), attachment]
+    #         emoji = await reaction_model.generate_content_async(prompt_with_image)
             
-            response = emoji.text or emoji.candidates[0]
-            #context_window[channel_id].append(f"You reacted with this emoji {response}")
+    #         response = emoji.text or emoji.candidates[0]
+    #         #context_window[channel_id].append(f"You reacted with this emoji {response}")
             
-            return response
+    #         return response
         
-        else:
-            context = '\n'.join(context_window[channel_id])
-            emoji = reaction_model.generate_content(context)
+    #     else:
+    #         context = '\n'.join(context_window[channel_id])
+    #         emoji = reaction_model.generate_content(context)
             
-            response = emoji.text or emoji.candidates[0]
-            #context_window[channel_id].append(f"You reacted with this emoji {response}")
-            return response
+    #         response = emoji.text or emoji.candidates[0]
+    #         #context_window[channel_id].append(f"You reacted with this emoji {response}")
+    #         return response
         

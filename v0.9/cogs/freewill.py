@@ -30,7 +30,7 @@ class Freewill(commands.Cog):
 
             channel_id = message.channel.id
             text_frequency = config["FREEWILL"]["text_frequency"]
-            reaction_frequency = config["FREEWILL"]["reaction_frequency"]
+            # reaction_frequency = config["FREEWILL"]["reaction_frequency"]
             keywords = config["FREEWILL"]["keywords"] or None
             keyword_added_chance = 0
             
@@ -69,22 +69,22 @@ class Freewill(commands.Cog):
                 else:
                     await message.reply(BotModel.generate_content(prompt, channel_id), mention_author=False, allowed_mentions=allowed_mentions)
 
-            if random.random() < min(reaction_frequency + keyword_added_chance, 1.0):
-                prompt_plus = "You are 'Sponge'. You have been given the ability to be allowed to express your current thoughts on this conversation via means of a reaction, use any standard emoji to react you must use unicode to react, you can only use ONE emoji to react you MUST represent this emoji in unicode ()"
+            # if random.random() < min(reaction_frequency + keyword_added_chance, 1.0):
+            #     prompt_plus = "You are 'Sponge'. You have been given the ability to be allowed to express your current thoughts on this conversation via means of a reaction, use any standard emoji to react you must use unicode to react, you can only use ONE emoji to react you MUST represent this emoji in unicode ()"
                 
-                if message.attachments:
-                    save_name = f"{message.guild.id}-{message.id}-{message.attachments[0].filename}"
-                    await message.attachments[0].save(save_name) # download attachments[0]
-                    image = Image.open(save_name)
-                    content = BotModel.generate_reaction(prompt_plus, channel_id, image)
-                    print("space" + content + "space")
-                    await message.add_reaction(content)
-                    image.close()
-                    os.remove(save_name) 
-                else:
-                    content = BotModel.generate_reaction(prompt_plus, channel_id)
-                    print("space" + content + "space")
-                    await message.add_reaction(content)
+            #     if message.attachments:
+            #         save_name = f"{message.guild.id}-{message.id}-{message.attachments[0].filename}"
+            #         await message.attachments[0].save(save_name) # download attachments[0]
+            #         image = Image.open(save_name)
+            #         content = BotModel.generate_reaction(prompt_plus, channel_id, image)
+            #         print("space" + content + "space")
+            #         await message.add_reaction(content)
+            #         image.close()
+            #         os.remove(save_name) 
+            #     else:
+            #         content = BotModel.generate_reaction(prompt_plus, channel_id)
+            #         print("space" + content + "space")
+            #         await message.add_reaction(content)
 
 async def setup(bot : commands.Bot):
     await bot.add_cog(Freewill(bot))
