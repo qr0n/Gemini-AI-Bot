@@ -38,13 +38,13 @@ class MessagerBeta(commands.Cog, name="Gemini AI Bot - Beta"):
         ctx = await self.bot.get_context(message)
         channel_id = ctx.channel.id
         
-        with open("activation.json", "r") as ul_activated_channels:
-            activated_channels: dict = json.load(ul_activated_channels)
+        with open("./activation.json", "r") as ul_activated_channels:
+            activated_channels = json.load(ul_activated_channels)
 
         if message.author.id == self.bot.user.id:
             return
         
-        if not self.bot.user.mentioned_in(message):
+        if not self.bot.user.mentioned_in(message) or not activated_channels[str(ctx.channel.id)]:
             return
         
         if channel_id not in context_window:
@@ -86,7 +86,10 @@ class MessagerBeta(commands.Cog, name="Gemini AI Bot - Beta"):
         if channel_id not in context_window:
             context_window[channel_id] = []
             
-        context_window[channel_id].append(f"{user.name} reacted with '{reaction.emoji}' to your message '{reaction.message.content}'")
+        if reaction.emoji is not "♻":
+            context_window[channel_id].append(f"{user.name} reacted with '{reaction.emoji}' to your message '{reaction.message.content}'")
+        else:
+            pass # do regeneration logic, pop last message in context window, get last message sent in channel, regenerate response
 
     @commands.command()
     async def wack(self, ctx):
@@ -101,7 +104,7 @@ class MessagerBeta(commands.Cog, name="Gemini AI Bot - Beta"):
     
     @commands.command()
     async def dump_ctx_window(self, ctx):
-        filename = str(datetime.datetime.now().timestamp()) + ".json" 
+        filename = str(datetime.datetime.now().timestamp()) + ".txt" 
         with open(filename, "w") as new_context_window:
             new_context_window.write(str(context_window))
             new_context_window.close()
