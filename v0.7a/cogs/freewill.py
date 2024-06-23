@@ -1,5 +1,6 @@
 import json
 import random
+import os
 from discord.ext import commands
 from discord import Message, AllowedMentions
 from modules.ContextWindow import ContextWindow
@@ -60,10 +61,11 @@ class Freewill(commands.Cog):
 
                 if message.attachments:
                     save_name = f"{message.guild.id}-{message.id}-{message.attachments[0].filename}"
-                    await message.attachments[0].save(save_name)
+                    await message.attachments[0].save(save_name) # download attachments[0]
                     image = Image.open(save_name)
                     await message.reply(BotModel.generate_content(prompt_plus, channel_id, image), mention_author=False, allowed_mentions=allowed_mentions)
-                    image.close() # download attachments[0] in `attachments`
+                    image.close()
+                    os.remove(save_name)
                 else:
                     await message.reply(BotModel.generate_content(prompt, channel_id), mention_author=False, allowed_mentions=allowed_mentions)
 
@@ -72,12 +74,13 @@ class Freewill(commands.Cog):
                 
                 if message.attachments:
                     save_name = f"{message.guild.id}-{message.id}-{message.attachments[0].filename}"
-                    await message.attachments[0].save(save_name)
+                    await message.attachments[0].save(save_name) # download attachments[0]
                     image = Image.open(save_name)
                     content = BotModel.generate_reaction(prompt_plus, channel_id, image)
                     print("space" + content + "space")
                     await message.add_reaction(content)
-                    image.close() # download attachments[0] in `attachments` 
+                    image.close()
+                    os.remove(save_name) 
                 else:
                     content = BotModel.generate_reaction(prompt_plus, channel_id)
                     print("space" + content + "space")

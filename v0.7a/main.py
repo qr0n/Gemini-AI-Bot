@@ -21,8 +21,4 @@ async def setup_hook():
         if filename.endswith('.py'):
             await bot.load_extension(f'cogs.{filename[:-3]}')
 
-@bot.command()
-async def test(ctx):
-    await ctx.send("+:fire:")
-
 bot.run(config["BOT_TOKEN"])

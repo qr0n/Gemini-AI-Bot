@@ -1,6 +1,7 @@
 import json
 import datetime
 import aiohttp
+import os
 from discord.ext import commands
 from discord import Message, Reaction, AllowedMentions
 from modules.Memories import Memories
@@ -66,10 +67,11 @@ class MessagerBeta(commands.Cog, name="Gemini AI Bot - Beta"):
 
         if attachments:
             save_name = f"{message.guild.id}-{message.id}-{ctx.message.attachments[0].filename}"
-            await ctx.message.attachments[0].save(save_name)
+            await ctx.message.attachments[0].save(save_name) # download attachments[0] 
             image = Image.open(save_name)
             await ctx.reply(BotModel.generate_content(prompt, channel_id, image), mention_author=False, allowed_mentions=allowed_mentions)
-            image.close() # download attachments[0] in `attachments` 
+            image.close()
+            os.remove(save_name) # deletes file
         else:
             await ctx.reply(BotModel.generate_content(prompt, channel_id), mention_author=False, allowed_mentions=allowed_mentions)
 

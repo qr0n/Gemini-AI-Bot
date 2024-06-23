@@ -115,7 +115,6 @@ class Memories:
             result[special_phrase] = memory
     
         return result
-
     
     def is_worth_remembering(self, context):
         prompt = """
@@ -142,9 +141,9 @@ Provide your response in a JSON format {"is_worth" : true/false, "special_phrase
         full_prompt = prompt + "\n" + context
         try:
             unloaded_json = model.generate_content(full_prompt).text
-            print(unloaded_json)
-            json_parsed = json.loads(unloaded_json)
-            return json_parsed
+            clean_json = json.loads(self.clean_json(unloaded_json))
+            print(clean_json)
+            return clean_json
         except Exception as E:
             print(E)
         
@@ -183,9 +182,14 @@ List of phrases: {", ".join(entries)}
 """
         try:
             unloaded_json = comparing_model.generate_content(message_list).text
-            print(unloaded_json)
-            json_parsed = json.loads(unloaded_json)
-            return json_parsed
+            clean_json = json.loads(self.clean_json(unloaded_json))
+            return clean_json
         except Exception as E:
             print(E)
             return {"is_similar" : False, "special_phrase" : None}
+        
+    def clean_json(self, json : str):
+        if json.startswith("```json") and json.endswith("```"):
+            return json[7:-3]
+        else:
+            return json

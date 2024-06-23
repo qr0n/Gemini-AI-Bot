@@ -106,7 +106,7 @@ model = genai.GenerativeModel(config["GEMINI"]["AI_MODEL"], system_instruction=r
 
 class BotModel:
     # Generate content
-    def generate_content(prompt, channel_id=None, attachment=None, retry=3):
+    def old_generate_content(prompt, channel_id=None, attachment=None, retry=3):
         """
         prompt: str
         channel_id : str (guild-user)
@@ -150,7 +150,7 @@ class BotModel:
                     response_goog = model.generate_content(_prompt)
                     response = response_goog.candidates[0]
                     # Strip bot's name from the response
-                    response = response[len(f"{character_name}: "):] if response.startswith(f"{character_name}: ") else response
+                    response = response[len(f"{character_name}: "):] if str(response).startswith(f"{character_name}: ") else response
                     context_window[channel_id].append(f"{character_name}: {response.strip()}")
                     return response
                 except Exception as E:
@@ -162,41 +162,48 @@ class BotModel:
                 except KeyError or IndexError:
                     pass
                 return "Sorry, could you please repeat that?"
+            
+    def generate_content(prompt, channel_id=None, attachment=None, retry=3):
+        """
+        prompt: str
+        channel_id : str (guild-user)
+        attachment : Image (PIL) = None
+        retry : int = 3
+        Assumes if attachment is present, it will be appended to the context window from cog
+        """
+        character_name = load_character_details()['name']
+        context = '\n'.join(context_window[channel_id])
+        _prompt = prompt + "\n" + context
+
+        if attachment:
+            image_addon = "Describe this piece of media to yourself in a way that if referenced again, you will be able to answer any potential question asked."
+            full_prompt = [_prompt, "\n", image_addon, "\n", str(attachment)]
+        else:
+            full_prompt = [_prompt]
+
+        try:
+            response = model.generate_content(full_prompt).text
+            context_window[channel_id].append(f"{character_name}: {response.strip()}")
+            return response
+        except Exception as error:
+            print("BotModel.py: Error: While generating a response, this exception occurred", error)
     
-    # def generate_reaction(prompt, context_window : list, attachment=None):
-    #     reaction_model = genai.GenerativeModel(model_name=config["GEMINI"]["AI_MODEL"], system_instruction=prompt)
+        retry_count = 0
+        while retry_count < retry:
+            try:
+                response = model.generate_content(full_prompt).candidates[0]
+                context_window[channel_id].append(f"{character_name}: {response.strip()}")
+                return response
+            except Exception as E:
+                print(f"Error generating response (retry {retry_count}): {E}")
+                retry_count += 1
 
-    #     emoji_patten = re.compile("["   
-    #     "\U0001F600-\U0001F64F"  # emoticons
-    #     "\U0001F300-\U0001F5FF"  # symbols & pictographs
-    #     "\U0001F680-\U0001F6FF"  # transport & map symbols
-    #     "\U0001F1E0-\U0001F1FF"  # flags (iOS)
-    #     "\U00002702-\U000027B0"  # Dingbats
-    #     "\U000024C2-\U0001F251" 
-    #     "]+", flags=re.UNICODE)
-
-    #     if attachment:
-    #         prompt_with_image = ["\n".join(context_window), attachment]
-    #         emoji = reaction_model.generate_content(prompt_with_image)
-    #         try:
-    #             re_match = emoji_patten.search(emoji.text.strip())
-    #             if re_match:
-    #                 return re_match.group(0)
-    #             else:
-    #                 return emoji.text.strip()
-    #         except Exception:
-    #             re_match = emoji_patten.search(emoji.text.strip())
-    #             if re_match:
-    #                 return re_match.group(0)
-    #             return emoji.candidates[0].strip()
-
-    #     emoji = reaction_model.generate_content("\n".join(context_window))
-    #     try:
-    #         return str(emoji.text)
-    #     except Exception:
-    #         return str(emoji.candidates[0])
-
-    # This needs to be reworked. 
+        try:
+            context_window[channel_id].pop(0)
+        except (IndexError, KeyError):
+            pass
+        return "Sorry, could you please repeat that?"
+    
     def generate_reaction(prompt, channel_id, attachment=None):
         reaction_model = genai.GenerativeModel(model_name=config["GEMINI"]["AI_MODEL"], system_instruction=prompt)
 
