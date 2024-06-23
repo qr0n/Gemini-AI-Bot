@@ -14,7 +14,7 @@
 ```bash
 pip install -r requirements.txt
 ```
-##### Make sure to edit the `config.json`
+##### Make sure to edit the `config.json` (v0.9)
 ```json
 {
     "SQL_CREDENTIALS" : {
@@ -29,15 +29,18 @@ pip install -r requirements.txt
         "MAX_CONTEXT_WINDOW" : 20
     },
     "FREEWILL": {
-        "enabled" : true,
-        "text_frequency" : 1,
-        "reaction_frequency" : 1,
+        "enabled" : false,
+        "text_frequency" : 0,
+        "reaction_frequency" : 0,
         "keywords_added_chance" : 1,
         "keywords" : [""]
     },
-    "API_KEY" : "",
-    "AI_MODEL" : "models/gemini-1.5-flash-latest",
-    "MAX_CONTEXT_WINDOW" : 20,
+    "MESSAGES" : {
+        "wack" : 0,
+        "wack_error" : 0,
+        "error" : 0 
+    },
+
     "BOT_TOKEN" : ""
 }
 ``` 
