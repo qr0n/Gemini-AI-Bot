@@ -22,7 +22,7 @@ db_config = {
 
 conn = mysql.connector.connect(**db_config)
 cursor = conn.cursor()
-max_context_window = config["MAX_CONTEXT_WINDOW"] # TODO: need to patch unlimited context window
+max_context_window = config["GEMINI"]["MAX_CONTEXT_WINDOW"] # TODO: need to patch unlimited context window
 
 class Memories:
     def __init__(self):
@@ -175,7 +175,7 @@ Objective:
     5. Provide your response in this JSON schema {json_format} without ANY formatting ie.. no backticks '`' no syntax highlighting, no numbered lists.
 
 """     
-        comparing_model = genai.GenerativeModel(config["AI_MODEL"], system_instruction=system_instruction)
+        comparing_model = genai.GenerativeModel(config["GEMINI"]["AI_MODEL"], system_instruction=system_instruction)
         message_list = f"""
 Message: {message}
 List of phrases: {", ".join(entries)}

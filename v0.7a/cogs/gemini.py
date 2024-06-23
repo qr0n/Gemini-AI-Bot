@@ -52,7 +52,7 @@ class MessagerBeta(commands.Cog, name="Gemini AI Bot - Beta"):
 
         context_window[channel_id].append(f"{message.author.display_name}: {message.content}") # REIMPLEMENT THIS EVERYWHERE THIS STANDARD IS NOT BEING USED EVERYWHERE
 
-        if len(context_window[channel_id]) > config["MAX_CONTEXT_WINDOW"]:
+        if len(context_window[channel_id]) > config["GEMINI"]["MAX_CONTEXT_WINDOW"]:
             context_window[channel_id].pop(0)
         
         await ctx.channel.typing()
