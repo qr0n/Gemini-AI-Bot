@@ -127,8 +127,9 @@ class BotModel:
         response = await model.generate_content_async(full_prompt)
 
         try:
-            context_window[channel_id].append(f"{character_name}: {response.text.strip()}")
-            return response.text
+            text = response.text.strip()
+            context_window[channel_id].append(f"{character_name}: {text}")
+            return text
         except Exception as error:
             print("BotModel.py: Error: While generating a response, this exception occurred", error)
     
@@ -137,7 +138,7 @@ class BotModel:
             try: 
                 fall_back_response = response.candidates[0].content.parts
                 context_window[channel_id].append(f"{character_name}: {str(fall_back_response).strip()}")
-                return fall_back_response
+                return str(fall_back_response).strip()
             except Exception as E:
                 print(f"Error generating response (retry {retry_count}): {E}")
                 retry_count += 1

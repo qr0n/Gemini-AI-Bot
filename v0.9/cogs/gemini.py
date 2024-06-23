@@ -59,7 +59,7 @@ class MessagerBeta(commands.Cog, name="Gemini AI Bot - Beta"):
 
         attachments = ctx.message.attachments
 
-        remembered_memories = Memories().compare_memories(channel_id, ctx.message.content)
+        remembered_memories = await Memories().compare_memories(channel_id, ctx.message.content)
         if remembered_memories["is_similar"]:
             prompt = read_prompt(ctx.message, remembered_memories['similar_phrase'])
         else:
@@ -69,11 +69,11 @@ class MessagerBeta(commands.Cog, name="Gemini AI Bot - Beta"):
             save_name = f"{message.guild.id}-{message.id}-{ctx.message.attachments[0].filename}"
             await ctx.message.attachments[0].save(save_name) # download attachments[0] 
             image = Image.open(save_name)
-            await ctx.reply(BotModel.generate_content(prompt, channel_id, image), mention_author=False, allowed_mentions=allowed_mentions)
+            await ctx.reply(await BotModel.generate_content(prompt, channel_id, image), mention_author=False, allowed_mentions=allowed_mentions)
             image.close()
             os.remove(save_name) # deletes file
         else:
-            await ctx.reply(BotModel.generate_content(prompt, channel_id), mention_author=False, allowed_mentions=allowed_mentions)
+            await ctx.reply(await BotModel.generate_content(prompt, channel_id), mention_author=False, allowed_mentions=allowed_mentions)
 
     @commands.Cog.listener("on_reaction_add")
     async def on_rxn_add(self, reaction : Reaction, user):

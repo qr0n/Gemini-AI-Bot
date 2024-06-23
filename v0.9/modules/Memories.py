@@ -55,44 +55,54 @@ class Memories:
             "description": description
         }
     
-    def summarize_context_window(self, channel_id, retry=3):
+    async def summarize_context_window(self, channel_id, retry=3):
         prompt = f"You're an AI LLM, who's only purpose is to summarize large but concise summaries on text provided to you, try to retain most of the information! Your first task is to summarize this conversation from the perspective of {self.character_name} --- Conversation Start ---\n{'\n'.join(context_window[channel_id])} --- Conversation End ---"
         
+        response = await model.generate_content_async(prompt)
+        
         try:
-            response = model.generate_content(prompt).text
-            return response
+            return response.text
         except Exception as E:
             print(f"Error generating response: {E}")
             retry_count = 0
             while retry_count < retry:  # Adjust the retry count as needed
                 try:
-                    response = model.generate_content(prompt).text
-                    return response
+                    fall_back_response = response.candidates[0].content.parts
+                    return fall_back_response
                 except Exception as E:
                     print(f"Error generating response (retry {retry_count}): {E}")
                     retry_count += 1
             else:
                 return ""
             
-    def save_to_memory(self, message : Message, force=False):
+    async def save_to_memory(self, message : Message, force=False):
         channel_id = message.channel.id
+
         if force:
-            sql = "INSERT INTO memories (channel_id, special_phrase, memory) VALUES (%s, %s, %s)" # change this on DB
-            summary_of_context_window = self.summarize_context_window(channel_id)
-            special_phrase = self.is_worth_remembering(context='\n'.join(context_window[channel_id]))["special_phrase"]
+            sql = "INSERT INTO memories (channel_id, special_phrase, memory) VALUES (%s, %s, %s)"
+            summary_of_context_window = await self.summarize_context_window(channel_id)
+
+            special_phrase = await self.is_worth_remembering(context='\n'.join(context_window[channel_id]))["special_phrase"]
             values = (channel_id, special_phrase, summary_of_context_window)
+
             cursor.execute(sql, values)
             conn.commit()
+            
             print(f"Saved message: {message.content}\nTo memory: {summary_of_context_window}\nFor: {channel_id}")
+
         if len(context_window[channel_id]) == max_context_window:
-            is_worth = self.is_worth_remembering(context='\n'.join(context_window[channel_id]))
+            is_worth = await self.is_worth_remembering(context='\n'.join(context_window[channel_id]))
             if is_worth['is_worth']:
+            
                 sql = "INSERT INTO memories (channel_id, special_phrase, memory) VALUES (%s, %s, %s)"
-                summary_of_context_window = self.summarize_context_window(channel_id)
-                special_phrase = self.is_worth_remembering(context='\n'.join(context_window[channel_id]))["special_phrase"]
+                summary_of_context_window = await self.summarize_context_window(channel_id)
+            
+                special_phrase = await self.is_worth_remembering(context='\n'.join(context_window[channel_id]))["special_phrase"]
                 values = (channel_id, special_phrase, summary_of_context_window)
+            
                 cursor.execute(sql, values)
                 conn.commit()
+            
                 print(f"Saved message: {message.content}\nTo memory: {summary_of_context_window}\nFor: {channel_id}")
     
     def fetch_and_sort_entries(self, channel_id):
@@ -116,7 +126,7 @@ class Memories:
     
         return result
     
-    def is_worth_remembering(self, context):
+    async def is_worth_remembering(self, context):
         prompt = """
 Objective:
 Determine whether a conversation is worth remembering based on predefined criteria and if it is, provide ONE word from the entire conversation that you'd remember.
@@ -140,14 +150,14 @@ Provide your response in a JSON format {"is_worth" : true/false, "special_phrase
     """
         full_prompt = prompt + "\n" + context
         try:
-            unloaded_json = model.generate_content(full_prompt).text
-            clean_json = json.loads(self.clean_json(unloaded_json))
+            unloaded_json = await model.generate_content_async(full_prompt)
+            clean_json = json.loads(self.clean_json(unloaded_json.text))
             print(clean_json)
             return clean_json
         except Exception as E:
             print(E)
         
-    def compare_memories(self, channel_id, message):
+    async def compare_memories(self, channel_id, message):
         
         json_format = """{"is_similar" : true/false, "similar_phrase" : the phrase in [Message 2]}"""
         entries = self.fetch_and_sort_entries(channel_id).keys()
@@ -181,8 +191,8 @@ Message: {message}
 List of phrases: {", ".join(entries)}
 """
         try:
-            unloaded_json = comparing_model.generate_content(message_list).text
-            clean_json = json.loads(self.clean_json(unloaded_json))
+            unloaded_json = await comparing_model.generate_content_async(message_list)
+            clean_json = json.loads(self.clean_json(unloaded_json.text))
             return clean_json
         except Exception as E:
             print(E)

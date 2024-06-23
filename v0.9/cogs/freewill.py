@@ -63,11 +63,11 @@ class Freewill(commands.Cog):
                     save_name = f"{message.guild.id}-{message.id}-{message.attachments[0].filename}"
                     await message.attachments[0].save(save_name) # download attachments[0]
                     image = Image.open(save_name)
-                    await message.reply(BotModel.generate_content(prompt_plus, channel_id, image), mention_author=False, allowed_mentions=allowed_mentions)
+                    await message.reply(await BotModel.generate_content(prompt_plus, channel_id, image), mention_author=False, allowed_mentions=allowed_mentions)
                     image.close()
                     os.remove(save_name)
                 else:
-                    await message.reply(BotModel.generate_content(prompt, channel_id), mention_author=False, allowed_mentions=allowed_mentions)
+                    await message.reply(await BotModel.generate_content(prompt, channel_id), mention_author=False, allowed_mentions=allowed_mentions)
 
             # if random.random() < min(reaction_frequency + keyword_added_chance, 1.0):
             #     prompt_plus = "You are 'Sponge'. You have been given the ability to be allowed to express your current thoughts on this conversation via means of a reaction, use any standard emoji to react you must use unicode to react, you can only use ONE emoji to react you MUST represent this emoji in unicode ()"
