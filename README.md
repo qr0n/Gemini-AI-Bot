@@ -33,6 +33,7 @@ pip install -r requirements.txt
     "API_KEY" : "",
     "AI_MODEL" : "models/gemini-1.5-flash-latest",
     "MAX_CONTEXT_WINDOW" : 20,
-    "BOT_TOKEN" : ""}
+    "BOT_TOKEN" : ""
+}
 ``` 
 #### Also, if there is need of a database helper, run `sqlhelper.py`, just remember to put your SQL credentials in.
