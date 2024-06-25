@@ -24,24 +24,13 @@ async def upload_attachment(attachment : genai.types.File):
         await asyncio.sleep(0.5)
     return genai.get_file(attachment.name)
     
-import json
-import os
-from discord.ext import commands
-
-class AIListener(commands.Cog):
+class Messager(commands.Cog, name="Gemini AI Bot - Beta"):
+    # Implement reactions to reactions (discord)
     def __init__(self, bot):
-        self.bot = bot
-        self.context_window = {}
-        self.config = self.load_config()
-    
-    def load_config(self):
-        with open("./config.json", "r") as config_file:
-            return json.load(config_file)
+        self.bot: commands.Bot = bot
     
     @commands.Cog.listener('on_message')
-    async def ai_listen(self, message):
-        if message.author.id == self.bot.user.id:
-            return
+    async def ai_listen(self, message : Message):
         
         ctx = await self.bot.get_context(message)
         channel_id = ctx.channel.id
@@ -49,39 +38,44 @@ class AIListener(commands.Cog):
         with open("./activation.json", "r") as ul_activated_channels:
             activated_channels = json.load(ul_activated_channels)
 
-        if not self.bot.user.mentioned_in(message) or not activated_channels.get(str(channel_id)):
+        if message.author.id == self.bot.user.id:
             return
+        
+        if not self.bot.user.mentioned_in(message) or not activated_channels[str(ctx.channel.id)]:
+            return
+        
+        if channel_id not in context_window:
+            context_window[channel_id] = []
 
-        if channel_id not in self.context_window:
-            self.context_window[channel_id] = []
+        context_window[channel_id].append(f"{message.author.display_name}: {message.content}") # REIMPLEMENT THIS EVERYWHERE THIS STANDARD IS NOT BEING USED EVERYWHERE
 
-        self.context_window[channel_id].append(f"{message.author.display_name}: {message.content}")
-
-        if len(self.context_window[channel_id]) > self.config["GEMINI"]["MAX_CONTEXT_WINDOW"]:
-            self.context_window[channel_id].pop(0)
+        if len(context_window[channel_id]) > config["GEMINI"]["MAX_CONTEXT_WINDOW"]:
+            context_window[channel_id].pop(0)
         
         await ctx.channel.typing()
 
-        remembered_memories = await Memories().compare_memories(channel_id, message.content)
-        if remembered_memories["is_similar"]:
-            prompt = read_prompt(message, remembered_memories['similar_phrase'])
-        else:
-            prompt = read_prompt(message)
+        attachments = ctx.message.attachments
 
-        attachments = message.attachments
-        if attachments and attachments[0].filename.lower().endswith((".png", ".jpg", ".webp", ".heic", ".heif", ".mp4", ".mpeg", ".mov", ".wmv")):
-            save_name = attachments[0].filename.lower()
-            await attachments[0].save(save_name)  # Download the attachment
+        remembered_memories = await Memories().compare_memories(channel_id, ctx.message.content)
+        if remembered_memories["is_similar"]:
+            prompt = read_prompt(ctx.message, remembered_memories['similar_phrase'])
+        else:
+            prompt = read_prompt(ctx.message)
+
+        if attachments and attachments[0].filename.endswith((".png", ".jpg", ".webp", ".heic", ".heif", ".mp4", ".mpeg", ".mov", ".wmv",)):
+            save_name = ctx.message.attachments[0].filename.lower()
+            await ctx.message.attachments[0].save(save_name) # download attachments[0]
             
             file = await upload_attachment(save_name)
-            
-            reply_content = await BotModel.generate_content(prompt, channel_id, file)
-            
-            os.remove(save_name)  # Delete the file locally
-        else:
-            reply_content = await BotModel.generate_content(prompt, channel_id)
 
-        await ctx.reply(reply_content, mention_author=False, allowed_mentions=allowed_mentions)
+            await ctx.reply(await BotModel.generate_content(prompt, channel_id, file), mention_author=False, allowed_mentions=allowed_mentions) # Send off file name to GenAI.upload_file 
+            # TODO Update in freewill
+            print(save_name)
+            # genai.delete_file(save_name) # deletes file on Google
+            
+            os.remove(save_name) # deletes file locally 
+        else:
+            await ctx.reply(await BotModel.generate_content(prompt, channel_id), mention_author=False, allowed_mentions=allowed_mentions)
 
     @commands.Cog.listener("on_reaction_add")
     async def on_rxn_add(self, reaction : Reaction, user):
@@ -128,4 +122,4 @@ class AIListener(commands.Cog):
             await ctx.reply("Activated.", mention_author=False)
              
 async def setup(bot : commands.Bot):
-	await bot.add_cog(AIListener(bot))
+	await bot.add_cog(Messager(bot))
