@@ -120,7 +120,9 @@ class BotModel:
 
         if attachment:
             image_addon = "Describe this piece of media to yourself in a way that if referenced again, you will be able to answer any potential question asked."
-            full_prompt = [_prompt, "\n", image_addon, "\n", str(attachment)]
+            # full_prompt = [_prompt, "\n", image_addon, "\n", attachment] # Old stuff, experimenting with google file api
+            # attachment_file = genai.upload_file(attachment)
+            full_prompt = [_prompt, "\n", attachment]
         else:
             full_prompt = [_prompt]
 
@@ -129,8 +131,14 @@ class BotModel:
         try:
             text = response.text.strip()
             context_window[channel_id].append(f"{character_name}: {text}")
+            
             return text
         except Exception as error:
+            if attachment:
+                print(attachment)
+                print(type(attachment))
+                # genai.delete_file(attachment) # Ensure the file gets deleted 
+
             print("BotModel.py: Error: While generating a response, this exception occurred", error)
     
         retry_count = 0

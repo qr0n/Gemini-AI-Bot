@@ -1,13 +1,13 @@
 import json
 import datetime
-import aiohttp
 import os
+import asyncio
+import google.generativeai as genai
 from discord.ext import commands
 from discord import Message, Reaction, AllowedMentions
 from modules.Memories import Memories
 from modules.ContextWindow import ContextWindow
 from modules.BotModel import read_prompt, BotModel
-from PIL import Image
 
 context_window = ContextWindow().context_window
 allowed_mentions = AllowedMentions(everyone=False, users=False, roles=False)
@@ -15,25 +15,33 @@ allowed_mentions = AllowedMentions(everyone=False, users=False, roles=False)
 with open("./config.json", "r") as ul_config:
     config = json.load(ul_config)
 
-async def download_attachment(attachment):
-    async with aiohttp.ClientSession() as session:
-        async with session.get(attachment.url) as response:
-            if response.status == 200:
-                file_content = await response.read()
-                # Save the file to the current directory
-                with open(attachment.filename, "wb") as file:
-                    file.write(file_content)
-                print(f'Downloaded {attachment.filename}')
-            else:
-                print(f'Failed to download {attachment.filename}')
+genai.configure(api_key=config["GEMINI"]["API_KEY"])
 
-class MessagerBeta(commands.Cog, name="Gemini AI Bot - Beta"):
-    # Implement reactions to reactions (discord)
+async def upload_attachment(attachment : genai.types.File):
+    genai_attach = genai.upload_file(attachment)
+    while genai_attach.state.name == "PROCESSING":
+        print("processing")
+        await asyncio.sleep(0.5)
+    return genai.get_file(attachment.name)
+    
+import json
+import os
+from discord.ext import commands
+
+class AIListener(commands.Cog):
     def __init__(self, bot):
-        self.bot: commands.Bot = bot
+        self.bot = bot
+        self.context_window = {}
+        self.config = self.load_config()
+    
+    def load_config(self):
+        with open("./config.json", "r") as config_file:
+            return json.load(config_file)
     
     @commands.Cog.listener('on_message')
-    async def ai_listen(self, message : Message):
+    async def ai_listen(self, message):
+        if message.author.id == self.bot.user.id:
+            return
         
         ctx = await self.bot.get_context(message)
         channel_id = ctx.channel.id
@@ -41,39 +49,39 @@ class MessagerBeta(commands.Cog, name="Gemini AI Bot - Beta"):
         with open("./activation.json", "r") as ul_activated_channels:
             activated_channels = json.load(ul_activated_channels)
 
-        if message.author.id == self.bot.user.id:
+        if not self.bot.user.mentioned_in(message) or not activated_channels.get(str(channel_id)):
             return
-        
-        if not self.bot.user.mentioned_in(message) or not activated_channels[str(ctx.channel.id)]:
-            return
-        
-        if channel_id not in context_window:
-            context_window[channel_id] = []
 
-        context_window[channel_id].append(f"{message.author.display_name}: {message.content}") # REIMPLEMENT THIS EVERYWHERE THIS STANDARD IS NOT BEING USED EVERYWHERE
+        if channel_id not in self.context_window:
+            self.context_window[channel_id] = []
 
-        if len(context_window[channel_id]) > config["GEMINI"]["MAX_CONTEXT_WINDOW"]:
-            context_window[channel_id].pop(0)
+        self.context_window[channel_id].append(f"{message.author.display_name}: {message.content}")
+
+        if len(self.context_window[channel_id]) > self.config["GEMINI"]["MAX_CONTEXT_WINDOW"]:
+            self.context_window[channel_id].pop(0)
         
         await ctx.channel.typing()
 
-        attachments = ctx.message.attachments
-
-        remembered_memories = await Memories().compare_memories(channel_id, ctx.message.content)
+        remembered_memories = await Memories().compare_memories(channel_id, message.content)
         if remembered_memories["is_similar"]:
-            prompt = read_prompt(ctx.message, remembered_memories['similar_phrase'])
+            prompt = read_prompt(message, remembered_memories['similar_phrase'])
         else:
-            prompt = read_prompt(ctx.message)
+            prompt = read_prompt(message)
 
-        if attachments:
-            save_name = f"{message.guild.id}-{message.id}-{ctx.message.attachments[0].filename}"
-            await ctx.message.attachments[0].save(save_name) # download attachments[0] 
-            image = Image.open(save_name)
-            await ctx.reply(await BotModel.generate_content(prompt, channel_id, image), mention_author=False, allowed_mentions=allowed_mentions)
-            image.close()
-            os.remove(save_name) # deletes file
+        attachments = message.attachments
+        if attachments and attachments[0].filename.lower().endswith((".png", ".jpg", ".webp", ".heic", ".heif", ".mp4", ".mpeg", ".mov", ".wmv")):
+            save_name = attachments[0].filename.lower()
+            await attachments[0].save(save_name)  # Download the attachment
+            
+            file = await upload_attachment(save_name)
+            
+            reply_content = await BotModel.generate_content(prompt, channel_id, file)
+            
+            os.remove(save_name)  # Delete the file locally
         else:
-            await ctx.reply(await BotModel.generate_content(prompt, channel_id), mention_author=False, allowed_mentions=allowed_mentions)
+            reply_content = await BotModel.generate_content(prompt, channel_id)
+
+        await ctx.reply(reply_content, mention_author=False, allowed_mentions=allowed_mentions)
 
     @commands.Cog.listener("on_reaction_add")
     async def on_rxn_add(self, reaction : Reaction, user):
@@ -86,7 +94,7 @@ class MessagerBeta(commands.Cog, name="Gemini AI Bot - Beta"):
         if channel_id not in context_window:
             context_window[channel_id] = []
             
-        if reaction.emoji is not "♻":
+        if reaction.emoji != "♻":
             context_window[channel_id].append(f"{user.name} reacted with '{reaction.emoji}' to your message '{reaction.message.content}'")
         else:
             pass # do regeneration logic, pop last message in context window, get last message sent in channel, regenerate response
@@ -105,7 +113,7 @@ class MessagerBeta(commands.Cog, name="Gemini AI Bot - Beta"):
     @commands.command()
     async def dump_ctx_window(self, ctx):
         filename = str(datetime.datetime.now().timestamp()) + ".txt" 
-        with open(filename, "w") as new_context_window:
+        with open(filename, "w", encoding="utf-8") as new_context_window:
             new_context_window.write(str(context_window))
             new_context_window.close()
         await ctx.reply(f"Saved context window to {filename}", mention_author=False)
@@ -120,4 +128,4 @@ class MessagerBeta(commands.Cog, name="Gemini AI Bot - Beta"):
             await ctx.reply("Activated.", mention_author=False)
              
 async def setup(bot : commands.Bot):
-	await bot.add_cog(MessagerBeta(bot))
+	await bot.add_cog(AIListener(bot))
