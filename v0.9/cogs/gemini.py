@@ -17,13 +17,6 @@ with open("./config.json", "r") as ul_config:
 
 genai.configure(api_key=config["GEMINI"]["API_KEY"])
 
-async def upload_attachment(attachment : genai.types.File):
-    video_file = genai.upload_file(attachment)
-    while video_file.state.name == "PROCESSING":
-        print("Processing")
-        await asyncio.sleep(2)
-        return genai.get_file(video_file.name)
-    
 class Messager(commands.Cog, name="Gemini AI Bot - Beta"):
     # Implement reactions to reactions (discord)
     def __init__(self, bot):
@@ -51,8 +44,6 @@ class Messager(commands.Cog, name="Gemini AI Bot - Beta"):
 
         if len(context_window[channel_id]) > config["GEMINI"]["MAX_CONTEXT_WINDOW"]:
             context_window[channel_id].pop(0)
-        
-        await ctx.channel.typing()
 
         attachments = ctx.message.attachments
 
@@ -62,11 +53,13 @@ class Messager(commands.Cog, name="Gemini AI Bot - Beta"):
         else:
             prompt = read_prompt(ctx.message)
 
+        await ctx.channel.typing()
+
         if attachments and attachments[0].filename.endswith((".png", ".jpg", ".webp", ".heic", ".heif", ".mp4", ".mpeg", ".mov", ".wmv",)):
             save_name = ctx.message.attachments[0].filename.lower()
             await ctx.message.attachments[0].save(save_name) # download attachments[0]
             
-            file = await upload_attachment(save_name)
+            file = await BotModel.upload_attachment(save_name)
 
             await ctx.reply(await BotModel.generate_content(prompt, channel_id, file), mention_author=False, allowed_mentions=allowed_mentions) # Send off file name to GenAI.upload_file 
             # TODO Update in freewill
@@ -74,6 +67,9 @@ class Messager(commands.Cog, name="Gemini AI Bot - Beta"):
             # genai.delete_file(save_name) # deletes file on Google
             
             os.remove(save_name) # deletes file locally 
+        
+        if attachments and attachments[0].filename.endswith((".txt", "",)):
+            pass
         else:
             await ctx.reply(await BotModel.generate_content(prompt, channel_id), mention_author=False, allowed_mentions=allowed_mentions)
 

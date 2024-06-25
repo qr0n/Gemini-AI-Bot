@@ -1,9 +1,8 @@
 import google.generativeai as genai
 import json
-import re
+import asyncio
 from modules.ContextWindow import ContextWindow # TODO Implement context window
 from discord import Message
-from PIL import Image
 
 with open("./config.json", "r") as ul_config:
     config = json.load(ul_config)
@@ -119,10 +118,10 @@ class BotModel:
         _prompt = prompt + "\n" + context
 
         if attachment:
-            image_addon = "Describe this piece of media to yourself in a way that if referenced again, you will be able to answer any potential question asked."
+            media_addon = "Describe this piece of media to yourself in a way that if referenced again, you will be able to answer any potential question asked."
             # full_prompt = [_prompt, "\n", image_addon, "\n", attachment] # Old stuff, experimenting with google file api
             # attachment_file = genai.upload_file(attachment)
-            full_prompt = [_prompt, "\n", attachment]
+            full_prompt = [_prompt, "\n", media_addon , "\n", attachment]
         else:
             full_prompt = [_prompt]
 
@@ -156,6 +155,12 @@ class BotModel:
         except (IndexError, KeyError):
             pass
         return config["MESSAGES"]["error"] or "Sorry, could you please repeat that?"
+    
+    async def upload_attachment(attachment : genai.types.File):
+        video_file = genai.upload_file(attachment)
+        while video_file.state.name == "PROCESSING":
+            await asyncio.sleep(2)
+            return genai.get_file(video_file.name)
     
     # async def generate_reaction(prompt, channel_id, attachment=None):
     #     reaction_model = genai.GenerativeModel(model_name=config["GEMINI"]["AI_MODEL"], system_instruction=prompt)
