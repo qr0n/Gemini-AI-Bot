@@ -18,11 +18,11 @@ with open("./config.json", "r") as ul_config:
 genai.configure(api_key=config["GEMINI"]["API_KEY"])
 
 async def upload_attachment(attachment : genai.types.File):
-    genai_attach = genai.upload_file(attachment)
-    while genai_attach.state.name == "PROCESSING":
-        print("processing")
-        await asyncio.sleep(0.5)
-    return genai.get_file(attachment.name)
+    video_file = genai.upload_file(attachment)
+    while video_file.state.name == "PROCESSING":
+        print("Processing")
+        await asyncio.sleep(2)
+        return genai.get_file(video_file.name)
     
 class Messager(commands.Cog, name="Gemini AI Bot - Beta"):
     # Implement reactions to reactions (discord)
