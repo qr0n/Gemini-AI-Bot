@@ -37,7 +37,7 @@ class Freewill(commands.Cog):
             if channel_id not in context_window:
                 context_window[message.channel.id] = []
             
-            if len(context_window[channel_id]) > config["MAX_CONTEXT_WINDOW"]:
+            if len(context_window[channel_id]) > config["GEMINI"]["MAX_CONTEXT_WINDOW"]:
                 context_window[channel_id].pop(0)
 
             context_window[message.channel.id].append(f"{message.author.display_name}: {message.content}")
