@@ -21,20 +21,24 @@ class Messager(commands.Cog, name="Gemini AI Bot - Beta"):
     # Implement reactions to reactions (discord)
     def __init__(self, bot):
         self.bot: commands.Bot = bot
+
+    def is_activated(self, channel_id) -> bool:
+        with open("./activation.json", "r") as ul_activation:
+            activated: dict = json.load(ul_activation)
+            return bool(activated.get(str(channel_id), False))
     
     @commands.Cog.listener('on_message')
     async def ai_listen(self, message : Message):
         
         ctx = await self.bot.get_context(message)
         channel_id = ctx.channel.id
-        
-        with open("./activation.json", "r") as ul_activated_channels:
-            activated_channels = json.load(ul_activated_channels)
 
         if message.author.id == self.bot.user.id:
             return
         
-        if not self.bot.user.mentioned_in(message) or not activated_channels[str(ctx.channel.id)]:
+        if self.bot.user.mentioned_in(message) or self.is_activated(channel_id):
+            pass
+        else:
             return
         
         if channel_id not in context_window:
@@ -60,8 +64,12 @@ class Messager(commands.Cog, name="Gemini AI Bot - Beta"):
             await ctx.message.attachments[0].save(save_name) # download attachments[0]
             
             file = await BotModel.upload_attachment(save_name)
-
-            await ctx.reply(await BotModel.generate_content(prompt, channel_id, file), mention_author=False, allowed_mentions=allowed_mentions) # Send off file name to GenAI.upload_file 
+            response = await BotModel.generate_content(prompt, channel_id, file)
+            
+            if str(response) == "[]":
+                response = config["MESSAGES"]["error"]
+            
+            await ctx.reply(response, mention_author=False, allowed_mentions=allowed_mentions) # Send off file name to GenAI.upload_file 
             # TODO Update in freewill
             print(save_name)
             # genai.delete_file(save_name) # deletes file on Google
@@ -110,12 +118,28 @@ class Messager(commands.Cog, name="Gemini AI Bot - Beta"):
 
     @commands.command()
     async def activate(self, ctx):
-        with open("activation.json", "r") as unloaded_activated_channel:
+        with open("./activation.json", "r") as unloaded_activated_channel:
             activated_channels = json.load(unloaded_activated_channel)
             activated_channels[ctx.channel.id] = True
-        with open("activation.json", "w") as unloaded_activated_channel:
+
+        with open("./activation.json", "w") as unloaded_activated_channel:
             json.dump(activated_channels, unloaded_activated_channel)
-            await ctx.reply("Activated.", mention_author=False)
+
+            activated_string = config["MESSAGES"]["activated_message"] or f"{self.bot.user.name} is activated in <#{ctx.channel.id}>"
+            await ctx.reply(activated_string, mention_author=False)
+
+    @commands.command()
+    async def deactivate(self, ctx):
+        with open("./activation.json", "r") as unloaded_activated_channel:
+            activated_channels = json.load(unloaded_activated_channel)
+            del activated_channels[str(ctx.channel.id)]
+
+        with open("./activation.json", "w") as unloaded_activated_channel:
+            json.dump(activated_channels, unloaded_activated_channel)
+
+            activated_string = config["MESSAGES"]["deactivated_message"] or f"{self.bot.user.name} has deactivated in <#{ctx.channel.id}>"
+            await ctx.reply(activated_string, mention_author=False)
+
              
 async def setup(bot : commands.Bot):
 	await bot.add_cog(Messager(bot))
