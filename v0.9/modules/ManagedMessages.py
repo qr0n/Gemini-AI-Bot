@@ -39,17 +39,17 @@ class ManagedMessages:
 
     async def remove_from_message_list(channel_id: str | int, message_id: str | int) -> None:
         """Allows removal of an item from the message dictionary from the message id, will also update the message id list and message text list"""
-        
+
         context_window = ManagedMessages.context_window
         managed_messages = ManagedMessages.managed_messages
-        
+    
         if channel_id in managed_messages and channel_id in context_window:
             try:
-                index = managed_messages[channel_id].index(message_id)
-                managed_messages[channel_id].pop(index)
-                context_window[channel_id].pop(index)
-            except ValueError:
-                print(f"Message ID {message_id} not found in channel {channel_id}.")
+                # Filter out all occurrences of message_id in the list
+                managed_messages[channel_id] = [msg for msg in managed_messages[channel_id] if msg != message_id]
+                context_window[channel_id] = [text for text in context_window[channel_id] if text != message_id]
+            except Exception as e:
+                print(f"An error occurred while removing message ID {message_id} from channel {channel_id}: {e}")
         else:
             print(f"Channel ID {channel_id} not found.")
 

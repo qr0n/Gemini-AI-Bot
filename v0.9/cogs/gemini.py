@@ -1,4 +1,4 @@
-from discord import Message, AllowedMentions
+from discord import Message, AllowedMentions, Reaction
 from discord.ext import commands
 from modules.DiscordBot import Gemini
 from modules.BotModel import load_character_details
@@ -37,6 +37,23 @@ class TestAI(commands.Cog):
 
         response = await message.reply(response, allowed_mentions=allowed_mentions, mention_author=False)
         await ManagedMessages.add_to_message_list(channel_id=channel_id, message_id=response.id, message=f"{load_character_details()['name']}: {response.content}")
+
+    @commands.Cog.listener("on_reaction_add")
+    async def on_rxn_add(self, reaction : Reaction, user):
+        
+        if reaction.message.author.id is not self.bot.user.id: 
+            return
+        
+        channel_id = reaction.message.channel.id
+        
+        if channel_id not in ManagedMessages.context_window:
+            ManagedMessages.context_window[channel_id] = []
+            
+        if reaction.emoji != "♻":
+            ManagedMessages.add_to_message_list(channel_id, reaction.message.id, f"{user.name} reacted with '{reaction.emoji}' to your message '{reaction.message.content}'")
+        else:
+            pass # do regeneration logic, pop last message in context window, get last message sent in channel, regenerate response
+
 
     @commands.command()
     async def wack(self, ctx : Message):
