@@ -3,12 +3,12 @@ import google.generativeai as genai
 import mysql.connector
 from discord import Message
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
-from modules.ContextWindow import ContextWindow
+from modules.ManagedMessages import ManagedMessages
 
 with open("./config.json", "r") as ul_config:
     config = json.load(ul_config)
 
-context_window = ContextWindow.context_window
+context_window = ManagedMessages.context_window
 
 genai.configure(api_key=config["GEMINI"]["API_KEY"])
 model = genai.GenerativeModel(config["GEMINI"]["AI_MODEL"])

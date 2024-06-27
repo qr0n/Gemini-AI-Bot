@@ -1,14 +1,17 @@
 import google.generativeai as genai
 import json
 import asyncio
-from modules.ContextWindow import ContextWindow # TODO Implement context window
+
+from modules.ContextWindow import ContextWindow
+from modules.ManagedMessages import ManagedMessages
+
 from discord import Message
 
 with open("./config.json", "r") as ul_config:
     config = json.load(ul_config)
 
 # context_window = ContextWindow() # TODO : Reimplement ContextWindow
-context_window = ContextWindow().context_window
+context_window = ManagedMessages().context_window
 
 genai.configure(api_key=config["GEMINI"]["API_KEY"])
 
@@ -113,38 +116,31 @@ class BotModel:
         retry : int = 3
         Assumes if attachment is present, it will be appended to the context window from cog
         """
-        character_name = load_character_details()['name']
+        print(context_window)
         context = '\n'.join(context_window[channel_id])
-        _prompt = prompt + "\n" + context
+        prompt_with_context = prompt + "\n" + context
 
         if attachment:
             media_addon = "Describe this piece of media to yourself in a way that if referenced again, you will be able to answer any potential question asked."
             # full_prompt = [_prompt, "\n", image_addon, "\n", attachment] # Old stuff, experimenting with google file api
             # attachment_file = genai.upload_file(attachment)
-            full_prompt = [_prompt, "\n", media_addon , "\n", attachment]
+            full_prompt = [prompt_with_context, "\n", media_addon , "\n", attachment]
         else:
-            full_prompt = [_prompt]
+            full_prompt = prompt_with_context
 
         response = await model.generate_content_async(full_prompt)
 
         try:
             text = response.text.strip()
-            context_window[channel_id].append(f"{character_name}: {text}")
-            
             return text
+        
         except Exception as error:
-            if attachment:
-                print(attachment)
-                print(type(attachment))
-                # genai.delete_file(attachment) # Ensure the file gets deleted 
-
             print("BotModel.py: Error: While generating a response, this exception occurred", error)
     
         retry_count = 0
         while retry_count < retry:
             try: 
                 fall_back_response = response.candidates[0].content.parts
-                context_window[channel_id].append(f"{character_name}: {str(fall_back_response).strip()}")
                 return str(fall_back_response).strip()
             except Exception as E:
                 print(f"Error generating response (retry {retry_count}): {E}")
@@ -152,6 +148,7 @@ class BotModel:
 
         try:
             context_window[channel_id].pop(0)
+            ManagedMessages.remove_message_from_index(channel_id, 0)
         except (IndexError, KeyError):
             pass
         return config["MESSAGES"]["error"] or "Sorry, could you please repeat that?"
