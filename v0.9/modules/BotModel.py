@@ -2,8 +2,6 @@ import google.generativeai as genai
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
 import json
 import asyncio
-
-from modules.ContextWindow import ContextWindow
 from modules.ManagedMessages import ManagedMessages
 
 from discord import Message
@@ -46,6 +44,10 @@ def load_character_details():
     }
 
 def read_prompt(message: Message = None, memory=None):
+        """This function reads the prompt inside prompt.json and formats in a usable system instruction
+        message : discord.Message
+        memory = None
+        """
         try:
             with open("prompt.json", "r") as unloaded_prompt_json:
                 prompt_json: dict = json.load(unloaded_prompt_json)
@@ -109,13 +111,13 @@ model = genai.GenerativeModel(config["GEMINI"]["AI_MODEL"], system_instruction=r
 
 class BotModel:
     # Generate content
-    async def generate_content(prompt, channel_id=None, attachment=None, retry=3):
+    async def generate_content(prompt, channel_id=None, attachment : genai.types.File = None, retry=3):
         """
-        prompt: str
-        channel_id : str (guild-user)
-        attachment : Image (PIL) = None
-        retry : int = 3
-        Assumes if attachment is present, it will be appended to the context window from cog
+        This is the function responsible for asynchronous text generation using Gemini 
+        prompt : Any*,
+        channel_id : int,
+        attachment : genai.types.File = None,
+        retry = 3
         """
         print(context_window)
         context = '\n'.join(context_window[channel_id])
@@ -161,6 +163,11 @@ class BotModel:
         return config["MESSAGES"]["error"] or "Sorry, could you please repeat that?"
     
     async def upload_attachment(attachment : genai.types.File):
+        """
+        This function will upload an attachment to Google using FileAPI
+        This function is called everywhere an attachment is required to be processed.
+        attachment : genai.types.File
+        """
         video_file = genai.upload_file(attachment)
         while video_file.state.name == "PROCESSING":
             await asyncio.sleep(2)

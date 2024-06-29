@@ -3,12 +3,12 @@ import random
 import os
 from discord.ext import commands
 from discord import Message, AllowedMentions
-from modules.ContextWindow import ContextWindow
 from modules.BotModel import BotModel, read_prompt
 from modules.Memories import Memories
+from modules.ManagedMessages import ManagedMessages
 from PIL import Image
 
-context_window = ContextWindow.context_window
+context_window = ManagedMessages.context_window
 allowed_mentions = AllowedMentions(everyone=False, users=False, roles=False)
 
 with open("./config.json", "r") as ul_config:

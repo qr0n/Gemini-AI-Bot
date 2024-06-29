@@ -1,16 +1,11 @@
 """
-This is the API
+This is the API for discord interactions.
 """
 
 import json
-import datetime
 import os
-import asyncio
-import google.generativeai as genai
-from discord.ext import commands
-from discord import Message, Reaction, AllowedMentions
+from discord import Message
 from modules.Memories import Memories
-from modules.ContextWindow import ContextWindow
 from modules.BotModel import read_prompt, BotModel
 from modules.ManagedMessages import ManagedMessages
 

@@ -56,7 +56,7 @@ class Memories:
         }
     
     async def summarize_context_window(self, channel_id, retry=3):
-        prompt = f"You're an AI LLM, who's only purpose is to summarize large but concise summaries on text provided to you, try to retain most of the information! Your first task is to summarize this conversation from the perspective of {self.character_name} --- Conversation Start ---\n{'\n'.join(context_window[channel_id])} --- Conversation End ---"
+        prompt = f"You're a data analysho's only purpose is to summarize large but concise summaries on text provided to you, try to retain most of the information! Your first task is to summarize this conversation from the perspective of {self.character_name} --- Conversation Start ---\n{'\n'.join(context_window[channel_id])} --- Conversation End ---"
         
         response = await model.generate_content_async(prompt)
         
@@ -161,6 +161,7 @@ Provide your response in a JSON format {"is_worth" : true/false, "special_phrase
         
         json_format = """{"is_similar" : true/false, "similar_phrase" : the phrase in [Message 2]}"""
         entries = self.fetch_and_sort_entries(channel_id).keys()
+        
         system_instruction = f"""
 Objective:
     Determine if the provided phrase or message is similar to another given phrase or message based on predefined criteria.

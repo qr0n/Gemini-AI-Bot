@@ -68,7 +68,6 @@ class TestAI(commands.Cog):
 
             case _:
                 await ManagedMessages.add_to_message_list(channel_id, reaction.message.id, f"{user.name} reacted with '{reaction.emoji}' to your message '{reaction.message.content}'")
-                
 
     @commands.command()
     async def wack(self, ctx : Message):
