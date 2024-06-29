@@ -26,7 +26,14 @@ pip install -r requirements.txt
     "GEMINI" : {
         "API_KEY" : "",
         "AI_MODEL" : "models/gemini-1.5-flash-latest",
-        "MAX_CONTEXT_WINDOW" : 20
+        "MAX_CONTEXT_WINDOW" : 20,
+        "FILTERS" : {
+            "sexually_explicit" : "BLOCK_NONE",
+            "harassment" : "BLOCK_NONE",
+            "dangerous_content" : "BLOCK_NONE",
+            "hate_speech" : "BLOCK_NONE",
+            "unspecified" : "BLOCK_NONE"
+        }
     },
     "FREEWILL": {
         "enabled" : false,
@@ -36,11 +43,13 @@ pip install -r requirements.txt
         "keywords" : [""]
     },
     "MESSAGES" : {
-        "wack" : 0,
-        "wack_error" : 0,
-        "error" : 0 
+        "wack" : "Ow! Uhh, what were we talking about?",
+        "wack_error" : "Sorry, can't remove what's not there. :joy:",
+        "error" : "Nuh uh, not gonna happen.",
+        "activated_message" : "Hey! I'm new here :wave:",
+        "deactivated_message" : "Awh, sorry to see you go! You can still talk to me by pinging me :pleading_face:"
     },
-
+    
     "BOT_TOKEN" : ""
 }
 ``` 
