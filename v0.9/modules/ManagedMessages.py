@@ -37,12 +37,12 @@ class ManagedMessages:
         message_list.append(message)
         managed_message_list.append(message_id)
 
-    async def remove_from_message_list(channel_id: str | int, message_id: str | int) -> None:
+    async def remove_from_message_list(channel_id: str | int, message_id: str | int, previous : bool=False) -> None:
         """Allows removal of an item from the message dictionary from the message id, will also update the message id list and message text list"""
 
         context_window = ManagedMessages.context_window
         managed_messages = ManagedMessages.managed_messages
-    
+
         if channel_id in managed_messages and channel_id in context_window:
             try:
                 # Filter out all occurrences of message_id in the list

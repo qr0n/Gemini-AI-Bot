@@ -18,6 +18,7 @@ class TestAI(commands.Cog):
     def is_activated(self, channel_id) -> bool:
         with open("./activation.json", "r") as ul_activation:
             activated: dict = json.load(ul_activation)
+            print(activated)
             return bool(activated.get(str(channel_id), False))
         
     @commands.Cog.listener("on_message")
@@ -29,19 +30,30 @@ class TestAI(commands.Cog):
         
         if self.bot.user.mentioned_in(message) or self.is_activated(channel_id):
             pass
+        else:
+            return
 
         await message.channel.typing()
         # do stuff here? 
 
         response = await Gemini.generate_response(message)
+        
+        if response == "[]":
+            return await message.reply(config["MESSAGES"]["error"])
+            
+        chunks = [response[i:i + 2000] for i in range(0, len(response), 2000)]
 
-        response = await message.reply(response, allowed_mentions=allowed_mentions, mention_author=False)
-        await ManagedMessages.add_to_message_list(channel_id=channel_id, message_id=response.id, message=f"{load_character_details()['name']}: {response.content}")
+        for chunk in chunks:
+            try:
+                text = await message.reply(chunk, mention_author=False, allowed_mentions=allowed_mentions)
+                await ManagedMessages.add_to_message_list(channel_id=channel_id, message_id=text.id, message=f"{load_character_details()['name']}: {text.content}")
+            except Exception as E:
+                print(f"Error replying response: {E}")
 
     @commands.Cog.listener("on_reaction_add")
     async def on_rxn_add(self, reaction : Reaction, user):
         
-        if reaction.message.author.id is not self.bot.user.id: 
+        if reaction.message.author.id is not self.bot.user.id and not reaction.is_custom_emoji(): 
             return
         
         channel_id = reaction.message.channel.id
@@ -49,15 +61,18 @@ class TestAI(commands.Cog):
         if channel_id not in ManagedMessages.context_window:
             ManagedMessages.context_window[channel_id] = []
             
-        if reaction.emoji != "♻":
-            ManagedMessages.add_to_message_list(channel_id, reaction.message.id, f"{user.name} reacted with '{reaction.emoji}' to your message '{reaction.message.content}'")
-        else:
-            pass # do regeneration logic, pop last message in context window, get last message sent in channel, regenerate response
+        match reaction.emoji:
+            
+            case "🔇":
+                await ManagedMessages.remove_from_message_list(channel_id, reaction.message.id)
 
+            case _:
+                await ManagedMessages.add_to_message_list(channel_id, reaction.message.id, f"{user.name} reacted with '{reaction.emoji}' to your message '{reaction.message.content}'")
+                
 
     @commands.command()
     async def wack(self, ctx : Message):
-        await ctx.reply(ManagedMessages.remove_channel_from_list(ctx.channel.id))
+        await ctx.reply(await ManagedMessages.remove_channel_from_list(ctx.channel.id))
     
     @commands.command()
     async def activate(self, ctx):

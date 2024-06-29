@@ -1,4 +1,5 @@
 import google.generativeai as genai
+from google.generativeai.types import HarmCategory, HarmBlockThreshold
 import json
 import asyncio
 
@@ -128,7 +129,12 @@ class BotModel:
         else:
             full_prompt = prompt_with_context
 
-        response = await model.generate_content_async(full_prompt)
+        response = await model.generate_content_async(full_prompt, safety_settings={
+                                                        HarmCategory.HARM_CATEGORY_HARASSMENT : config["GEMINI"]["FILTERS"]["sexually_explicit"],
+                                                        HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT : config["GEMINI"]["FILTERS"]["harassment"],
+                                                        HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT : config["GEMINI"]["FILTERS"]["dangerous_content"],
+                                                        HarmCategory.HARM_CATEGORY_HATE_SPEECH : config["GEMINI"]["FILTERS"]["hate_speech"]
+                                                        })
 
         try:
             text = response.text.strip()
@@ -136,6 +142,7 @@ class BotModel:
         
         except Exception as error:
             print("BotModel.py: Error: While generating a response, this exception occurred", error)
+            print(response.candidates)
     
         retry_count = 0
         while retry_count < retry:

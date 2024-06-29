@@ -92,9 +92,12 @@ class Messager(commands.Cog, name="Gemini AI Bot - Beta"):
         if channel_id not in context_window:
             context_window[channel_id] = []
             
-        if reaction.emoji != "♻":
-            context_window[channel_id].append(f"{user.name} reacted with '{reaction.emoji}' to your message '{reaction.message.content}'")
-        else:
+        match reaction.emoji:
+            case "♻":
+                
+            case _:
+                context_window[channel_id].append(f"{user.name} reacted with '{reaction.emoji}' to your message '{reaction.message.content}'")
+        
             pass # do regeneration logic, pop last message in context window, get last message sent in channel, regenerate response
 
     @commands.command()
