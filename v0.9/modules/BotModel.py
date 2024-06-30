@@ -156,8 +156,7 @@ class BotModel:
                 retry_count += 1
 
         try:
-            context_window[channel_id].pop(0)
-            ManagedMessages.remove_message_from_index(channel_id, 0)
+            await ManagedMessages.remove_message_from_index(channel_id, 0)
         except (IndexError, KeyError):
             pass
         return config["MESSAGES"]["error"] or "Sorry, could you please repeat that?"

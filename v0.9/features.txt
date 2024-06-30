@@ -1,0 +1,46 @@
+Memory
+    - STM
+    - Specialized LTMs (https://canary.discord.com/channels/781212328749301790/1247798598880464896)
+    - Is worth remembering
+    - Compare memories
+
+Inputs
+    - text
+    - images
+    - videos
+    - audio (coming soon)
+
+Outputs
+    - text
+
+------------------------- ^^ General Stuff ^^ -------------------------
+
+Function/File list:
+
+Modules:
+    BotModel:
+        load_character_details
+        read_prompt
+        [async] BotModel.generate_content
+        [async] BotModel.upload_attachment
+
+    DiscordBot:
+        [async] DiscordBot.generate_response
+
+    ManagedMessages:
+        | ManagedMessages.context_window   | (Dict)
+        | ManagedMessages.managed_messages | (Dict)
+
+        [async] ManagedMessages.check_restrictions
+        [async] ManagedMessages.add_to_message_list
+        [async] ManagedMessages.remove_from_message_list
+        [async] ManagedMessages.remove_message_from_index (copium function)
+        [async] ManagedMessages.remove_channel_from_list
+
+    Memories:
+        Memories.load_character_details
+        [async] Memories.summarize_context_window
+        [async] Memories.save_to_memory
+        [async] Memories.fetch_and_sort_entries
+        [async] Memories.is_worth_remembering
+        [async] Memories.compare_memories

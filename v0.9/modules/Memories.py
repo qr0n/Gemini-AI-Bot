@@ -82,8 +82,9 @@ class Memories:
             sql = "INSERT INTO memories (channel_id, special_phrase, memory) VALUES (%s, %s, %s)"
             summary_of_context_window = await self.summarize_context_window(channel_id)
 
-            special_phrase = await self.is_worth_remembering(context='\n'.join(context_window[channel_id]))["special_phrase"]
-            values = (channel_id, special_phrase, summary_of_context_window)
+            special_phrase = await self.is_worth_remembering(context='\n'.join(context_window[channel_id]))
+
+            values = (channel_id, special_phrase["special_phrase"], summary_of_context_window)
 
             cursor.execute(sql, values)
             conn.commit()
@@ -127,7 +128,7 @@ class Memories:
         return result
     
     async def is_worth_remembering(self, context):
-        prompt = """
+        system_instruction = """
 Objective:
 Determine whether a conversation is worth remembering based on predefined criteria and if it is, provide ONE word from the entire conversation that you'd remember.
 
@@ -148,9 +149,10 @@ Instructions:
 
 Provide your response in a JSON format {"is_worth" : true/false, "special_phrase" : phrase_goes_here} without ANY formatting, ie.. no backticks '`' no syntax highlighting, no numbered lists.'
     """
-        full_prompt = prompt + "\n" + context
+        remember_model = genai.GenerativeModel(config["GEMINI"]["AI_MODEL"], system_instruction=system_instruction)
         try:
-            unloaded_json = await model.generate_content_async(full_prompt)
+
+            unloaded_json = await remember_model.generate_content_async(context, generation_config={"response_mime_type": "application/json"})
             clean_json = json.loads(self.clean_json(unloaded_json.text))
             print(clean_json)
             return clean_json
@@ -159,40 +161,47 @@ Provide your response in a JSON format {"is_worth" : true/false, "special_phrase
         
     async def compare_memories(self, channel_id, message):
         
-        json_format = """{"is_similar" : true/false, "similar_phrase" : the phrase in [Message 2]}"""
+        # json_format = """{"is_similar" : true/false, "similar_phrase" : the phrase in [Message 2]}"""
         entries = self.fetch_and_sort_entries(channel_id).keys()
         
-        system_instruction = f"""
+        system_instruction = """
 Objective:
-    Determine if the provided phrase or message is similar to another given phrase or message based on predefined criteria.
+Determine if the provided context or phrase is similar to another given phrase or message based on predefined criteria.
 
-    Guidelines:
-    1. **Content Overlap**: Examine if the majority of content in both messages overlap.
-    2. **Contextual Similarity**: Check if the context or the main idea presented in both messages is alike.
-    3. **Linguistic Patterns**: Identify if similar linguistic patterns, phrases, or keywords are used.
-    4. **Semantic Similarity**: Evaluate if both messages convey the same meaning even if different words are used.
+Guidelines:
+1. **Content Overlap**: Examine if the majority of content in both messages overlaps.
+2. **Contextual Similarity**: Check if the context or the main idea presented in both messages is alike.
+3. **Linguistic Patterns**: Identify if similar linguistic patterns, phrases, or keywords are used.
+4. **Semantic Similarity**: Evaluate if both messages convey the same meaning even if different words are used.
 
-    Instructions:
-    1. Read the provided message and phrases.
-    2. Assess each message based on the provided guidelines.
-    3. Determine if the messages meet one or more of the criteria:
-       a. The content of both messages overlaps significantly.
-       b. The contexts or main ideas of both messages align.
-       c. Similar linguistic patterns or keywords are used in both messages.
-       d. The overall meaning conveyed by both messages is the same.
-       e. be lenient in your comparision, if a phrase has 2/3 keywords return complete the rest.
-    4. If the phrase is simmilar, provide it in the JSON-type response ONLY provide the MOST similar phrase.
-    
-    5. Provide your response in this JSON schema {json_format} without ANY formatting ie.. no backticks '`' no syntax highlighting, no numbered lists.
+Instructions:
+1. Read the provided message and phrases.
+2. Assess each message based on the provided guidelines.
+3. Determine if the messages meet one or more of the criteria:
+    a.The content of both messages overlaps significantly.
+    b. The contexts or main ideas of both messages align.
+    c. Similar linguistic patterns or keywords are used in both messages.
+    d. The overall meaning conveyed by both messages is the same.
+    e. Be lenient in your comparison; if a phrase has 2/3 keywords, complete the rest.
 
+If the phrase is similar, provide it in the JSON-type response ONLY. Provide the MOST similar phrase.
+Provide your response in this JSON schema:
+
+{
+    "is_similar" : true/false,
+    "similar_phrase" : the phrase in [Message 2]
+}
+
+without ANY formatting, i.e., no backticks '`', no syntax highlighting, no numbered lists.
 """     
         comparing_model = genai.GenerativeModel(config["GEMINI"]["AI_MODEL"], system_instruction=system_instruction)
         message_list = f"""
-Message: {message}
+Context: {"\n".join(context_window[channel_id])}
 List of phrases: {", ".join(entries)}
 """
+        print(message_list)
         try:
-            unloaded_json = await comparing_model.generate_content_async(message_list)
+            unloaded_json = await comparing_model.generate_content_async(message_list, generation_config={"response_mime_type": "application/json"})
             clean_json = json.loads(self.clean_json(unloaded_json.text))
             return clean_json
         except Exception as E:

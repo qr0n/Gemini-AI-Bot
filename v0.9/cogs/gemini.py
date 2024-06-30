@@ -3,6 +3,7 @@ from discord.ext import commands
 from modules.DiscordBot import Gemini
 from modules.BotModel import load_character_details
 from modules.ManagedMessages import ManagedMessages
+from modules.Memories import Memories
 import json
 
 allowed_mentions = AllowedMentions(everyone=False, users=False, roles=False)
@@ -10,7 +11,7 @@ allowed_mentions = AllowedMentions(everyone=False, users=False, roles=False)
 with open("./config.json", "r") as ul_config:
     config = json.load(ul_config)
 
-class TestAI(commands.Cog):
+class GeminiCog(commands.Cog):
 
     def __init__(self, bot):
         self.bot : commands.Bot = bot
@@ -97,5 +98,11 @@ class TestAI(commands.Cog):
             activated_string = config["MESSAGES"]["deactivated_message"] or f"{self.bot.user.name} has deactivated in <#{ctx.channel.id}>"
             await ctx.reply(activated_string, mention_author=False)
 
+    @commands.command()
+    async def remember(self, ctx):
+        await Memories().save_to_memory(message=ctx.message, force=True)
+        await ctx.reply("force remembered ._.")
+        
+
 async def setup(bot: commands.Bot):
-    await bot.add_cog(TestAI(bot))
+    await bot.add_cog(GeminiCog(bot))
