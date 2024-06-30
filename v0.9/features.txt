@@ -44,3 +44,4 @@ Modules:
         [async] Memories.fetch_and_sort_entries
         [async] Memories.is_worth_remembering
         [async] Memories.compare_memories
+        [async] Memories.generate_reaction

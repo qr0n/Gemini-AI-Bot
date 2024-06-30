@@ -172,23 +172,36 @@ class BotModel:
             await asyncio.sleep(2)
             return genai.get_file(video_file.name)
     
-    # async def generate_reaction(prompt, channel_id, attachment=None):
-    #     reaction_model = genai.GenerativeModel(model_name=config["GEMINI"]["AI_MODEL"], system_instruction=prompt)
+    async def __generate_reaction(prompt, channel_id, attachment=None):
+        reaction_model = genai.GenerativeModel(model_name=config["GEMINI"]["AI_MODEL"], system_instruction=prompt)
 
-    #     if attachment:
-    #         prompt_with_image = ["\n".join(context_window[channel_id]), attachment]
-    #         emoji = await reaction_model.generate_content_async(prompt_with_image)
+        if attachment:
+            prompt_with_image = ["\n".join(context_window[channel_id]), attachment]
+            emoji = await reaction_model.generate_content_async(prompt_with_image)
             
-    #         response = emoji.text or emoji.candidates[0]
-    #         #context_window[channel_id].append(f"You reacted with this emoji {response}")
+            response = emoji.text or emoji.candidates[0]
+            #context_window[channel_id].append(f"You reacted with this emoji {response}")
             
-    #         return response
+            return response
         
-    #     else:
-    #         context = '\n'.join(context_window[channel_id])
-    #         emoji = reaction_model.generate_content(context)
+        else:
+            context = '\n'.join(context_window[channel_id])
+            emoji = reaction_model.generate_content(context)
             
-    #         response = emoji.text or emoji.candidates[0]
-    #         #context_window[channel_id].append(f"You reacted with this emoji {response}")
-    #         return response
+            response = emoji.text or emoji.candidates[0]
+            #context_window[channel_id].append(f"You reacted with this emoji {response}")
+            return response
+    
+    async def generate_reaction(prompt, channel_id : str | int, attachment : genai.types.File=None):
+        """
+        This function generates an emotion that is then represented by an emoji and reacted with by the bot
         
+        prompt: Any
+        channel_id : str or int
+        attachment : genai.types.File = None
+
+        returns `something lol`
+        """
+
+        system_instruction = """You are 'Sponge' in this conversation. You now have the ability to send one emoji, """
+        reaction_model = genai.GenerativeModel(model_name=config["GEMINI"]["AI_MODEL"], system_instruction=prompt)

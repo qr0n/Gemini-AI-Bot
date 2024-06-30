@@ -1,6 +1,3 @@
-# This file is reserved for the Discord Bot only.
-# Everything else relating to Gemini will be abstracted by functions.
-
 import json
 from discord.ext import commands
 from discord import Intents, Message

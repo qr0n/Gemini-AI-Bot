@@ -28,7 +28,7 @@ class NewFreewill(commands.Cog):
                 return
             
             text_frequency = config["FREEWILL"]["text_frequency"]
-            # reaction_frequency = config["FREEWILL"]["reaction_frequency"]
+            reaction_frequency = config["FREEWILL"]["reaction_frequency"]
             keywords = config["FREEWILL"]["keywords"] or None
             keyword_added_chance = 0
             ctx = await self.bot.get_context(message)
@@ -42,7 +42,17 @@ class NewFreewill(commands.Cog):
                 
                 await ctx.channel.typing()
                 await asyncio.sleep(2) # artificial delay lol
+
                 await ctx.reply(response, mention_author=False, allowed_mentions=allowed_mentions)
+            
+            if random.random() < min(reaction_frequency + keyword_added_chance, 1.0):
+                response = await Gemini.generate_response(message)
+                
+                await ctx.channel.typing()
+                await asyncio.sleep(2) # artificial delay lol
+
+                await ctx.reply(response, mention_author=False, allowed_mentions=allowed_mentions)
+
 
 async def setup(bot : commands.Bot):
     await bot.add_cog(NewFreewill(bot))
