@@ -30,7 +30,7 @@ class Freewill(commands.Cog):
 
             channel_id = message.channel.id
             text_frequency = config["FREEWILL"]["text_frequency"]
-            # reaction_frequency = config["FREEWILL"]["reaction_frequency"]
+            reaction_frequency = config["FREEWILL"]["reaction_frequency"]
             keywords = config["FREEWILL"]["keywords"] or None
             keyword_added_chance = 0
             ctx = await self.bot.get_context(message)

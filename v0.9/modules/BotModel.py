@@ -1,10 +1,10 @@
-import google.generativeai as genai
-from google.generativeai.types import HarmCategory, HarmBlockThreshold
 import json
 import asyncio
+import google.generativeai as genai
+import speech_recognition as sr
 from modules.ManagedMessages import ManagedMessages
-
 from discord import Message
+from google.generativeai.types import HarmCategory, HarmBlockThreshold
 
 with open("./config.json", "r") as ul_config:
     config = json.load(ul_config)
@@ -127,6 +127,7 @@ class BotModel:
             media_addon = "Describe this piece of media to yourself in a way that if referenced again, you will be able to answer any potential question asked."
             # full_prompt = [_prompt, "\n", image_addon, "\n", attachment] # Old stuff, experimenting with google file api
             # attachment_file = genai.upload_file(attachment)
+            print(type(attachment))
             full_prompt = [prompt_with_context, "\n", media_addon , "\n", attachment]
         else:
             full_prompt = prompt_with_context
@@ -161,16 +162,23 @@ class BotModel:
             pass
         return config["MESSAGES"]["error"] or "Sorry, could you please repeat that?"
     
-    async def upload_attachment(attachment : genai.types.File):
+    async def upload_attachment(attachment):
         """
         This function will upload an attachment to Google using FileAPI
         This function is called everywhere an attachment is required to be processed.
-        attachment : genai.types.File
+        
+        attachment : Any*
         """
-        video_file = genai.upload_file(attachment)
-        while video_file.state.name == "PROCESSING":
+        print("Called function upload_attachment")
+        attachment_media = genai.upload_file(attachment)
+        while attachment_media.state.name == "PROCESSING":
             await asyncio.sleep(2)
-            return genai.get_file(video_file.name)
+            print("Media processing")
+        if attachment_media.state.name == "ACTIVE":
+            print("Media active")
+            return genai.get_file(attachment_media.name)
+        if attachment_media.state.name == "FAILED":
+            print("Media failed.")
     
     async def __generate_reaction(prompt, channel_id, attachment=None):
         reaction_model = genai.GenerativeModel(model_name=config["GEMINI"]["AI_MODEL"], system_instruction=prompt)
@@ -191,6 +199,22 @@ class BotModel:
             response = emoji.text or emoji.candidates[0]
             #context_window[channel_id].append(f"You reacted with this emoji {response}")
             return response
+        
+    async def speech_to_text(audio_file : genai.types.File):
+        print("STT module called")
+        system_instruction = """You are now a microphone, you will attempt to accurately convert all audio data into text. and repeat the text word for word, in perfect grammar"""
+        speech_to_text_model = genai.GenerativeModel(config["GEMINI"]["AI_MODEL"], system_instruction=system_instruction, safety_settings={
+                                                    HarmCategory.HARM_CATEGORY_HARASSMENT : config["GEMINI"]["FILTERS"]["sexually_explicit"],
+                                                    HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT : config["GEMINI"]["FILTERS"]["harassment"],
+                                                    HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT : config["GEMINI"]["FILTERS"]["dangerous_content"],
+                                                    HarmCategory.HARM_CATEGORY_HATE_SPEECH : config["GEMINI"]["FILTERS"]["hate_speech"]
+                                                    })
+        
+        response = await speech_to_text_model.generate_content_async(["describe this audio file\n", audio_file])
+        print(response.text)
+        print("RESPONSE SHOULD BE ABOVE")
+        return response.text
+        
     
     async def generate_reaction(prompt, channel_id : str | int, attachment : genai.types.File=None):
         """

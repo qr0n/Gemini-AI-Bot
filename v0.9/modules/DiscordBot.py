@@ -38,20 +38,38 @@ class Gemini:
         else: 
             prompt = read_prompt(message)
 
-        if attachments and attachments[0].filename.endswith((".png", ".jpg", ".webp", ".heic", ".heif", ".mp4", ".mpeg", ".mov", ".wmv",)):
+        if attachments and attachments[0].filename.lower().endswith((".png", ".jpg", ".webp", ".heic", ".heif", ".mp4", ".mpeg", ".mov", ".wmv",)):
             save_name = message.attachments[0].filename.lower()
             await message.attachments[0].save(save_name)
 
             # Checks if file type is one supported by Google Gemini
             
             file = await BotModel.upload_attachment(save_name)
+            print(type(file))
             response = await BotModel.generate_content(prompt, channel_id, file)
 
             # uploads using FileAPI 
             os.remove(save_name)
             return response
         
-        # Add text file support soon
+        # Add text file and audio support soon
+        elif attachments and attachments[0].filename.lower().endswith((".wav", ".mp3", ".aiff", ".aac", ".ogg", ".flac",)):
+            print("audio file")
+            # Audio handling
+
+            save_name = message.attachments[0].filename.lower()
+            await message.attachments[0].save(save_name)
+            # Download the file
+
+            file = await BotModel.upload_attachment(save_name)
+            print(type(file))
+            response = await BotModel.speech_to_text(audio_file=file)
+
+            print(response)
+            print("RESPONSE SHOULD BE ABOVE")
+            return response
+        # TODO Add the returned string to the context window
+
         else:
             response = await BotModel.generate_content(prompt, channel_id)
             return response

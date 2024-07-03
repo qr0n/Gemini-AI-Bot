@@ -16,23 +16,30 @@ class NewFreewill(commands.Cog):
     
     def __init__(self, bot) -> None:
         self.bot: commands.Bot = bot
+    
+    def is_activated(self, channel_id) -> bool:
+        with open("./activation.json", "r") as ul_activation:
+            activated: dict = json.load(ul_activation)
+            print(activated)
+            return bool(activated.get(str(channel_id), False))
 
     @commands.Cog.listener("on_message")
     async def freewill(self, message : Message) -> None:
         if config["FREEWILL"]["enabled"]:
+
+            ctx = await self.bot.get_context(message)
             
             if message.author.id == self.bot.user.id:
                 return
             
-            if self.bot.user.mentioned_in(message):
+            if self.bot.user.mentioned_in(message) or self.is_activated(ctx.channel.id):
                 return
             
             text_frequency = config["FREEWILL"]["text_frequency"]
             reaction_frequency = config["FREEWILL"]["reaction_frequency"]
             keywords = config["FREEWILL"]["keywords"] or None
             keyword_added_chance = 0
-            ctx = await self.bot.get_context(message)
-
+            
             for i in keywords:
                 if i.lower() in message.content.lower():
                     keyword_added_chance = config["FREEWILL"]["keywords_added_chance"]
