@@ -41,7 +41,7 @@ class GeminiCog(commands.Cog):
         
         if response == "[]":
             return await message.reply(config["MESSAGES"]["error"])
-            
+        
         chunks = [response[i:i + 2000] for i in range(0, len(response), 2000)]
 
         for chunk in chunks:

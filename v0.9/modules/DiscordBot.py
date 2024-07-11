@@ -27,9 +27,9 @@ class Gemini:
         if channel_id not in context_window:
             context_window[channel_id] = [] # if channel id isnt present in context window, make a new key
             
-        await ManagedMessages.add_to_message_list(channel_id, message_id, f"{message.author.display_name}: {message.content}") 
+        message_in_list = await ManagedMessages.add_to_message_list(channel_id, message_id, f"{message.author.display_name}: {message.content}")
         # appends the message to the context window, "user: message"
-        # auto manages context window size 
+        # auto manages context window size
 
         remembered_memories = await memories.compare_memories(channel_id, message.content)
         
@@ -39,21 +39,24 @@ class Gemini:
             prompt = read_prompt(message)
 
         if attachments and attachments[0].filename.lower().endswith((".png", ".jpg", ".webp", ".heic", ".heif", ".mp4", ".mpeg", ".mov", ".wmv",)):
-            save_name = message.attachments[0].filename.lower()
-            await message.attachments[0].save(save_name)
-
             # Checks if file type is one supported by Google Gemini
+            save_name = message.attachments[0].filename.lower()
+            await message.attachments[0].save(save_name) # Saves attachment
             
             file = await BotModel.upload_attachment(save_name)
             print(type(file))
             response = await BotModel.generate_content(prompt, channel_id, file)
 
-            # uploads using FileAPI 
+            # uploads using FileAPI
+            
+            await ManagedMessages.add_to_message_list(channel_id, message_id, f"{message.author.display_name}: {message.content}")
+            print(context_window)
+
             os.remove(save_name)
             return response
         
         # Add text file and audio support soon
-        elif attachments and attachments[0].filename.lower().endswith((".wav", ".mp3", ".aiff", ".aac", ".ogg", ".flac",)):
+        elif attachments and attachments[0].filename.lower().endswith((".wav", ".mp3", ".aiff", ".aac", ".flac")):
             print("audio file")
             # Audio handling
 
@@ -62,15 +65,26 @@ class Gemini:
             # Download the file
 
             file = await BotModel.upload_attachment(save_name)
-            print(type(file))
+            response = await BotModel.generate_content(prompt=prompt, channel_id=channel_id, attachment=file)
+            
+            return response
+        
+        elif attachments and attachments[0].filename.lower().endswith(".ogg"):
+            print("Voice Message")
+
+            save_name = message.attachments[0].filename.lower()
+            file = await BotModel.upload_attachment(save_name)
             response = await BotModel.speech_to_text(audio_file=file)
 
-            print(response)
-            print("RESPONSE SHOULD BE ABOVE")
-            return response
-        # TODO Add the returned string to the context window
+            # Remove initial message appended.
+            await ManagedMessages.remove_from_message_list(channel_id, message_in_list)
+            
+            await ManagedMessages.add_to_message_list(channel_id, message_id, f"{message.author.display_name}: {response}")
+            # Add message from Voicenote to list
 
         else:
+            if attachments:
+                print(attachments[0].filename.lower())
             response = await BotModel.generate_content(prompt, channel_id)
             return response
     

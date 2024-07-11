@@ -83,9 +83,12 @@ def read_prompt(message: Message = None, memory=None):
 
         {"\n".join([f"{author_name}: {example['user']}\n{bot_name}: {example['bot']}" for example in conversation_examples])}
 
-        Currently relevnt memories:
-
+        Context information is below.
+        ---------------------
         {memory}
+        ---------------------
+        Given the context information and not prior knowledge answer using THIS information
+
         
         From here on out, this is the conversation you will be responding to.
         ---- CONVERSATION ----
@@ -201,8 +204,11 @@ class BotModel:
             return response
         
     async def speech_to_text(audio_file : genai.types.File):
+        """
+        [async]
+        This function is called when a `.ogg` file is uploaded to discord"""
         print("STT module called")
-        system_instruction = """You are now a microphone, you will attempt to accurately convert all audio data into text. and repeat the text word for word, in perfect grammar"""
+        system_instruction = """You are now a microphone, you will ONLY return the words in the audio file, DO NOT describe them."""
         speech_to_text_model = genai.GenerativeModel(config["GEMINI"]["AI_MODEL"], system_instruction=system_instruction, safety_settings={
                                                     HarmCategory.HARM_CATEGORY_HARASSMENT : config["GEMINI"]["FILTERS"]["sexually_explicit"],
                                                     HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT : config["GEMINI"]["FILTERS"]["harassment"],
@@ -211,8 +217,7 @@ class BotModel:
                                                     })
         
         response = await speech_to_text_model.generate_content_async(["describe this audio file\n", audio_file])
-        print(response.text)
-        print("RESPONSE SHOULD BE ABOVE")
+        print("[BotModel.py] | Response from STT Module: ", response.text)
         return response.text
         
     

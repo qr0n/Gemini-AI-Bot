@@ -17,8 +17,11 @@ class ManagedMessages:
         else:
             return True
 
-    async def add_to_message_list(channel_id: str | int, message_id: str | int, message: str) -> None:
-        """Allows addition of an item to the message dictionary, has restraints called by `ManagedMessages.check_restrictions()`"""
+    async def add_to_message_list(channel_id: str | int, message_id: str | int, message: str) -> int:
+        """
+        Allows addition of an item to the message dictionary, has restraints called by `ManagedMessages.check_restrictions()`
+        Returns ID of message appended to list `ManagedMessages.managed_messages`
+        """
         
         context_window = ManagedMessages.context_window
         managed_messages = ManagedMessages.managed_messages
@@ -37,7 +40,9 @@ class ManagedMessages:
         message_list.append(message)
         managed_message_list.append(message_id)
 
-    async def remove_from_message_list(channel_id: str | int, message_id: str | int, previous : bool=False) -> None:
+        return message_id
+
+    async def remove_from_message_list(channel_id: str | int, message_id: str | int) -> None:
         """Allows removal of an item from the message dictionary from the message id, will also update the message id list and message text list"""
 
         context_window = ManagedMessages.context_window

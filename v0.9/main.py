@@ -18,4 +18,9 @@ async def setup_hook():
         if filename.endswith('.py'):
             await bot.load_extension(f'cogs.{filename[:-3]}')
 
+@bot.command()
+async def commandstest(ctx):
+    command_list = "\n".join([cmd.name for cmd in bot.commands])
+    await ctx.send(command_list)
+    
 bot.run(config["BOT_TOKEN"])
