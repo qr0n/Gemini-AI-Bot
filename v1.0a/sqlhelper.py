@@ -26,6 +26,12 @@ cursor.execute(
         memory TEXT NOT NULL,
         timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
+
+    CREATE TABLE IF NOT EXISTS bot_db (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    message_content TEXT NOT NULL,
+    jump_url TEXT NOT NULL
+    )
     """
 )
 

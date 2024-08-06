@@ -44,20 +44,17 @@ class Gemini:
             await message.attachments[0].save(save_name) # Saves attachment
             
             file = await BotModel.upload_attachment(save_name)
-            print(type(file))
             response = await BotModel.generate_content(prompt, channel_id, file)
 
             # uploads using FileAPI
             
             await ManagedMessages.add_to_message_list(channel_id, message_id, f"{message.author.display_name}: {message.content}")
-            print(context_window)
 
             os.remove(save_name)
             return response
         
         # Add text file and audio support soon
         elif attachments and attachments[0].filename.lower().endswith((".wav", ".mp3", ".aiff", ".aac", ".flac")):
-            print("audio file")
             # Audio handling
 
             save_name = str(message.id) + " " + message.attachments[0].filename.lower()
@@ -70,7 +67,6 @@ class Gemini:
             return response
         
         elif attachments and attachments[0].filename.lower().endswith(".ogg"):
-            print("Voice Message")
 
             save_name = str(message.id) + " " + message.attachments[0].filename.lower()
             await message.attachments[0].save(save_name)
@@ -84,8 +80,6 @@ class Gemini:
             # Add message from Voicenote to list
 
         else:
-            if attachments:
-                print(attachments[0].filename.lower())
             response = await BotModel.generate_content(prompt, channel_id)
             return response
     

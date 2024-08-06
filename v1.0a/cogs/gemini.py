@@ -19,7 +19,7 @@ class GeminiCog(commands.Cog):
     def is_activated(self, channel_id) -> bool:
         with open("./activation.json", "r") as ul_activation:
             activated: dict = json.load(ul_activation)
-            print(activated)
+            print("Activated channels function call `is_activated` (Message from line 22 @ cogs/gemini.py)")
             return bool(activated.get(str(channel_id), False))
         
     @commands.Cog.listener("on_message")
@@ -69,44 +69,11 @@ class GeminiCog(commands.Cog):
                 await ManagedMessages.remove_from_message_list(channel_id, reaction.message.id)
             
             case "⭐":
-                print("User liked message")
+                await ManagedMessages.save_message_to_db(message_content=reaction.message.content, jump_url=reaction.message.jump_url)
+                print(f"Saved message to db (Jump URL) {reaction.message.jump_url}")
 
             case _:
                 await ManagedMessages.add_to_message_list(channel_id, reaction.message.id, f"{user.name} reacted with '{reaction.emoji}' to your message '{reaction.message.content}'")
-
-    @commands.command()
-    async def wack(self, ctx : Message):
-        await ctx.reply(await ManagedMessages.remove_channel_from_list(ctx.channel.id))
-    
-    @commands.command()
-    async def activate(self, ctx):
-        with open("./activation.json", "r") as unloaded_activated_channel:
-            activated_channels = json.load(unloaded_activated_channel)
-            activated_channels[ctx.channel.id] = True
-
-        with open("./activation.json", "w") as unloaded_activated_channel:
-            json.dump(activated_channels, unloaded_activated_channel)
-
-            activated_string = config["MESSAGES"]["activated_message"] or f"{self.bot.user.name} is activated in <#{ctx.channel.id}>"
-            await ctx.reply(activated_string, mention_author=False)
-
-    @commands.command()
-    async def deactivate(self, ctx):
-        with open("./activation.json", "r") as unloaded_activated_channel:
-            activated_channels = json.load(unloaded_activated_channel)
-            del activated_channels[str(ctx.channel.id)]
-
-        with open("./activation.json", "w") as unloaded_activated_channel:
-            json.dump(activated_channels, unloaded_activated_channel)
-
-            activated_string = config["MESSAGES"]["deactivated_message"] or f"{self.bot.user.name} has deactivated in <#{ctx.channel.id}>"
-            await ctx.reply(activated_string, mention_author=False)
-
-    @commands.command()
-    async def remember(self, ctx):
-        await Memories().save_to_memory(message=ctx.message, force=True)
-        await ctx.reply("force remembered ._.")
-        
-
+                
 async def setup(bot: commands.Bot):
     await bot.add_cog(GeminiCog(bot))

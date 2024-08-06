@@ -20,7 +20,7 @@ class NewFreewill(commands.Cog):
     def is_activated(self, channel_id) -> bool:
         with open("./activation.json", "r") as ul_activation:
             activated: dict = json.load(ul_activation)
-            print(activated)
+            print("Activated channels function call `is_activated` (Message from line 23 @ cogs/new_freewill.py)")
             return bool(activated.get(str(channel_id), False))
 
     @commands.Cog.listener("on_message")

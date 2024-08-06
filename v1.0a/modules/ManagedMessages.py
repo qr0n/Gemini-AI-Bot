@@ -1,8 +1,20 @@
 import json
 from typing import Dict
+import mysql.connector
 
 with open("./config.json", "r") as ul_config:
     config = json.load(ul_config)
+
+db_config = {
+    'user': config["SQL_CREDENTIALS"]["username"],
+    'password': config["SQL_CREDENTIALS"]["password"],
+    'host': config["SQL_CREDENTIALS"]["host"],
+    'database': config["SQL_CREDENTIALS"]["database"],
+}
+
+conn = mysql.connector.connect(**db_config)
+cursor = conn.cursor()
+max_context_window = config["GEMINI"]["MAX_CONTEXT_WINDOW"]
 
 class ManagedMessages:
 
@@ -86,3 +98,12 @@ class ManagedMessages:
         
         else:
             return config["MESSAGES"]["wack_error"] or "No context window found. :pensive:"
+    
+    async def save_message_to_db(message_content, jump_url):
+        """Allow's for the user to save a message permanently to a list"""
+        
+        sql = """INSERT INTO bot_db (message_content, jump_url) VALUES (%s, %s)"""
+        values = (message_content, jump_url)
+
+        cursor.execute(sql, values)
+        conn.commit()

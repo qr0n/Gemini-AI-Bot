@@ -122,7 +122,7 @@ class BotModel:
         attachment : genai.types.File = None,
         retry = 3
         """
-        print(context_window)
+        
         context = '\n'.join(context_window[channel_id])
         prompt_with_context = prompt + "\n" + context
 
@@ -130,7 +130,6 @@ class BotModel:
             media_addon = "Describe this piece of media to yourself in a way that if referenced again, you will be able to answer any potential question asked."
             # full_prompt = [_prompt, "\n", image_addon, "\n", attachment] # Old stuff, experimenting with google file api
             # attachment_file = genai.upload_file(attachment)
-            print(type(attachment))
             full_prompt = [prompt_with_context, "\n", media_addon , "\n", attachment]
         else:
             full_prompt = prompt_with_context
@@ -166,22 +165,23 @@ class BotModel:
         return config["MESSAGES"]["error"] or "Sorry, could you please repeat that?"
     
     async def upload_attachment(attachment):
-        """
-        This function will upload an attachment to Google using FileAPI
-        This function is called everywhere an attachment is required to be processed.
-        
-        attachment : Any*
-        """
         print("Called function upload_attachment")
         attachment_media = genai.upload_file(attachment)
-        while attachment_media.state.name == "PROCESSING":
-            await asyncio.sleep(2)
-            print("Media processing")
-        if attachment_media.state.name == "ACTIVE":
-            print("Media active")
-            return genai.get_file(attachment_media.name)
-        if attachment_media.state.name == "FAILED":
-            print("Media failed.")
+    
+        while True:
+            if attachment_media.state.name == "PROCESSING":
+                print("Media processing")
+                await asyncio.sleep(2)
+                attachment_media = genai.get_file(attachment_media.name)  # Update the state
+            elif attachment_media.state.name == "ACTIVE":
+                print("Media active")
+                return attachment_media
+            elif attachment_media.state.name == "FAILED":
+                print("Media failed.")
+                return None
+            else:
+                print(f"Unknown state: {attachment_media.state.name}")
+                return None
     
     async def __generate_reaction(prompt, channel_id, attachment=None):
         reaction_model = genai.GenerativeModel(model_name=config["GEMINI"]["AI_MODEL"], system_instruction=prompt)
