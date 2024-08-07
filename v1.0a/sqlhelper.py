@@ -30,6 +30,7 @@ cursor.execute(
     CREATE TABLE IF NOT EXISTS bot_db (
     id INT AUTO_INCREMENT PRIMARY KEY,
     message_content TEXT NOT NULL,
+    message_id BIGINT NOT NULL,
     jump_url TEXT NOT NULL
     )
     """

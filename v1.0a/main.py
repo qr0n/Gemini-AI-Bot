@@ -1,7 +1,7 @@
 import json
-from discord.ext import commands
-from discord import Intents, Message
 import os
+from discord.ext import commands
+from discord import Intents
 
 with open("config.json", "r") as _config:
     config = json.load(_config)

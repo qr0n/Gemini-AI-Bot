@@ -1,6 +1,6 @@
 import json
-from typing import Dict
 import mysql.connector
+from typing import Dict
 
 with open("./config.json", "r") as ul_config:
     config = json.load(ul_config)
@@ -52,6 +52,9 @@ class ManagedMessages:
         message_list.append(message)
         managed_message_list.append(message_id)
 
+        print(managed_message_list)
+        print(message_list)
+
         return message_id
 
     async def remove_from_message_list(channel_id: str | int, message_id: str | int) -> None:
@@ -69,7 +72,7 @@ class ManagedMessages:
                 print(f"An error occurred while removing message ID {message_id} from channel {channel_id}: {e}")
         else:
             print(f"Channel ID {channel_id} not found.")
-
+        
     async def remove_message_from_index(channel_id : str | int, index : int):
         """Allows removal of message from list with use of an index"""
         
@@ -99,11 +102,16 @@ class ManagedMessages:
         else:
             return config["MESSAGES"]["wack_error"] or "No context window found. :pensive:"
     
-    async def save_message_to_db(message_content, jump_url):
-        """Allow's for the user to save a message permanently to a list"""
+    async def save_message_to_db(message_content, message_id, jump_url):
+        """Allows for the user to save a message permanently to a list"""
         
-        sql = """INSERT INTO bot_db (message_content, jump_url) VALUES (%s, %s)"""
-        values = (message_content, jump_url)
+        sql = """INSERT INTO bot_db (message_content, message_id, jump_url) VALUES (%s, %s, %s);"""
+        values = (message_content, message_id, jump_url)
 
         cursor.execute(sql, values)
         conn.commit()
+
+    async def remove_message_from_db(message_id):
+        """Allows for the user to delete a message using its message id from the database"""
+        sql = f"""DELETE FROM bot_db WHERE message_id='{message_id}';"""
+    

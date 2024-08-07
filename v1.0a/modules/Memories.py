@@ -58,7 +58,11 @@ class Memories:
     async def summarize_context_window(self, channel_id, retry=3):
         prompt = f"You're a data analyst who's only purpose is to summarize large but concise summaries on text provided to you, try to retain most of the information! Your first task is to summarize this conversation from the perspective of {self.character_name} --- Conversation Start ---\n{'\n'.join(context_window[channel_id])} --- Conversation End ---"
         
-        response = await model.generate_content_async(prompt)
+        response = await model.generate_content_async(prompt, safety_settings={
+                                                        HarmCategory.HARM_CATEGORY_HARASSMENT : config["GEMINI"]["FILTERS"]["sexually_explicit"],
+                                                        HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT : config["GEMINI"]["FILTERS"]["harassment"],
+                                                        HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT : config["GEMINI"]["FILTERS"]["dangerous_content"],
+                                                        HarmCategory.HARM_CATEGORY_HATE_SPEECH : config["GEMINI"]["FILTERS"]["hate_speech"]})
         
         try:
             return response.text
@@ -152,7 +156,11 @@ Provide your response in a JSON format {"is_worth" : true/false, "special_phrase
         remember_model = genai.GenerativeModel(config["GEMINI"]["AI_MODEL"], system_instruction=system_instruction)
         try:
 
-            unloaded_json = await remember_model.generate_content_async(context, generation_config={"response_mime_type": "application/json"})
+            unloaded_json = await remember_model.generate_content_async(context, generation_config={"response_mime_type": "application/json"}, safety_settings={
+                                                        HarmCategory.HARM_CATEGORY_HARASSMENT : config["GEMINI"]["FILTERS"]["sexually_explicit"],
+                                                        HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT : config["GEMINI"]["FILTERS"]["harassment"],
+                                                        HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT : config["GEMINI"]["FILTERS"]["dangerous_content"],
+                                                        HarmCategory.HARM_CATEGORY_HATE_SPEECH : config["GEMINI"]["FILTERS"]["hate_speech"]})
             clean_json = json.loads(self.clean_json(unloaded_json.text))
             print(clean_json)
             return clean_json
@@ -199,9 +207,13 @@ without ANY formatting, i.e., no backticks '`', no syntax highlighting, no numbe
 Context: {"\n".join(context_window[channel_id])}
 List of phrases: {", ".join(entries)}
 """
-        print(message_list)
+        print("Compare Memories function call `Memories.compare_memories` (Message from line 202 @ modules/Memories.py)")
         try:
-            unloaded_json = await comparing_model.generate_content_async(message_list, generation_config={"response_mime_type": "application/json"})
+            unloaded_json = await comparing_model.generate_content_async(message_list, generation_config={"response_mime_type": "application/json"}, safety_settings={
+                                                        HarmCategory.HARM_CATEGORY_HARASSMENT : config["GEMINI"]["FILTERS"]["sexually_explicit"],
+                                                        HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT : config["GEMINI"]["FILTERS"]["harassment"],
+                                                        HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT : config["GEMINI"]["FILTERS"]["dangerous_content"],
+                                                        HarmCategory.HARM_CATEGORY_HATE_SPEECH : config["GEMINI"]["FILTERS"]["hate_speech"]})
             clean_json = json.loads(self.clean_json(unloaded_json.text))
             return clean_json
         except Exception as E:

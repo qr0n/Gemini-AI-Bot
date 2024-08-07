@@ -1,13 +1,11 @@
 import discord
 from discord.ext import commands
-import os
 
 class DevCommands(commands.Cog, name='Developer Commands'):
 	'''These are the developer commands'''
 
 	def __init__(self, bot):
 		self.bot: commands.Bot = bot
-		print("Cog Manager Loaded")
 
 	async def cog_check(self, ctx):  
 		'''

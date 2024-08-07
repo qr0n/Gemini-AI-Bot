@@ -1,10 +1,9 @@
+import json
 from discord import Message, AllowedMentions, Reaction
 from discord.ext import commands
 from modules.DiscordBot import Gemini
 from modules.BotModel import load_character_details
 from modules.ManagedMessages import ManagedMessages
-from modules.Memories import Memories
-import json
 
 allowed_mentions = AllowedMentions(everyone=False, users=False, roles=False)
 
@@ -54,25 +53,30 @@ class GeminiCog(commands.Cog):
 
     @commands.Cog.listener("on_reaction_add")
     async def on_rxn_add(self, reaction : Reaction, user):
-        
-        if reaction.message.author.id is not self.bot.user.id and not reaction.is_custom_emoji(): 
-            return
-        
         channel_id = reaction.message.channel.id
-        
-        if channel_id not in ManagedMessages.context_window:
-            ManagedMessages.context_window[channel_id] = []
             
         match reaction.emoji:
             
             case "🔇":
                 await ManagedMessages.remove_from_message_list(channel_id, reaction.message.id)
+                print(f"Removed message ID ({reaction.message.id}) from STM")
             
             case "⭐":
-                await ManagedMessages.save_message_to_db(message_content=reaction.message.content, jump_url=reaction.message.jump_url)
-                print(f"Saved message to db (Jump URL) {reaction.message.jump_url}")
+                await ManagedMessages.save_message_to_db(message_content=reaction.message.content, message_id=reaction.message.id, jump_url=reaction.message.jump_url)
+                print("Saved message to `bot_db`")
+
+            case "🗑️":
+                await ManagedMessages.remove_message_from_db(message_id=reaction.message.id)
 
             case _:
+
+                if reaction.message.author.id is not self.bot.user.id and not reaction.is_custom_emoji(): 
+                    return
+        
+                if channel_id not in ManagedMessages.context_window:
+                    ManagedMessages.context_window[channel_id] = []
+                    print(reaction.emoji)
+
                 await ManagedMessages.add_to_message_list(channel_id, reaction.message.id, f"{user.name} reacted with '{reaction.emoji}' to your message '{reaction.message.content}'")
                 
 async def setup(bot: commands.Bot):

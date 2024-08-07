@@ -1,14 +1,18 @@
+import json
+import discord
 from discord.ext import commands
 from discord.ext.commands import Context
 from modules.ManagedMessages import ManagedMessages
 from modules.Memories import Memories
-import json
 
 with open("./config.json", "r") as ul_config:
     config = json.load(ul_config)
 
 class AIController(commands.Cog, name='AI-Controller'):
     '''These commands are used to control the AI'''
+
+    def __init__(self, bot):
+        self.bot : commands.Bot = bot
 
     @commands.command()
     async def wack(self, ctx : Context):
@@ -46,6 +50,31 @@ class AIController(commands.Cog, name='AI-Controller'):
         """Forcefully calls the save_to_memory function [MAY NOT WORK AS EXPECTED]"""
         await Memories().save_to_memory(message=ctx.message, force=True)
         await ctx.reply("force remembered ._.")
+
+    @commands.command()
+    async def connect(self, ctx : Context , channel : discord.VoiceChannel = None):
+        """Joins a voice channel."""
+
+        destination = channel if channel else ctx.author.voice.channel # CHOOSING THE DESTINATION, MIGHT BE THE REQUESTED ONE, BUT IF NOT THEN WE PICK AUTHORS VOICE CHANNEL
+
+        if ctx.voice_client: # CHECKING IF THE BOT IS PLAYING SOMETHING
+            await ctx.voice_state.voice.move_to(destination) # IF THE BOT IS PLAYING WE JUST MOVE THE BOT TO THE DESTINATION
+            return
+
+        await destination.connect() # CONNECTING TO DESTINATION
+        await ctx.send(f"Succesfully joined the voice channel: {destination.name} ({destination.id}).")
+
+    @commands.command()
+    async def play(self, ctx : Context, channel : discord.VoiceChannel = None):
+        destination = channel if channel else ctx.author.voice.channel # CHOOSING THE DESTINATION, MIGHT BE THE REQUESTED ONE, BUT IF NOT THEN WE PICK AUTHORS VOICE CHANNEL
+
+        if ctx.voice_client: # CHECKING IF THE BOT IS PLAYING SOMETHING
+            await ctx.voice_state.voice.move_to(destination) # IF THE BOT IS PLAYING WE JUST MOVE THE BOT TO THE DESTINATION
+            return
+        
+        await destination.connect() # CONNECTING TO DESTINATION
+        await ctx.send(f"Succesfully joined the voice channel: {destination.name} ({destination.id}).")
+        
 
 async def setup(bot : commands.Bot):
     await bot.add_cog(AIController(bot))
