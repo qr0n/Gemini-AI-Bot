@@ -1,21 +1,34 @@
 import discord
 from discord.ext import commands
 import asyncio
-import speech_recognition as sr
+import json
+
 from typing import Dict, Any
-import io
+from modules.BotModel import BotModel
+from modules.DiscordBot import Gemini
+
+with open("./config.json", "r") as ul_config:
+    config = json.load(ul_config)
 
 async def once_done(sink: discord.sinks, channel: discord.TextChannel, *args, ):  # Our voice client already passes these in.
-    recorded_users = [  # A list of recorded users
-        f"<@{user_id}>"
-        for user_id, audio in sink.audio_data.items()]
+    recorded_users = [f"<@{user_id}>" for user_id, audio in sink.audio_data.items()]
     
     await sink.vc.disconnect()  # Disconnect from the voice channel.
+
     for user_id, audio in sink.audio_data.items():
-        print(type(audio.file.read()))
-        with open(f'./{user_id}.{sink.encoding}', 'wb') as f:
+        file_name = f'./{user_id}.{sink.encoding}'
+        
+        print("recv ", type(audio.file.read()))
+
+        with open(file_name, 'wb') as f:
             audio.file.seek(0)
             f.write(audio.file.read())
+            f.close()
+
+        file = await BotModel.upload_attachment(file_name)
+        response = await BotModel.speech_to_text(audio_file=file)
+
+        await Gemini.generate_response()
         await channel.send(f"Finished recording audio for: {', '.join(recorded_users)}.", file=discord.File(f"{user_id}.{sink.encoding}"))
 
 connections: Dict[int, discord.VoiceClient] = {}

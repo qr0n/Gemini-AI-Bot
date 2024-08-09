@@ -82,6 +82,3 @@ class Gemini:
         else:
             response = await BotModel.generate_content(prompt, channel_id)
             return response
-    
-    async def generate_reaction(message : Message):
-        return

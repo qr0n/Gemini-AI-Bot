@@ -1,6 +1,8 @@
 import json
 import mysql.connector
+
 from typing import Dict
+from itertools import count
 
 with open("./config.json", "r") as ul_config:
     config = json.load(ul_config)
@@ -112,3 +114,31 @@ class ManagedMessages:
         """Allows for the user to delete a message using its message id from the database"""
         sql = f"""DELETE FROM bot_db WHERE message_id='{message_id}';"""
     
+class headless_ManagedMessages:
+    """
+    `headless_ManagedMessages`
+    Deals with messages without an assigned ID, 
+    Assigns an autoincrementing ID
+    """
+
+    def __init__(self):
+        self.context_window : Dict[str | int, list] = {}
+        self.managed_messages : Dict[str | int, list] = {}
+
+    async def check_restrictions(message_list: list) -> bool:
+        """Internal function for checking if the context window is within 'X' items"""
+        if len(message_list) >= config["GEMINI"]["MAX_CONTEXT_WINDOW"]:
+            message_list.pop(0)  # removes the first element in the list
+            return False
+        else:
+            return True
+
+    async def add_to_message_list(self, message_id, text):
+        """
+        Adds message to the context window with an assigned autoincrementing ID
+        Arguments: 
+        - message_id : int
+        - text : str
+        """
+        
+        self.context_window[message_id] = text
