@@ -52,9 +52,6 @@ class ManagedMessages:
         message_list.append(message)
         managed_message_list.append(message_id)
 
-        print(managed_message_list)
-        print(message_list)
-
         return message_id
 
     async def remove_from_message_list(channel_id: str | int, message_id: str | int) -> None:
