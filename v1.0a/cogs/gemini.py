@@ -1,4 +1,5 @@
 import json
+import asyncio
 from discord import Message, AllowedMentions, Reaction
 from discord.ext import commands
 from modules.DiscordBot import Gemini
@@ -33,7 +34,8 @@ class GeminiCog(commands.Cog):
         else:
             return
 
-        await message.channel.typing()
+        async with message.channel.typing():
+            await asyncio.sleep(2)
         # do stuff here? 
 
         response = await Gemini.generate_response(message)
@@ -79,5 +81,5 @@ class GeminiCog(commands.Cog):
 
                 await ManagedMessages.add_to_message_list(channel_id, reaction.message.id, f"{user.name} reacted with '{reaction.emoji}' to your message '{reaction.message.content}'")
                 
-async def setup(bot: commands.Bot):
-    await bot.add_cog(GeminiCog(bot))
+def setup(bot: commands.Bot):
+    bot.add_cog(GeminiCog(bot))

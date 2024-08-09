@@ -24,13 +24,13 @@ class DevCommands(commands.Cog, name='Developer Commands'):
 		extensions = self.bot.extensions  # A list of the bot's cogs/extensions.
 		if cog == 'all':  # Lets you reload all cogs at once
 			for extension in extensions:
-				await self.bot.unload_extension(extension)
-				await self.bot.load_extension(extension)
-				await ctx.send(f"Reloaded `{extension}`")
+				self.bot.unload_extension(extension)
+				self.bot.load_extension(extension)
+				ctx.send(f"Reloaded `{extension}`")
 		if cog in extensions:
-			await self.bot.unload_extension(cog)  # Unloads the cog
-			await self.bot.load_extension(cog)  # Loads the cog
-			await ctx.send(f'Reloaded `{cog}`')  # Sends a message where content='Done'
+			self.bot.unload_extension(cog)  # Unloads the cog
+			self.bot.load_extension(cog)  # Loads the cog
+			ctx.send(f'Reloaded `{cog}`')  # Sends a message where content='Done'
 
 
 	@commands.command(name="unload", aliases=['ul']) 
@@ -73,5 +73,5 @@ class DevCommands(commands.Cog, name='Developer Commands'):
     "description" : f"{base_string}"
     }))
 		
-async def setup(bot):
-	await bot.add_cog(DevCommands(bot))
+def setup(bot):
+	bot.add_cog(DevCommands(bot))

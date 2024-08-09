@@ -76,5 +76,5 @@ class AIController(commands.Cog, name='AI-Controller'):
         await ctx.send(f"Succesfully joined the voice channel: {destination.name} ({destination.id}).")
         
 
-async def setup(bot : commands.Bot):
-    await bot.add_cog(AIController(bot))
+def setup(bot : commands.Bot):
+    bot.add_cog(AIController(bot))

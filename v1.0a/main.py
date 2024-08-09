@@ -12,10 +12,12 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-@bot.event
-async def setup_hook():
+@bot.listen('on_ready', once=True)
+async def cog_loader():
+    print("Loading extentions")
     for filename in os.listdir('D:/Python/Gemini-AI-Bot/v1.0a/cogs'):
         if filename.endswith('.py'):
-            await bot.load_extension(f'cogs.{filename[:-3]}')
+            print("loading [", filename, "]")
+            bot.load_extension(f'cogs.{filename[:-3]}')
     
 bot.run(config["BOT_TOKEN"])
