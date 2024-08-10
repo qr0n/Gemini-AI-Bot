@@ -2,14 +2,13 @@ import json
 import asyncio
 import google.generativeai as genai
 import speech_recognition as sr
-from modules.ManagedMessages import ManagedMessages
+from modules.ManagedMessages import ManagedMessages, headless_ManagedMessages
 from discord import Message
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
 
 with open("./config.json", "r") as ul_config:
     config = json.load(ul_config)
 
-# context_window = ContextWindow() # TODO : Reimplement ContextWindow
 context_window = ManagedMessages().context_window
 
 genai.configure(api_key=config["GEMINI"]["API_KEY"])
@@ -43,7 +42,7 @@ def load_character_details():
         "description": description
     }
 
-def read_prompt(message: Message = None, memory=None):
+def read_prompt(message: Message = None, memory=None, author_name=None):
         """This function reads the prompt inside prompt.json and formats in a usable system instruction
         message : discord.Message
         memory = None
@@ -67,7 +66,7 @@ def read_prompt(message: Message = None, memory=None):
         role = personality_traits.get('role', 'unknown_role')
         description = personality_traits.get('description', 'no description provided')
 
-        author_name = message.author.name if message else "unknown_user"
+        author_name = message.author.name if message else author_name or "unknown_user" 
         bot_name = load_character_details()['name'] 
 
         # If memory is present, append to the prompt | TODO : append to prompt for context window
@@ -131,6 +130,7 @@ class BotModel:
             # full_prompt = [_prompt, "\n", image_addon, "\n", attachment] # Old stuff, experimenting with google file api
             # attachment_file = genai.upload_file(attachment)
             full_prompt = [prompt_with_context, "\n", media_addon , "\n", attachment]
+
         else:
             full_prompt = prompt_with_context
 
@@ -218,8 +218,7 @@ class BotModel:
         
         response = await speech_to_text_model.generate_content_async(["describe this audio file\n", audio_file])
         print("[BotModel.py] | Response from STT Module: ", response.text)
-        return response.text
-        
+        return response.text       
     
     async def generate_reaction(prompt, channel_id : str | int, attachment : genai.types.File=None):
         """
@@ -234,3 +233,50 @@ class BotModel:
 
         system_instruction = """You are 'Sponge' in this conversation. You now have the ability to send one emoji, """
         reaction_model = genai.GenerativeModel(model_name=config["GEMINI"]["AI_MODEL"], system_instruction=prompt)
+
+class headless_BotModel:
+
+    async def generate_content(channel_id, prompt, attachment : genai.types.File = None, retry=3):
+        """
+        Only used for voice calls
+        ._. kill me.
+        """
+
+        headless_mm = headless_ManagedMessages
+
+        context = '\n'.join(headless_mm.context_window[channel_id])
+        full_prompt = prompt + "\n" + context
+        # TODO HERE REMOVE THIS AND OPTIMIZE BY SENDING VOICE MESSAGE DIRECTLY TO API
+        response = await model.generate_content_async(full_prompt, safety_settings={
+                                                        HarmCategory.HARM_CATEGORY_HARASSMENT : config["GEMINI"]["FILTERS"]["sexually_explicit"],
+                                                        HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT : config["GEMINI"]["FILTERS"]["harassment"],
+                                                        HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT : config["GEMINI"]["FILTERS"]["dangerous_content"],
+                                                        HarmCategory.HARM_CATEGORY_HATE_SPEECH : config["GEMINI"]["FILTERS"]["hate_speech"]
+                                                        })
+        
+        try:
+            text = response.text.strip()
+            return text
+        
+        except Exception as error:
+            print("[headless_BotModel] BotModel.py: Error: While generating a response, this exception occurred", error)
+            print(response.candidates)
+    
+        retry_count = 0
+        while retry_count < retry:
+            try: 
+                fall_back_response = response.candidates[0].content.parts
+                return str(fall_back_response).strip()
+            except Exception as E:
+                print(f"Error generating response (retry {retry_count}): {E}")
+                retry_count += 1
+
+        try:
+            await headless_ManagedMessages.remove_message_from_index(channel_id, 0)
+
+        except (IndexError, KeyError):
+            pass
+
+        return config["MESSAGES"]["error"] or "Sorry, could you please repeat that?"
+    
+        

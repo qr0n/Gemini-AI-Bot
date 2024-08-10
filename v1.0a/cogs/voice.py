@@ -4,7 +4,7 @@ import asyncio
 import json
 
 from typing import Dict, Any
-from modules.BotModel import BotModel
+from modules.BotModel import BotModel, headless_BotModel
 from modules.DiscordBot import Gemini
 
 with open("./config.json", "r") as ul_config:
@@ -26,9 +26,10 @@ async def once_done(sink: discord.sinks, channel: discord.TextChannel, *args, ):
             f.close()
 
         file = await BotModel.upload_attachment(file_name)
-        response = await BotModel.speech_to_text(audio_file=file)
+        stt = await BotModel.speech_to_text(audio_file=file)
 
-        await Gemini.generate_response()
+        response = await headless_BotModel.generate_content(prompt=stt, channel_id=channel.id)
+        await channel.send(response)
         await channel.send(f"Finished recording audio for: {', '.join(recorded_users)}.", file=discord.File(f"{user_id}.{sink.encoding}"))
 
 connections: Dict[int, discord.VoiceClient] = {}

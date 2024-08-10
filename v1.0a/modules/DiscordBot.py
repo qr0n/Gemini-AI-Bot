@@ -6,8 +6,8 @@ import json
 import os
 from discord import Message
 from modules.Memories import Memories
-from modules.BotModel import read_prompt, BotModel
-from modules.ManagedMessages import ManagedMessages
+from modules.BotModel import read_prompt, BotModel, headless_BotModel
+from modules.ManagedMessages import ManagedMessages, headless_ManagedMessages
 
 context_window = ManagedMessages().context_window
 memories = Memories()
@@ -82,3 +82,22 @@ class Gemini:
         else:
             response = await BotModel.generate_content(prompt, channel_id)
             return response
+        
+class headless_Gemini:
+
+    async def generate_response(channel_id, author_name, author_content):
+
+        if channel_id not in context_window:
+            context_window[channel_id] = [] # if channel id isnt present in context window, make a new key
+
+        message_in_list = headless_ManagedMessages.add_to_message_list(channel_id=channel_id, text=f"{author_name} : {author_content}")
+
+        remembered_memories = await memories.compare_memories(channel_id, author_content)
+
+        if remembered_memories["is_similar"]:
+            prompt = read_prompt(memory=remembered_memories["similar_phrase"], author_name=author_name)
+        else: 
+            prompt = read_prompt(author_name=author_name)
+
+        response = await headless_BotModel.generate_content(channel_id=channel_id, prompt=prompt, author_name=author_name, author_content=author_content)
+        return response

@@ -121,9 +121,8 @@ class headless_ManagedMessages:
     Assigns an autoincrementing ID
     """
 
-    def __init__(self):
-        self.context_window : Dict[str | int, list] = {}
-        self.managed_messages : Dict[str | int, list] = {}
+    context_window : Dict[str | int, list] = {1270639372181442560 : []}
+    managed_messages : Dict[str | int, list] = {}
 
     async def check_restrictions(message_list: list) -> bool:
         """Internal function for checking if the context window is within 'X' items"""
@@ -133,12 +132,23 @@ class headless_ManagedMessages:
         else:
             return True
 
-    async def add_to_message_list(self, message_id, text):
+    async def add_to_message_list(channel_id, text, check_restrictions=True):
         """
         Adds message to the context window with an assigned autoincrementing ID
         Arguments: 
         - message_id : int
         - text : str
         """
+
+        context_window = headless_ManagedMessages.context_window
         
-        self.context_window[message_id] = text
+
+        if channel_id not in context_window:
+            context_window[channel_id] = []
+
+        message_list : list = context_window[channel_id]
+        
+        if check_restrictions:
+            await check_restrictions(message_list)
+        
+        message_list.append(text) # author : text
