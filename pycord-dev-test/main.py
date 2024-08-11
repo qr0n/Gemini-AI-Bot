@@ -42,4 +42,4 @@ async def speak(ctx, *, message):
     else:
         await ctx.send("You need to be in a voice channel to use this command.")
 
-bot.run("MTI0NTkyMTYwOTQzMzQ4MTIzNg.Gi9KqZ.ia1Q76sXU_F76NCpkIwTI4DfQo6kRVw0QDUj3o")
+bot.run("BOT-TOKEN")
