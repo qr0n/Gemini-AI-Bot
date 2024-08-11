@@ -4,3 +4,9 @@ TODO
 venv/*
 *.wav
 *.pyc
+__pycache__
+pycord-dev-test/123.mp3
+v1.0a/modules/__pycache__/BotModel.cpython-312.pyc
+v1.0a/modules/__pycache__/ManagedMessages.cpython-312.pyc
+v1.0a/cogs/__pycache__/voice.cpython-312.pyc
+pycord-dev-test/tts.py
