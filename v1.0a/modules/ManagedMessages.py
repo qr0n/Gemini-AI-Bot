@@ -116,12 +116,9 @@ class ManagedMessages:
     
 class headless_ManagedMessages:
     """
-    `headless_ManagedMessages`
-    Deals with messages without an assigned ID, 
-    Assigns an autoincrementing ID
     """
 
-    context_window : Dict[str | int, list] = {1270639372181442560 : []}
+    context_window : Dict[str | int, list] = {}
     managed_messages : Dict[str | int, list] = {}
 
     async def check_restrictions(message_list: list) -> bool:
@@ -134,21 +131,22 @@ class headless_ManagedMessages:
 
     async def add_to_message_list(channel_id, text, check_restrictions=True):
         """
-        Adds message to the context window with an assigned autoincrementing ID
-        Arguments: 
-        - message_id : int
-        - text : str
+        Adds messages loosely to the headless message list
         """
 
         context_window = headless_ManagedMessages.context_window
         
-
         if channel_id not in context_window:
             context_window[channel_id] = []
 
         message_list : list = context_window[channel_id]
         
         if check_restrictions:
-            await check_restrictions(message_list)
+            await headless_ManagedMessages.check_restrictions(message_list)
         
+
+        # pre apend
+        print("[PRE] Add to window function call `add_to_message_list` (Message from line 149 @ modules/ManagedMessages.py)")
         message_list.append(text) # author : text
+        # post append
+        print("[POST] Add to window function call `add_to_message_list` (Message from line 152 @ modules/ManagedMessages.py)", message_list)

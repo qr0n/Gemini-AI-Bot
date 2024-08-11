@@ -165,12 +165,12 @@ class BotModel:
         return config["MESSAGES"]["error"] or "Sorry, could you please repeat that?"
     
     async def upload_attachment(attachment):
-        print("Called function upload_attachment")
+        print("Uploading Attachment function call `BotModel.upload_attachment` (Message from line 168 @ modules/BotModel.py)")
         attachment_media = genai.upload_file(attachment)
     
         while True:
             if attachment_media.state.name == "PROCESSING":
-                print("Media processing")
+                print("[Upload_Attachment] : Media processing")
                 await asyncio.sleep(2)
                 attachment_media = genai.get_file(attachment_media.name)  # Update the state
             elif attachment_media.state.name == "ACTIVE":
@@ -243,7 +243,7 @@ class headless_BotModel:
         """
 
         headless_mm = headless_ManagedMessages
-
+        
         context = '\n'.join(headless_mm.context_window[channel_id])
         full_prompt = prompt + "\n" + context
         # TODO HERE REMOVE THIS AND OPTIMIZE BY SENDING VOICE MESSAGE DIRECTLY TO API

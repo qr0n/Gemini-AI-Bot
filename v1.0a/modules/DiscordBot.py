@@ -90,7 +90,7 @@ class headless_Gemini:
         if channel_id not in context_window:
             context_window[channel_id] = [] # if channel id isnt present in context window, make a new key
 
-        message_in_list = headless_ManagedMessages.add_to_message_list(channel_id=channel_id, text=f"{author_name} : {author_content}")
+        await headless_ManagedMessages.add_to_message_list(channel_id=channel_id, text=f"{author_name} : {author_content}")
 
         remembered_memories = await memories.compare_memories(channel_id, author_content)
 
@@ -99,5 +99,5 @@ class headless_Gemini:
         else: 
             prompt = read_prompt(author_name=author_name)
 
-        response = await headless_BotModel.generate_content(channel_id=channel_id, prompt=prompt, author_name=author_name, author_content=author_content)
+        response = await headless_BotModel.generate_content(channel_id=channel_id, prompt=prompt)
         return response

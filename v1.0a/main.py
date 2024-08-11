@@ -1,7 +1,7 @@
 import json
 import os
 from discord.ext import commands
-from discord import Intents
+from discord import Intents, Message
 
 with open("config.json", "r") as _config:
     config = json.load(_config)
@@ -19,5 +19,5 @@ async def cog_loader():
         if filename.endswith('.py'):
             print("loading [", filename, "]")
             bot.load_extension(f'cogs.{filename[:-3]}')
-    
+
 bot.run(config["BOT_TOKEN"])
