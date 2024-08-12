@@ -22,6 +22,7 @@ pip install -r requirements.txt
         "password" : "",
         "host" : "",
         "database" : ""
+
     },
     "GEMINI" : {
         "API_KEY" : "",
@@ -32,12 +33,11 @@ pip install -r requirements.txt
             "harassment" : "BLOCK_NONE",
             "dangerous_content" : "BLOCK_NONE",
             "hate_speech" : "BLOCK_NONE",
-            "unspecified" : "BLOCK_NONE"
-        }
-    },
+            "unspecified" : "BLOCK_MEDIUM_AND_ABOVE"
+        },
     "FREEWILL": {
         "enabled" : false,
-        "text_frequency" : 0,
+        "text_frequency" : 0.02,
         "reaction_frequency" : 0,
         "keywords_added_chance" : 1,
         "keywords" : [""]
@@ -49,7 +49,14 @@ pip install -r requirements.txt
         "activated_message" : "Hey! I'm new here :wave:",
         "deactivated_message" : "Awh, sorry to see you go! You can still talk to me by pinging me :pleading_face:"
     },
-    
+    "VOICE" : {
+        "elevenlabs_api_key" : "",
+        "record_time" : 10
+    },
+    "FILES" : {
+        "allow" : true,
+        "keep_in_context" : false
+    },
     "BOT_TOKEN" : ""
 }
 ``` 
