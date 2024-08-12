@@ -149,4 +149,4 @@ class headless_ManagedMessages:
         print("[PRE] Add to window function call `add_to_message_list` (Message from line 149 @ modules/ManagedMessages.py)")
         message_list.append(text) # author : text
         # post append
-        print("[POST] Add to window function call `add_to_message_list` (Message from line 152 @ modules/ManagedMessages.py)", message_list)
+        print("[POST] Add to window function call `add_to_message_list` (Message from line 152 @ modules/ManagedMessages.py)")

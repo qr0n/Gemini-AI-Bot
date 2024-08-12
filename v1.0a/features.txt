@@ -12,6 +12,7 @@ Inputs
 
 Outputs
     - text
+    - audio
 
 ------------------------- ^^ General Stuff ^^ -------------------------
 

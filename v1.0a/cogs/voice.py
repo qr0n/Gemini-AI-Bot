@@ -4,7 +4,7 @@ import json
 import os
 import io
 
-from elevenlabs.client import ElevenLabs
+from elevenlabs.client import ElevenLabs, AsyncElevenLabs
 from elevenlabs import play, stream, save
 from discord.ext import commands, tasks
 from discord import AllowedMentions

@@ -165,19 +165,19 @@ class BotModel:
         return config["MESSAGES"]["error"] or "Sorry, could you please repeat that?"
     
     async def upload_attachment(attachment):
-        print("Uploading Attachment function call `BotModel.upload_attachment` (Message from line 168 @ modules/BotModel.py)")
+        print("[INIT] Uploading Attachment function call `BotModel.upload_attachment` (Message from line 168 @ modules/BotModel.py)")
         attachment_media = genai.upload_file(attachment)
     
         while True:
             if attachment_media.state.name == "PROCESSING":
-                print("[Upload_Attachment] : Media processing")
+                print("[PROCESSING] Uploading Attachment function call `BotModel.upload_attachment` (Message from line 173 @ modules/BotModel.py)")
                 await asyncio.sleep(2)
                 attachment_media = genai.get_file(attachment_media.name)  # Update the state
             elif attachment_media.state.name == "ACTIVE":
-                print("Media active")
+                print("[SUCCESS] Uploading Attachment function call `BotModel.upload_attachment` (Message from line 177 @ modules/BotModel.py)")
                 return attachment_media
             elif attachment_media.state.name == "FAILED":
-                print("Media failed.")
+                print("[FAILED] Uploading Attachment function call `BotModel.upload_attachment` (Message from line 180 @ modules/BotModel.py)")
                 return None
             else:
                 print(f"Unknown state: {attachment_media.state.name}")
@@ -207,7 +207,7 @@ class BotModel:
         """
         [async]
         This function is called when a `.ogg` file is uploaded to discord"""
-        print("STT module called")
+        print("Speech To Text function call `speech_to_text` (Message from line 210 @ modules/BotModel.py)")
         system_instruction = """You are now a microphone, you will ONLY return the words in the audio file, DO NOT describe them."""
         speech_to_text_model = genai.GenerativeModel(config["GEMINI"]["AI_MODEL"], system_instruction=system_instruction, safety_settings={
                                                     HarmCategory.HARM_CATEGORY_HARASSMENT : config["GEMINI"]["FILTERS"]["sexually_explicit"],
@@ -217,7 +217,7 @@ class BotModel:
                                                     })
         
         response = await speech_to_text_model.generate_content_async(["describe this audio file\n", audio_file])
-        print("[BotModel.py] | Response from STT Module: ", response.text)
+        print("[RESPONSE] Response from STT Module: ", response.text)
         return response.text       
     
     async def generate_reaction(prompt, channel_id : str | int, attachment : genai.types.File=None):
@@ -236,10 +236,11 @@ class BotModel:
 
 class headless_BotModel:
 
-    async def generate_content(channel_id, prompt, attachment : genai.types.File = None, retry=3):
+    async def generate_content(channel_id : str | int, prompt : str, retry : int =3):
         """
-        Only used for voice calls
-        ._. kill me.
+        Accepts channel_id : str or int
+        prompt : str 
+        retry : int = 3
         """
 
         headless_mm = headless_ManagedMessages

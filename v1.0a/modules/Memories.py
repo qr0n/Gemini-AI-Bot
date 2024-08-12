@@ -162,7 +162,7 @@ Provide your response in a JSON format {"is_worth" : true/false, "special_phrase
                                                         HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT : config["GEMINI"]["FILTERS"]["dangerous_content"],
                                                         HarmCategory.HARM_CATEGORY_HATE_SPEECH : config["GEMINI"]["FILTERS"]["hate_speech"]})
             clean_json = json.loads(self.clean_json(unloaded_json.text))
-            print(clean_json)
+            print("") # TODO Add log here
             return clean_json
         except Exception as E:
             print(E)
