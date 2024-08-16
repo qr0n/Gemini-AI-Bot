@@ -134,7 +134,7 @@ class Memories:
     async def is_worth_remembering(self, context):
         system_instruction = """
 Objective:
-Determine whether a conversation is worth remembering based on predefined criteria and if it is, provide ONE word from the entire conversation that you'd remember.
+Determine whether a conversation is worth remembering based on predefined criteria and if it is, provide a highly detailed phrase summarizing the entire conversation that you'd remember.
 
 Guidelines:
 1. **Relevance**: The conversation should be directly relevant to ongoing or important topics.

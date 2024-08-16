@@ -51,6 +51,7 @@ class Gemini:
             await ManagedMessages.add_to_message_list(channel_id, message_id, f"{message.author.display_name}: {message.content}")
 
             os.remove(save_name)
+            await BotModel.delete_attachment(file)
             return response
         
         # Add text file and audio support soon
@@ -64,6 +65,7 @@ class Gemini:
             file = await BotModel.upload_attachment(save_name)
             response = await BotModel.generate_content(prompt=prompt, channel_id=channel_id, attachment=file)
             
+            await BotModel.delete_attachment(file)
             return response
         
         elif attachments and attachments[0].filename.lower().endswith(".ogg"):
@@ -71,14 +73,18 @@ class Gemini:
             save_name = str(message.id) + " " + message.attachments[0].filename.lower()
             await message.attachments[0].save(save_name)
             file = await BotModel.upload_attachment(save_name)
-            response = await BotModel.speech_to_text(audio_file=file)
+            stt_response = await BotModel.speech_to_text(audio_file=file)
 
             # Remove initial message appended.
             await ManagedMessages.remove_from_message_list(channel_id, message_in_list)
             
-            await ManagedMessages.add_to_message_list(channel_id, message_id, f"{message.author.display_name}: {response}")
-            # Add message from Voicenote to list
+            await ManagedMessages.add_to_message_list(channel_id, message_id, f"{message.author.display_name}: {stt_response}")
+            # Add message from Voice note to list
 
+            response = await BotModel.generate_content(prompt=prompt, channel_id=channel_id)
+
+            return response
+        
         else:
             response = await BotModel.generate_content(prompt, channel_id)
             return response

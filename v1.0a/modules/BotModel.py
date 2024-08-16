@@ -1,7 +1,7 @@
 import json
 import asyncio
 import google.generativeai as genai
-import speech_recognition as sr
+
 from modules.ManagedMessages import ManagedMessages, headless_ManagedMessages
 from discord import Message
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
@@ -15,12 +15,14 @@ genai.configure(api_key=config["GEMINI"]["API_KEY"])
 
 def load_character_details():
     """
-    `load_character_details`
-    Takes no arguments, returns dictionary
-    name : str
-    role : str
-    age : int
-    description : str
+    Description:
+    Handles the `prompt.json` and returns the personality details.
+
+    Arguments:
+    None
+
+    Returns:
+    Dict[str, str]
     """
     try:
         with open("prompt.json", "r") as unloaded_prompt_json:
@@ -34,18 +36,30 @@ def load_character_details():
     role = personality_traits.get('role', 'unknown_role')
     age = personality_traits.get('age', 'unknown_age')
     description = personality_traits.get('description', 'no description provided')
+    likes = personality_traits.get('likes', "N/A")
+    dislikes = personality_traits.get("dislikes", "N/A")
 
     return {
         "name": name,
         "role": role,
         "age": age,
-        "description": description
+        "description": description,
+        "likes" : likes,
+        "dislikes" : dislikes
     }
 
-def read_prompt(message: Message = None, memory=None, author_name=None):
-        """This function reads the prompt inside prompt.json and formats in a usable system instruction
-        message : discord.Message
-        memory = None
+def read_prompt(message: Message = None, memory: str = None, author_name: str = None):
+        """
+        Description:
+        This function reads the prompt from `prompt.json` and formats the values correctly
+
+        Arguments:
+        message : discord.Message = None
+        memory : str = None
+        author_name : str = None
+
+        Returns:
+        prompt : str | prompt_with_memory : str
         """
         try:
             with open("prompt.json", "r") as unloaded_prompt_json:
@@ -65,9 +79,11 @@ def read_prompt(message: Message = None, memory=None, author_name=None):
         age = personality_traits.get('age', 'unknown_age')
         role = personality_traits.get('role', 'unknown_role')
         description = personality_traits.get('description', 'no description provided')
+        likes = personality_traits.get('likes', "N/A")
+        dislikes = personality_traits.get("dislikes", "N/A")
 
         author_name = message.author.name if message else author_name or "unknown_user" 
-        bot_name = load_character_details()['name'] 
+        bot_name = load_character_details()['name']
 
         # If memory is present, append to the prompt | TODO : append to prompt for context window
         if memory: 
@@ -82,12 +98,15 @@ def read_prompt(message: Message = None, memory=None, author_name=None):
 
         {"\n".join([f"{author_name}: {example['user']}\n{bot_name}: {example['bot']}" for example in conversation_examples])}
 
+        Your likes : {likes}
+        
+        Your dislikes: {dislikes}
+
         Context information is below.
         ---------------------
         {memory}
         ---------------------
         Given the context information and not prior knowledge answer using THIS information
-
         
         From here on out, this is the conversation you will be responding to.
         ---- CONVERSATION ----
@@ -100,11 +119,15 @@ def read_prompt(message: Message = None, memory=None, author_name=None):
         You are {name}, a {role}, who is {age} years old, described as {description}.
         People in conversation {bot_name} (you), {author_name}, your job is to respond to the last message of {author_name}.
         You can use the messages in your context window, but do not ever reference them.
-
+        
+        Your likes : {likes}
+        
+        Your dislikes: {dislikes}
+        
         Conversation examples:
 
         {"\n".join([f"{author_name}: {example['user']}\n{bot_name}: {example['bot']}" for example in conversation_examples])}
-        
+
         From here on out, this is the conversation you will be responding to.
         ---- CONVERSATION ----
         """
@@ -112,14 +135,24 @@ def read_prompt(message: Message = None, memory=None, author_name=None):
 model = genai.GenerativeModel(config["GEMINI"]["AI_MODEL"], system_instruction=read_prompt(), safety_settings={})
 
 class BotModel:
+    """
+    This class deals with how the discord bot generates text and gets different inputs
+    NOTE: This class NEEDS discord objects for use-cases without an object use `headless_BotModel`
+    """
     # Generate content
     async def generate_content(prompt, channel_id=None, attachment : genai.types.File = None, retry=3):
         """
-        This is the function responsible for asynchronous text generation using Gemini 
-        prompt : Any*,
-        channel_id : int,
-        attachment : genai.types.File = None,
-        retry = 3
+        Description: 
+        This function handles asynchronos text generation using Gemini, this also allows for multimodal prompts using a pre-uploaded file
+
+        Arguments:
+        prompt : str
+        channel_id : int | str = None
+        attachment : genai.types.File = None
+        retry : int = 3
+
+        Returns:
+        response : str
         """
         
         context = '\n'.join(context_window[channel_id])
@@ -165,6 +198,16 @@ class BotModel:
         return config["MESSAGES"]["error"] or "Sorry, could you please repeat that?"
     
     async def upload_attachment(attachment):
+        """
+        Description:
+        This function allows for asynchronous attachment uploading via FileAPI
+
+        Arguments:
+        attachment
+        
+        Returns:
+        attachment_media : genai.Types.File | None
+        """
         print("[INIT] Uploading Attachment function call `BotModel.upload_attachment` (Message from line 168 @ modules/BotModel.py)")
         attachment_media = genai.upload_file(attachment)
     
@@ -182,8 +225,15 @@ class BotModel:
             else:
                 print(f"Unknown state: {attachment_media.state.name}")
                 return None
-    
+            
+    async def delete_attachment(attachment):
+        """
+        come on, really?
+        """
+        genai.delete_file(attachment)
+
     async def __generate_reaction(prompt, channel_id, attachment=None):
+        """[UNUSED AND BUGGY]"""
         reaction_model = genai.GenerativeModel(model_name=config["GEMINI"]["AI_MODEL"], system_instruction=prompt)
 
         if attachment:
@@ -205,8 +255,15 @@ class BotModel:
         
     async def speech_to_text(audio_file : genai.types.File):
         """
-        [async]
-        This function is called when a `.ogg` file is uploaded to discord"""
+        Description:
+        This function is used for transcription of audio data provided via voice channels or .ogg files
+        
+        Arguments:
+        audio_file : genai.Types.File
+
+        Returns:
+        response.text : str
+        """
         print("Speech To Text function call `speech_to_text` (Message from line 210 @ modules/BotModel.py)")
         system_instruction = """You are now a microphone, you will ONLY return the words in the audio file, DO NOT describe them."""
         speech_to_text_model = genai.GenerativeModel(config["GEMINI"]["AI_MODEL"], system_instruction=system_instruction, safety_settings={
@@ -222,25 +279,20 @@ class BotModel:
     
     async def generate_reaction(prompt, channel_id : str | int, attachment : genai.types.File=None):
         """
-        This function generates an emotion that is then represented by an emoji and reacted with by the bot
-        
-        prompt: Any
-        channel_id : str or int
-        attachment : genai.types.File = None
-
-        returns `something lol`
+        [UNUSED AND BUGGY]
         """
 
         system_instruction = """You are 'Sponge' in this conversation. You now have the ability to send one emoji, """
         reaction_model = genai.GenerativeModel(model_name=config["GEMINI"]["AI_MODEL"], system_instruction=prompt)
 
 class headless_BotModel:
+    """
+    This class deals use cases that do not provide a discord object (somewhat)"""
 
     async def generate_content(channel_id : str | int, prompt : str, retry : int =3):
         """
-        Accepts channel_id : str or int
-        prompt : str 
-        retry : int = 3
+        Description:
+        This function generates text content
         """
 
         headless_mm = headless_ManagedMessages

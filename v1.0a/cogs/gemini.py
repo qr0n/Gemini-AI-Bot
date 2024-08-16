@@ -1,10 +1,12 @@
 import json
 import asyncio
-from discord import Message, AllowedMentions, Reaction
+
 from discord.ext import commands
 from modules.DiscordBot import Gemini
 from modules.BotModel import load_character_details
 from modules.ManagedMessages import ManagedMessages
+from modules.AIAgent import AIAgent
+from discord import Message, AllowedMentions, Reaction
 
 allowed_mentions = AllowedMentions(everyone=False, users=False, roles=False)
 
@@ -36,13 +38,12 @@ class GeminiCog(commands.Cog):
 
         async with message.channel.typing():
             await asyncio.sleep(2)
-        # do stuff here? 
+        # do stuff here?
 
         response = await Gemini.generate_response(message)
         
         if response == "[]":
             return await message.reply(config["MESSAGES"]["error"])
-        
         
         chunks = [response[i:i + 2000] for i in range(0, len(response), 2000)]
 

@@ -3,8 +3,8 @@ import mysql.connector
 # Connect to MySQL
 db = mysql.connector.connect(
     host="localhost",
-    user="your_username",  # Replace with your username
-    password="your_password",  # Replace with your password
+    user="root",  # Replace with your username
+    password="iron",  # Replace with your password
     # Do not specify the database here
 )
 
@@ -32,8 +32,16 @@ cursor.execute(
     message_content TEXT NOT NULL,
     message_id BIGINT NOT NULL,
     jump_url TEXT NOT NULL
-    )
-    """
+    );
+
+    CREATE TABLE IF NOT EXISTS reminders (
+    reminder_name TEXT NOT NULL,
+    reminder_time DATETIME,
+    channel_id BIGINT NOT null,
+    message_author BIGINT not null
+    );
+
+    """, multi=True
 )
 
 # Commit changes
