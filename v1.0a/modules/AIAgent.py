@@ -148,7 +148,7 @@ class AIAgent:
                 case "voice-call-end":
                     await VoiceCalls.stop_recording(ctx)
             
-                case "reminder-start":
+                case "reminder-start":                              # START EXAMPLE
                     reminder_reason = ai_function.get("reason")
                     reminder_date = ai_function.get("datetime", None)
                     reminder_channel = ctx.channel.id
@@ -157,9 +157,7 @@ class AIAgent:
                                                 reminder_time=reminder_date, 
                                                 reminder_channel_id=reminder_channel,
                                                 reminder_message_author=reminder_message_author)
-                    
-
-
+                                                                    # END EXAMPLE 
                 case _:
                     print(ai_function)
 

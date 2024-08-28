@@ -9,6 +9,5 @@ class Audio(commands.Cog):
     async def analyse(self, ctx):
         file = await BotModel.upload_attachment()
         
-
 async def setup(bot : commands.Bot):
     await bot.add_cog(Audio(bot))

@@ -331,5 +331,3 @@ class headless_BotModel:
             pass
 
         return config["MESSAGES"]["error"] or "Sorry, could you please repeat that?"
-    
-        

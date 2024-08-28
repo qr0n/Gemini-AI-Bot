@@ -4,10 +4,12 @@ This is the API for discord interactions.
 
 import json
 import os
+from discord.ext import commands
 from discord import Message
 from modules.Memories import Memories
 from modules.BotModel import read_prompt, BotModel, headless_BotModel
 from modules.ManagedMessages import ManagedMessages, headless_ManagedMessages
+from modules.AIAgent import AIAgent
 
 context_window = ManagedMessages().context_window
 memories = Memories()
@@ -17,17 +19,18 @@ with open("./config.json", "r") as ul_config:
 
 class Gemini:
 
-    async def generate_response(message : Message):
+    async def generate_response(message : Message, ctx : commands.Context):
         """Accepts discord.Message object and auto-handles everything"""
-        
-        channel_id = message.channel.id # declare channel id (channel id is unique for context window)
-        message_id = message.id # declare message id
-        attachments = message.attachments # declare message attachments
+
+        message = ctx.message
+        channel_id = ctx.message.channel.id # declare channel id (channel id is unique for context window)
+        message_id = ctx.message.id # declare message id
+        attachments = ctx.message.attachments # declare message attachments
 
         if channel_id not in context_window:
             context_window[channel_id] = [] # if channel id isnt present in context window, make a new key
             
-        message_in_list = await ManagedMessages.add_to_message_list(channel_id, message_id, f"{message.author.display_name}: {message.content}")
+        message_in_list = await ManagedMessages.add_to_message_list(channel_id, message_id, f"{ctx.message.author.display_name}: {ctx.message.content}")
         # appends the message to the context window, "user: message"
         # auto manages context window size
 
@@ -65,6 +68,7 @@ class Gemini:
             file = await BotModel.upload_attachment(save_name)
             response = await BotModel.generate_content(prompt=prompt, channel_id=channel_id, attachment=file)
             
+            os.remove(save_name)
             await BotModel.delete_attachment(file)
             return response
         
@@ -83,10 +87,16 @@ class Gemini:
 
             response = await BotModel.generate_content(prompt=prompt, channel_id=channel_id)
 
+            os.remove(save_name)
+            await BotModel.delete_attachment(file)
             return response
         
         else:
-            response = await BotModel.generate_content(prompt, channel_id)
+            if config["AGENT"]["enabled"]:
+                category = await AIAgent.classify(message.content) # AGENT HOOK
+                await AIAgent.categorize(category, ctx) # AGENT HOOK
+
+            response = await BotModel.generate_content(prompt, channel_id) # DISCORDBOT.PY
             return response
         
 class headless_Gemini:

@@ -1,0 +1,19 @@
+cogs/gemini : 1
+cogs/freewill : 1
+modules/AIAgent : 2
+modules/BotModel : 1
+modules/Memories : 1
+------------------ 6
+Optimization 1: Make adjustment to load_character_details
+
+cogs/ai_controller : 5
+cogs/gemini : 4
+cogs/freewill : 8
+modules/AIAgent : 12
+modules/BotModel : 23
+modules/DiscordBot : 4
+modules/ManagedMessages : 14
+modules/Memories : 29
+modules/VoiceCall : 5
+------------------ 104
+Optimization 2: Make adjustment to configuration file handling

@@ -20,6 +20,7 @@ class AIController(commands.Cog, name='AI-Controller'):
         await ctx.reply(await ManagedMessages.remove_channel_from_list(ctx.channel.id))
     
     @commands.command()
+    @commands.is_owner()
     async def activate(self, ctx : Context):
         """Activates the bot in a channel causing it to reply to EVERY message"""
         with open("./activation.json", "r") as unloaded_activated_channel:
@@ -33,6 +34,7 @@ class AIController(commands.Cog, name='AI-Controller'):
             await ctx.reply(activated_string, mention_author=False)
 
     @commands.command()
+    @commands.is_owner()
     async def deactivate(self, ctx : Context):
         """Removes the bot from the activated channels causing it to stop replying to every messge, but still on mention"""
         with open("./activation.json", "r") as unloaded_activated_channel:
@@ -46,6 +48,7 @@ class AIController(commands.Cog, name='AI-Controller'):
             await ctx.reply(activated_string, mention_author=False)
 
     @commands.command()
+    @commands.is_owner()
     async def remember(self, ctx : Context):
         """Forcefully calls the save_to_memory function [MAY NOT WORK AS EXPECTED]"""
         await Memories().save_to_memory(message=ctx.message, force=True)

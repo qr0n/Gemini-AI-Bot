@@ -15,7 +15,6 @@ from discord.ext import commands, tasks
 from discord import AllowedMentions
 from typing import Dict
 from modules.BotModel import BotModel
-from modules.DiscordBot import headless_Gemini
 
 with open("./config.json", "r") as ul_config:
     config = json.load(ul_config)
@@ -42,9 +41,13 @@ class VoiceCalls:
         while voice_client.is_playing():
             await asyncio.sleep(1)
 
+        await voice_client.disconnect()
+
     async def once_done(sink: discord.sinks, channel: discord.TextChannel, voice_client : discord.VoiceClient, ctx : commands.Context):  # Our voice client already passes these in.
         
-        voice_client.stop_recording()  # Disconnect from the voice channel.
+        from modules.DiscordBot import headless_Gemini
+
+        #voice_client.stop_recording()  # Disconnect from the voice channel.
         author_name = ctx.message.author.name
 
         for user_id, audio in sink.audio_data.items():
@@ -99,7 +102,7 @@ class VoiceCalls:
 
         await asyncio.sleep(config["VOICE"]["record_time"])
 
-        # vc.stop_recording()
+        vc.stop_recording()
         
         await ctx.send("Hold on! Let me process... :thinking:")
 

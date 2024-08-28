@@ -43,7 +43,7 @@ class NewFreewill(commands.Cog):
                     keyword_added_chance = config["FREEWILL"]["keywords_added_chance"]
             
             if random.random() < min(text_frequency + keyword_added_chance, 1.0):
-                response = await Gemini.generate_response(message)
+                response = await Gemini.generate_response(message, await self.bot.get_context(message))
                 
                 async with message.channel.typing():
                     await asyncio.sleep(2) # artificial delay lol
