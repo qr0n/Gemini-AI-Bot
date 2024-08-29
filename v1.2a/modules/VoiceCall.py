@@ -27,11 +27,10 @@ connections: Dict[int, discord.VoiceClient] = {}
 client = ElevenLabs(api_key=config["VOICE"]["elevenlabs_api_key"])
 allowed_mentions = AllowedMentions(everyone=False, users=False, roles=False, replied_user=False)
 
-class VoiceCall:
+class newVoiceCall:
+    pass
 
-    async def 
-
-class oldVoiceCalls:
+class VoiceCalls:
 
     async def say_with_elevenlabs(voice_client : discord.VoiceClient, text, voice="Antoni"):
         # Generate audio
