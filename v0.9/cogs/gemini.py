@@ -3,7 +3,8 @@ from discord.ext import commands
 from modules.DiscordBot import Gemini
 from modules.BotModel import load_character_details
 from modules.ManagedMessages import ManagedMessages
-from modules.Memories import Memories
+from modules.MemoriesBeta import Memories
+
 import json
 
 allowed_mentions = AllowedMentions(everyone=False, users=False, roles=False)
@@ -19,7 +20,6 @@ class GeminiCog(commands.Cog):
     def is_activated(self, channel_id) -> bool:
         with open("./activation.json", "r") as ul_activation:
             activated: dict = json.load(ul_activation)
-            print(activated)
             return bool(activated.get(str(channel_id), False))
         
     @commands.Cog.listener("on_message")
@@ -103,9 +103,23 @@ class GeminiCog(commands.Cog):
             await ctx.reply(activated_string, mention_author=False)
 
     @commands.command()
-    async def remember(self, ctx):
-        await Memories().save_to_memory(message=ctx.message, force=True)
-        await ctx.reply("force remembered ._.")
+    async def compare_memories(self, ctx : commands.Context):
+        await ctx.reply(Memories().compare_memories(message=None), mention_author=False)
+
+    @commands.command()
+    async def force_save(self, ctx : commands.Context):
+        user_id = f"{ctx.guild.id}-{ctx.author.id}"
+        await Memories().save_to_memory(ctx.message, force=True)
+    
+    @commands.command()
+    async def fetch_mem(self, ctx : commands.Context):
+        user_id = f"{ctx.guild.id}-{ctx.author.id}"
+        await ctx.reply(Memories().fetch_and_sort_entries(user_id), mention_author=False)
+    
+    @commands.command()
+    async def compare_mem(self, ctx : commands.Context, *memory):
+        user_id = f"{ctx.guild.id}-{ctx.author.id}"
+        await ctx.reply(await Memories().compare_memories(user_id, message=memory), mention_author=False)
         
 
 async def setup(bot: commands.Bot):

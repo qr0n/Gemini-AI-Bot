@@ -1,8 +1,6 @@
 from discord import Message, AllowedMentions, Reaction
 from discord.ext import commands
 from modules.DiscordBot import Gemini
-from modules.BotModel import load_character_details
-from modules.ManagedMessages import ManagedMessages
 import json
 import random
 import asyncio

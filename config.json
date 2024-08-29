@@ -1,0 +1,12 @@
+{
+    "SQL_CREDENTIALS" : {
+        "username" : "root",
+        "password" : "iron",
+        "host" : "localhost",
+        "database" : "bot_memory"
+    },
+    "API_KEY" : "",
+    "BOT_TOKEN" : "",
+    "AI_MODEL" : "models/gemini-1.5-flash-latest",
+    "MAX_CONTEXT_WINDOW" : 4
+}

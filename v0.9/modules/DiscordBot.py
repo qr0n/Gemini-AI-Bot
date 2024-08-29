@@ -5,7 +5,7 @@ This is the API for discord interactions.
 import json
 import os
 from discord import Message
-from modules.Memories import Memories
+from modules.MemoriesBeta import Memories
 from modules.BotModel import read_prompt, BotModel
 from modules.ManagedMessages import ManagedMessages
 

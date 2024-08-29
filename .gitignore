@@ -1,11 +1,5 @@
-config.json
-features.txt
-__pycache__
-activation.json
 venv
-unused-code
-DO-NOT-SHARE
-requirements.txt
-*-alpha-json
 *.zip
-breadboard
+*alpha-json
+TODO
+*.pyc

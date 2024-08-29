@@ -15,6 +15,8 @@ bot = commands.Bot(command_prefix=commands.when_mentioned_or("!"), intents=inten
 @bot.event
 async def setup_hook():
     for filename in os.listdir('D:/Python/Gemini-AI-Bot/v0.9/cogs'):
+        # NOTE:
+        # CHANGE THIS TO THE PATH YOU ARE USING!
         if filename.endswith('.py'):
             await bot.load_extension(f'cogs.{filename[:-3]}')
 

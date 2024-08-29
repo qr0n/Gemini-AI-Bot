@@ -1,0 +1,52 @@
+{
+    "SQL_CREDENTIALS" : {
+        "username" : "root",
+        "password" : "iron",
+        "host" : "localhost",
+        "database" : "bot_memory"
+
+    },
+    "GEMINI" : {
+        "API_KEY" : "AIzaSyBXd9JmLuwbT3nE9ncKHQQi12IPB0266hQ",
+        "AI_MODEL" : "models/gemini-1.5-flash-latest",
+        "MAX_CONTEXT_WINDOW" : 20,
+        "FILTERS" : {
+            "sexually_explicit" : "BLOCK_NONE",
+            "harassment" : "BLOCK_NONE",
+            "dangerous_content" : "BLOCK_NONE",
+            "hate_speech" : "BLOCK_NONE",
+            "unspecified" : "BLOCK_MEDIUM_AND_ABOVE"
+        },
+        "GENERATION_CONFIG" : {
+            "temperature" : 0,
+            "topP" : 0,
+            "topK" : 0
+        }
+    },
+    "FREEWILL": {
+        "enabled" : false,
+        "text_frequency" : 0,
+        "reaction_frequency" : 0,
+        "keywords_added_chance" : 0,
+        "keywords" : [""]
+    },
+    "MESSAGES" : {
+        "wack" : "Ow! Uhh, what were we talking about?",
+        "wack_error" : "Sorry, can't remove what's not there. :joy:",
+        "error" : "Nuh uh, not gonna happen.",
+        "activated_message" : "Hey! I'm new here :wave:",
+        "deactivated_message" : "Awh, sorry to see you go! You can still talk to me by pinging me :pleading_face:"
+    },
+    "VOICE" : {
+        "elevenlabs_api_key" : "sk_cb36d8cf09cd865f63c6a68552ae960b829ddb13cdcbc425",
+        "record_time" : 10
+    },
+    "FILES" : {
+        "allow" : true,
+        "keep_in_context" : false
+    },
+    "AGENT" : {
+        "enabled" : true
+    },
+    "BOT_TOKEN" : "MTI0NTkyMTYwOTQzMzQ4MTIzNg.GrNFPZ.beqy_onFqx9XMv590SQrvA4OKj10cJT1D-o5Kk"
+}
