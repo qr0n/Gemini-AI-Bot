@@ -1,6 +1,6 @@
 {
     "GEMINI" : {
-        "API_KEY" : "AIzaSyBXd9JmLuwbT3nE9ncKHQQi12IPB0266hQ",
+        "API_KEY" : "",
         "AI_MODEL" : "models/gemini-1.5-flash-latest",
         "MAX_CONTEXT_WINDOW" : 20,
         "FILTERS" : {
@@ -26,5 +26,5 @@
         "deactivated_message" : "Awh, sorry to see you go! You can still talk to me by pinging me :pleading_face:"
     },
     
-    "BOT_TOKEN" : "MTI0NTkyMTYwOTQzMzQ4MTIzNg.GrNFPZ.beqy_onFqx9XMv590SQrvA4OKj10cJT1D-o5Kk"
+    "BOT_TOKEN" : ""
 }

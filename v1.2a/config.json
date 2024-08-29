@@ -7,7 +7,7 @@
 
     },
     "GEMINI" : {
-        "API_KEY" : "AIzaSyBXd9JmLuwbT3nE9ncKHQQi12IPB0266hQ",
+        "API_KEY" : "",
         "AI_MODEL" : "models/gemini-1.5-flash-latest",
         "MAX_CONTEXT_WINDOW" : 20,
         "FILTERS" : {
@@ -38,7 +38,7 @@
         "deactivated_message" : "Awh, sorry to see you go! You can still talk to me by pinging me :pleading_face:"
     },
     "VOICE" : {
-        "elevenlabs_api_key" : "sk_cb36d8cf09cd865f63c6a68552ae960b829ddb13cdcbc425",
+        "elevenlabs_api_key" : "",
         "record_time" : 10
     },
     "FILES" : {
@@ -48,5 +48,5 @@
     "AGENT" : {
         "enabled" : true
     },
-    "BOT_TOKEN" : "MTI3NzQ1NDI5MTQ3NjU0OTY4Mw.GzlcmW.Ww8V0SqSkcCICVvCF1P0-LIDrlmMyOJWKC4KhU"
+    "BOT_TOKEN" : ""
 }
