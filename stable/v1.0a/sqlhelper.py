@@ -13,6 +13,9 @@ cursor = db.cursor()
 # Create Database if it doesn't exist
 cursor.execute("CREATE DATABASE IF NOT EXISTS bot_memory")
 
+cursor.close()
+
+cursor = db.cursor()
 # Reconnect to the MySQL server, this time specifying the database
 db.database = "bot_memory"
 
@@ -41,7 +44,8 @@ cursor.execute(
     message_author BIGINT not null
     );
 
-    """, multi=True
+    """,
+    multi=True,
 )
 
 # Commit changes

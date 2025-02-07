@@ -1,8 +1,0 @@
-{
-    "GEMINI" : {
-        "API_KEY" : "",
-        "AI_MODEL" : "models/gemini-1.5-flash-latest",
-        "MAX_CONTEXT_WINDOW" : 20
-    },
-    "BOT_TOKEN" : ""
-}

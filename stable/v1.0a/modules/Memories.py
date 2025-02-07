@@ -14,15 +14,18 @@ genai.configure(api_key=config["GEMINI"]["API_KEY"])
 model = genai.GenerativeModel(config["GEMINI"]["AI_MODEL"])
 
 db_config = {
-    'user': config["SQL_CREDENTIALS"]["username"],
-    'password': config["SQL_CREDENTIALS"]["password"],
-    'host': config["SQL_CREDENTIALS"]["host"],
-    'database': config["SQL_CREDENTIALS"]["database"],
+    "user": config["SQL_CREDENTIALS"]["username"],
+    "password": config["SQL_CREDENTIALS"]["password"],
+    "host": config["SQL_CREDENTIALS"]["host"],
+    "database": config["SQL_CREDENTIALS"]["database"],
 }
 
 conn = mysql.connector.connect(**db_config)
 cursor = conn.cursor()
-max_context_window = config["GEMINI"]["MAX_CONTEXT_WINDOW"] # TODO: need to patch unlimited context window
+max_context_window = config["GEMINI"][
+    "MAX_CONTEXT_WINDOW"
+]  # TODO: need to patch unlimited context window
+
 
 class Memories:
     def __init__(self):
@@ -42,28 +45,35 @@ class Memories:
         except json.JSONDecodeError:
             raise ValueError("The prompt.json file is not a valid JSON.")
 
-        personality_traits = prompt_json.get('personality_traits', {})
-        name = personality_traits.get('name', 'unknown_bot')
-        role = personality_traits.get('role', 'unknown_role')
-        age = personality_traits.get('age', 'unknown_age')
-        description = personality_traits.get('description', 'no description provided')
-    
-        return {
-            "name": name,
-            "role": role,
-            "age": age,
-            "description": description
-        }
-    
+        personality_traits = prompt_json.get("personality_traits", {})
+        name = personality_traits.get("name", "unknown_bot")
+        role = personality_traits.get("role", "unknown_role")
+        age = personality_traits.get("age", "unknown_age")
+        description = personality_traits.get("description", "no description provided")
+
+        return {"name": name, "role": role, "age": age, "description": description}
+
     async def summarize_context_window(self, channel_id, retry=3):
         prompt = f"You're a data analyst who's only purpose is to summarize large but concise summaries on text provided to you, try to retain most of the information! Your first task is to summarize this conversation from the perspective of {self.character_name} --- Conversation Start ---\n{'\n'.join(context_window[channel_id])} --- Conversation End ---"
-        
-        response = await model.generate_content_async(prompt, safety_settings={
-                                                        HarmCategory.HARM_CATEGORY_HARASSMENT : config["GEMINI"]["FILTERS"]["sexually_explicit"],
-                                                        HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT : config["GEMINI"]["FILTERS"]["harassment"],
-                                                        HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT : config["GEMINI"]["FILTERS"]["dangerous_content"],
-                                                        HarmCategory.HARM_CATEGORY_HATE_SPEECH : config["GEMINI"]["FILTERS"]["hate_speech"]})
-        
+
+        response = await model.generate_content_async(
+            prompt,
+            safety_settings={
+                HarmCategory.HARM_CATEGORY_HARASSMENT: config["GEMINI"]["FILTERS"][
+                    "sexually_explicit"
+                ],
+                HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: config["GEMINI"][
+                    "FILTERS"
+                ]["harassment"],
+                HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: config["GEMINI"][
+                    "FILTERS"
+                ]["dangerous_content"],
+                HarmCategory.HARM_CATEGORY_HATE_SPEECH: config["GEMINI"]["FILTERS"][
+                    "hate_speech"
+                ],
+            },
+        )
+
         try:
             return response.text
         except Exception as E:
@@ -78,38 +88,54 @@ class Memories:
                     retry_count += 1
             else:
                 return ""
-            
-    async def save_to_memory(self, message : Message, force=False):
+
+    async def save_to_memory(self, message: Message, force=False):
         channel_id = message.channel.id
 
         if force:
             sql = "INSERT INTO memories (channel_id, special_phrase, memory) VALUES (%s, %s, %s)"
             summary_of_context_window = await self.summarize_context_window(channel_id)
 
-            special_phrase = await self.is_worth_remembering(context='\n'.join(context_window[channel_id]))
+            special_phrase = await self.is_worth_remembering(
+                context="\n".join(context_window[channel_id])
+            )
 
-            values = (channel_id, special_phrase["special_phrase"], summary_of_context_window)
+            values = (
+                channel_id,
+                special_phrase["special_phrase"],
+                summary_of_context_window,
+            )
 
             cursor.execute(sql, values)
             conn.commit()
-            
-            print(f"Saved message: {message.content}\nTo memory: {summary_of_context_window}\nFor: {channel_id}")
+
+            print(
+                f"Saved message: {message.content}\nTo memory: {summary_of_context_window}\nFor: {channel_id}"
+            )
 
         if len(context_window[channel_id]) == max_context_window:
-            is_worth = await self.is_worth_remembering(context='\n'.join(context_window[channel_id]))
-            if is_worth['is_worth']:
-            
+            is_worth = await self.is_worth_remembering(
+                context="\n".join(context_window[channel_id])
+            )
+            if is_worth["is_worth"]:
+
                 sql = "INSERT INTO memories (channel_id, special_phrase, memory) VALUES (%s, %s, %s)"
-                summary_of_context_window = await self.summarize_context_window(channel_id)
-            
-                special_phrase = await self.is_worth_remembering(context='\n'.join(context_window[channel_id]))["special_phrase"]
+                summary_of_context_window = await self.summarize_context_window(
+                    channel_id
+                )
+
+                special_phrase = await self.is_worth_remembering(
+                    context="\n".join(context_window[channel_id])
+                )["special_phrase"]
                 values = (channel_id, special_phrase, summary_of_context_window)
-            
+
                 cursor.execute(sql, values)
                 conn.commit()
-            
-                print(f"Saved message: {message.content}\nTo memory: {summary_of_context_window}\nFor: {channel_id}")
-    
+
+                print(
+                    f"Saved message: {message.content}\nTo memory: {summary_of_context_window}\nFor: {channel_id}"
+                )
+
     def fetch_and_sort_entries(self, channel_id):
         sql = """
         SELECT special_phrase, memory
@@ -119,18 +145,18 @@ class Memories:
         """
         cursor.execute(sql, (channel_id,))
         rows = cursor.fetchall()
-        
+
         # Initializing an empty dictionary to store the results
         result = {}
-    
+
         # Iterating over the rows and populating the dictionary
         for row_num, row in enumerate(rows):
             print(row_num)
             special_phrase, memory = row
             result[special_phrase] = memory
-    
+
         return result
-    
+
     async def is_worth_remembering(self, context):
         system_instruction = """
 Objective:
@@ -153,25 +179,40 @@ Instructions:
 
 Provide your response in a JSON format {"is_worth" : true/false, "special_phrase" : phrase_goes_here} without ANY formatting, ie.. no backticks '`' no syntax highlighting, no numbered lists.'
     """
-        remember_model = genai.GenerativeModel(config["GEMINI"]["AI_MODEL"], system_instruction=system_instruction)
+        remember_model = genai.GenerativeModel(
+            config["GEMINI"]["AI_MODEL"], system_instruction=system_instruction
+        )
         try:
 
-            unloaded_json = await remember_model.generate_content_async(context, generation_config={"response_mime_type": "application/json"}, safety_settings={
-                                                        HarmCategory.HARM_CATEGORY_HARASSMENT : config["GEMINI"]["FILTERS"]["sexually_explicit"],
-                                                        HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT : config["GEMINI"]["FILTERS"]["harassment"],
-                                                        HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT : config["GEMINI"]["FILTERS"]["dangerous_content"],
-                                                        HarmCategory.HARM_CATEGORY_HATE_SPEECH : config["GEMINI"]["FILTERS"]["hate_speech"]})
+            unloaded_json = await remember_model.generate_content_async(
+                context,
+                generation_config={"response_mime_type": "application/json"},
+                safety_settings={
+                    HarmCategory.HARM_CATEGORY_HARASSMENT: config["GEMINI"]["FILTERS"][
+                        "sexually_explicit"
+                    ],
+                    HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: config["GEMINI"][
+                        "FILTERS"
+                    ]["harassment"],
+                    HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: config["GEMINI"][
+                        "FILTERS"
+                    ]["dangerous_content"],
+                    HarmCategory.HARM_CATEGORY_HATE_SPEECH: config["GEMINI"]["FILTERS"][
+                        "hate_speech"
+                    ],
+                },
+            )
             clean_json = json.loads(self.clean_json(unloaded_json.text))
-            print("") # TODO Add log here
+            print("")  # TODO Add log here
             return clean_json
         except Exception as E:
             print(E)
-        
+
     async def compare_memories(self, channel_id, message):
-        
+
         # json_format = """{"is_similar" : true/false, "similar_phrase" : the phrase in [Message 2]}"""
         entries = self.fetch_and_sort_entries(channel_id).keys()
-        
+
         system_instruction = """
 Objective:
 Determine if the provided context or phrase is similar to another given phrase or message based on predefined criteria.
@@ -201,26 +242,43 @@ Provide your response in this JSON schema:
 }
 
 without ANY formatting, i.e., no backticks '`', no syntax highlighting, no numbered lists.
-"""     
-        comparing_model = genai.GenerativeModel(config["GEMINI"]["AI_MODEL"], system_instruction=system_instruction)
+"""
+        comparing_model = genai.GenerativeModel(
+            config["GEMINI"]["AI_MODEL"], system_instruction=system_instruction
+        )
         message_list = f"""
 Context: {"\n".join(context_window[channel_id])}
 List of phrases: {", ".join(entries)}
 """
-        print("Compare Memories function call `Memories.compare_memories` (Message from line 202 @ modules/Memories.py)")
+        print(
+            "Compare Memories function call `Memories.compare_memories` (Message from line 202 @ modules/Memories.py)"
+        )
         try:
-            unloaded_json = await comparing_model.generate_content_async(message_list, generation_config={"response_mime_type": "application/json"}, safety_settings={
-                                                        HarmCategory.HARM_CATEGORY_HARASSMENT : config["GEMINI"]["FILTERS"]["sexually_explicit"],
-                                                        HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT : config["GEMINI"]["FILTERS"]["harassment"],
-                                                        HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT : config["GEMINI"]["FILTERS"]["dangerous_content"],
-                                                        HarmCategory.HARM_CATEGORY_HATE_SPEECH : config["GEMINI"]["FILTERS"]["hate_speech"]})
+            unloaded_json = await comparing_model.generate_content_async(
+                message_list,
+                generation_config={"response_mime_type": "application/json"},
+                safety_settings={
+                    HarmCategory.HARM_CATEGORY_HARASSMENT: config["GEMINI"]["FILTERS"][
+                        "sexually_explicit"
+                    ],
+                    HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: config["GEMINI"][
+                        "FILTERS"
+                    ]["harassment"],
+                    HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: config["GEMINI"][
+                        "FILTERS"
+                    ]["dangerous_content"],
+                    HarmCategory.HARM_CATEGORY_HATE_SPEECH: config["GEMINI"]["FILTERS"][
+                        "hate_speech"
+                    ],
+                },
+            )
             clean_json = json.loads(self.clean_json(unloaded_json.text))
             return clean_json
         except Exception as E:
             print(E)
-            return {"is_similar" : False, "special_phrase" : None}
-        
-    def clean_json(self, json : str):
+            return {"is_similar": False, "special_phrase": None}
+
+    def clean_json(self, json: str):
         if json.startswith("```json") and json.endswith("```"):
             return json[7:-3]
         else:

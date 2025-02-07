@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nugget Tech Dashboard</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <div class="sidebar">
+        <button class="toggle-button" id="toggleSidebar">☰ Nugget Tech</button>
+        <!-- <h1>Nugget Tech</h1> -->
+        <a href="#">🏠 <span class="link-text">Dashboard</span></a>
+        <a href="#">⭐ <span class="link-text">Premium</span></a>
+        <a href="#">👤 <span class="link-text">Profile</span></a>
+        <a href="#">⚙️ <span class="link-text">Settings</span></a>
+        <a href="#">🚪 <span class="link-text">Logout</span></a>
+    </div>
+
+    <div class="navbar">
+        <button class="button" id="modeSwitch">Switch Mode</button>
+        <p class="username">{{username}}</p>
+        <img src="{{avatar_url}}" alt="Profile Picture">
+    </div>
+
+    <div class="content">
+        <div class="card fade-in">
+            <h2>Welcome to Nugget Tech Dashboard</h2>
+            <p>Explore the features that let you make your nugget, yours.</p>
+        </div>
+
+        <div class="analytics fade-in">
+            <h3>Analytics</h3>
+            <div class="stats">
+                <div class="stat">
+                    <h4>Daily Messages</h4>
+                    <p>12</p>
+                </div>
+                <div class="stat">
+                    <h4>Total Messages</h4>
+                    <p>254</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="static/script.js"></script>
+</body>
+</html>

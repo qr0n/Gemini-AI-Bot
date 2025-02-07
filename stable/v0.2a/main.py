@@ -426,8 +426,6 @@ async def dump_ctx_window(ctx):
         await ctx.reply("dumped", mention_author=False)
 
 @bot.command()
-async def compare_memories(ctx):
-@bot.command()
 async def force_save(ctx):
     user_id = f"{ctx.guild.id}-{ctx.author.id}"
     Memories().save_to_memory(ctx.message, force=True)

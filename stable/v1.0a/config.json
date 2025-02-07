@@ -24,11 +24,11 @@
         }
     },
     "FREEWILL": {
-        "enabled" : false,
-        "text_frequency" : 0,
+        "enabled" : true,
+        "text_frequency" : 0.01,
         "reaction_frequency" : 0,
-        "keywords_added_chance" : 0,
-        "keywords" : [""]
+        "keywords_added_chance" : 0.79,
+        "keywords" : ["njigger", "piece of crap", "dumbass bot"]
     },
     "MESSAGES" : {
         "wack" : "Ow! Uhh, what were we talking about?",
