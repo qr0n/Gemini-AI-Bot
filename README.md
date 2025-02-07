@@ -32,7 +32,7 @@ Read more:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/Nugget.git
+   git clone https://github.com/qr0n/Gemini-AI-Bot
    ```
 2. Install the required dependencies:
    ```bash
