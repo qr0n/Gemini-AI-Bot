@@ -13,10 +13,10 @@
 
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
+    font-family: Arial;
     background-color: var(--bg-dark);
     color: var(--text-dark);
-    transition: background-color 0.3s, color 0.3s;
+    /* transition: background-color 0.3s, color 0.3s; */
 }
 
 .sidebar {
@@ -27,7 +27,7 @@ body {
     display: flex;
     flex-direction: column;
     /* padding: 1rem 0; */
-    transition: width 0.3s, background-color 0.3s;
+    /* transition: width 0.3s, background-color 0.3s; */
 }
 
 .sidebar-collapsed .sidebar {
@@ -50,16 +50,27 @@ body {
     padding: 0.8rem 1rem;
     display: flex;
     align-items: center;
-    transition: background 0.3s, color 0.3s;
+    /* transition: background 0.3s, color 0.3s; */
 }
 
 .sidebar a:hover {
-    background: var(--bg-dark);
-    color: var(--button-bg);
+    background: var(--button-dark);
+}
+
+#current-page {
+    background: var(--button-dark);
+}
+
+.sidebar-label {
+    color: gray;
+    position: relative;
+    padding-left: 10px;
+    padding: 0.8rem 1rem;
+
 }
 
 .navbar {
-    position: fixed;
+    /* position: fixed; */
     top: 0;
     left: 250px;
     right: 0;
@@ -68,9 +79,9 @@ body {
     display: flex;
     align-items: center;
     padding: 0 1rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); */
     z-index: 1000;
-    transition: left 0.3s, background-color 0.3s;
+    /* transition: left 0.3s, background-color 0.3s; */
 }
 
 .sidebar-collapsed .navbar {
@@ -109,12 +120,40 @@ body {
 
 .card {
     background-color: var(--card-dark);
-    backdrop-filter: blur(10px);
+    /* backdrop-filter: blur(10px); */
     border-radius: 12px;
     padding: 2rem;
     margin-bottom: 1.5rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s, background-color 0.3s;
+    /* transition: transform 0.3s, background-color 0.3s; */
+}
+
+.nugget-card {
+    background-color: var(--card-dark);
+    /* backdrop-filter: blur(10px); */
+    border-radius: 12px;
+    /* padding: 2rem; */
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    /* transition: transform 0.3s, background-color 0.3s; */
+}
+
+.nugget-card:hover {
+    scale: 1.02;
+}
+
+.nugget-img {
+    border-radius: 10px 10px 0px 0px;
+}
+.configuation {
+    /* background-color: var(--card-dark); */
+    background-color: aqua;
+    /* backdrop-filter: blur(10px); */
+    border-radius: 12px;
+    /* padding: 2rem; */
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    /* transition: transform 0.3s, background-color 0.3s; */
 }
 
 .card:hover {
@@ -127,6 +166,7 @@ body {
 }
 
 .button {
+    right: 40px;
     padding: 0.8rem 1.5rem;
     border: none;
     border-radius: 8px;
@@ -148,6 +188,8 @@ body {
 
 .fade-in {
     animation: fadeIn 1s ease-in-out;
+    will-change: opacity;
+    backface-visibility: hidden;
 }
 
 .analytics {
@@ -188,7 +230,7 @@ body {
     cursor: pointer;
     padding: 0.5rem 1rem;
     margin: 0.5rem;
-    transition: background 0.3s;
+    /* transition: background 0.3s; */
 }
 
 .toggle-button:hover {

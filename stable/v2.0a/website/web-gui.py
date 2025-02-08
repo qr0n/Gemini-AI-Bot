@@ -11,17 +11,28 @@ from flask import (
 )
 import os
 import requests
+from functools import wraps
+from helpers import Helpers
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
 # Discord OAuth2 credentials
-CLIENT_ID = ""
-CLIENT_SECRET = ""
-REDIRECT_URI = "http://localhost:5000/callback"
-API_BASE_URL = "https://discord.com/api"
-AUTHORIZATION_BASE_URL = "https://discord.com/api/oauth2/authorize"
-TOKEN_URL = "https://discord.com/api/oauth2/token"
+
+
+def requires_auth(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        # Check if "token" is in the session
+        if "token" not in session:
+            token = request.cookies.get("token")
+            if token:
+                session["token"] = token
+            else:
+                return redirect(url_for("login"))
+        return func(*args, **kwargs)
+
+    return decorated_function
 
 
 @app.route("/")
@@ -64,34 +75,64 @@ def callback():
     token = response_data["access_token"]
 
     # Set the token in a cookie
-    response = make_response(redirect(url_for("profile")))
+    response = make_response(redirect(url_for("dashboard")))
     response.set_cookie("token", token)
+    response.set_cookie("darkMode", "enabled")
 
     session["token"] = token
+
     return response
 
 
 @app.route("/dashboard")
-def profile():
-    if "token" not in session:
-        token = request.cookies.get("token")
-        if token:
-            session["token"] = token
-
-        else:
-            return redirect(url_for("login"))
-
-        return redirect(url_for("login"))
-
-    headers = {"Authorization": f"Bearer {session['token']}"}
-    response = requests.get(f"{API_BASE_URL}/users/@me", headers=headers)
-    user_data = response.json()
-    print("User data: ", user_data)
+@Helpers.requires_auth
+def dashboard():
+    user_data = Helpers.get_user_data()
     return render_template(
-        "nugget-config.html",
+        "home.html",
         username=user_data["username"],
         avatar_url=f"https://cdn.discordapp.com/avatars/{user_data['id']}/{user_data['avatar']}.png",
+        nuggets=[
+            {
+                "image_url": f"https://cdn.discordapp.com/avatars/{user_data['id']}/{user_data['avatar']}.png",
+                "name": "Nugget 1",
+            },
+            {
+                "image_url": f"https://cdn.discordapp.com/avatars/{user_data['id']}/{user_data['avatar']}.png",
+                "name": "Nugget 2",
+            },
+            # Add more nugget objects as needed
+        ],
     )
+
+
+@app.route("/<nugget>/settings")
+@requires_auth
+def settings(nugget):
+    user_data = Helpers.get_user_data()
+    return render_template(
+        "settings.html",
+        username=user_data["username"],
+        avatar_url=f"https://cdn.discordapp.com/avatars/{user_data['id']}/{user_data['avatar']}.png",
+        invite_url="https://discord.com/oauth2/authorize?client_id={CL}&permissions=36809024&integration_type=0&scope=bot",
+    )
+
+
+@app.route("/<nugget>/memories")
+@requires_auth
+def memories(nugget):
+    user_data = Helpers.get_user_data()
+    return render_template(
+        "knowledge.html",
+        username=user_data["username"],
+        avatar_url=f"https://cdn.discordapp.com/avatars/{user_data['id']}/{user_data['avatar']}.png",
+        invite_url="https://discord.com/oauth2/authorize?client_id={CL}&permissions=36809024&integration_type=0&scope=bot",
+    )
+
+
+@app.route("/render/<file>")
+def render(file):
+    return render_template(file)
 
 
 if __name__ == "__main__":

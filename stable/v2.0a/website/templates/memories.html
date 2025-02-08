@@ -5,17 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nugget Tech Dashboard</title>
     <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/script.js"></script>
+
 </head>
 <body>
     <div class="sidebar">
         <button class="toggle-button" id="toggleSidebar">☰ Nugget Tech</button>
         <!-- <h1>Nugget Tech</h1> -->
         <label class="sidebar-label" id="home">Home</label>
-        <a href="/dashboard" id="current-page">🏠<span class="link-text">Dashboard</span></a>
+        <a href="/dashboard">🏠<span class="link-text">Dashboard</span></a>
         <a href="{{invite_url}}">📭<span class="link-text">Add to server</span></a>
         <label class="sidebar-label" id="AEC">AI Engine Configuration</label>
         <a href="#">🚂<span class="link-text">Model Configuration</span></a>
-        <a href="/knowledge">🧠<span class="link-text">Knowledge</span></a>
+        <a href="/knowledge" id="current-page">🧠<span class="link-text">Knowledge</span></a>
         <a href="#">📚<span class="link-text">Memories</span></a>
         <label class="sidebar-label" id="pref">Preferences</label>
         <a href="#">🧑‍🦲<span class="link-text">Profile</span></a>
@@ -24,31 +26,16 @@
     </div>
 
     <div class="navbar">
+        <!-- <button class="button" id="modeSwitch">Switch Mode</button> -->
         <p class="username">{{username}}</p>
         <img src="{{avatar_url}}" alt="Profile Picture">
     </div>
 
     <div class="content">
-        <div class="card fade-in">
-            <h2>Welcome to Nugget Tech Dashboard</h2>
-            <p>Explore the features that let you make your nugget, yours.</p>
-        </div>
-
-        <div class="analytics fade-in">
-            <h3>Analytics</h3>
-            <div class="stats">
-                <div class="stat">
-                    <h4>Daily Messages</h4>
-                    <p>12</p>
-                </div>
-                <div class="stat">
-                    <h4>Total Messages</h4>
-                    <p>254</p>
-                </div>
-            </div>
+        <div class="card configuration">
+        <!-- <button class="button" id="modeSwitch">Switch Mode</button> -->
+        <h1>Theme</h1>
+        <button class="button" onclick=toggleDarkMode() id="modeSwitch"></button>
         </div>
     </div>
-
-    <script src="/static/script.js"></script>
 </body>
-</html>
