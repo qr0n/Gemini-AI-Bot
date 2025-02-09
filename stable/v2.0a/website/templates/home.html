@@ -40,25 +40,19 @@
     </style>
 </head>
 <body>
-    <!-- <div class="sidebar">
+    <div class="sidebar">
         <button class="toggle-button" id="toggleSidebar">☰ Nugget Tech</button>
-        <label class="sidebar-label" id="home">Home</label>
-        <a href="/dashboard">🏠<span class="link-text">Dashboard</span></a>
-        <a href="{{invite_url}}">📭<span class="link-text">Add to server</span></a>
-        <label class="sidebar-label" id="AEC">AI Engine Configuration</label>
-        <a href="#">🚂<span class="link-text">Model Configuration</span></a>
-        <a href="/knowledge" id="current-page">🧠<span class="link-text">Knowledge</span></a>
-        <a href="#">📚<span class="link-text">Memories</span></a>
         <label class="sidebar-label" id="pref">Preferences</label>
         <a href="#">🧑‍🦲<span class="link-text">Profile</span></a>
         <a href="#">🚪<span class="link-text">Logout</span></a>
         <a href="/settings">⚙️<span class="link-text">Settings</span></a>
-    </div> -->
+    </div>
 
     <div class="navbar">
         <!-- <button class="button" id="modeSwitch">Switch Mode</button> -->
         <p class="username">{{username}}</p>
         <img src="{{avatar_url}}" alt="Profile Picture">
+        <!-- <p><a href="/settings" style="right: 100px;">⚙️Settings</a></p> -->
     </div>
 
     <div class="content">
@@ -68,7 +62,7 @@
             <div class="nugget-card">
                 <img class="nugget-img" src="{{ nugget.image_url }}" alt="Card Image">
                 <div class="card-name">
-                <p>{{ nugget.name }}</p>
+                <a href="/{{ nugget.alias }}/dashboard"><p>{{ nugget.name }}</p></a>
                 </div>
             </div>
             {% endfor %}

@@ -18,6 +18,12 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
 # Discord OAuth2 credentials
+CLIENT_ID = "1336834527951192134"
+CLIENT_SECRET = "5NA0Yh11FgHhH8o8H8yF_6AYSBgltizK"
+REDIRECT_URI = "http://localhost:5000/callback"
+API_BASE_URL = "https://discord.com/api"
+AUTHORIZATION_BASE_URL = "https://discord.com/api/oauth2/authorize"
+TOKEN_URL = "https://discord.com/api/oauth2/token"
 
 
 def requires_auth(func):
@@ -36,7 +42,7 @@ def requires_auth(func):
 
 
 @app.route("/")
-def home():
+def landing_page():
     return render_template("landing-page.html")
 
 
@@ -75,7 +81,7 @@ def callback():
     token = response_data["access_token"]
 
     # Set the token in a cookie
-    response = make_response(redirect(url_for("dashboard")))
+    response = make_response(redirect(url_for("home")))
     response.set_cookie("token", token)
     response.set_cookie("darkMode", "enabled")
 
@@ -84,9 +90,9 @@ def callback():
     return response
 
 
-@app.route("/dashboard")
+@app.route("/home")
 @Helpers.requires_auth
-def dashboard():
+def home():
     user_data = Helpers.get_user_data()
     return render_template(
         "home.html",
@@ -96,6 +102,7 @@ def dashboard():
             {
                 "image_url": f"https://cdn.discordapp.com/avatars/{user_data['id']}/{user_data['avatar']}.png",
                 "name": "Nugget 1",
+                "alias": "sponge-mk7",
             },
             {
                 "image_url": f"https://cdn.discordapp.com/avatars/{user_data['id']}/{user_data['avatar']}.png",
@@ -106,15 +113,27 @@ def dashboard():
     )
 
 
-@app.route("/<nugget>/settings")
+@app.route("/<nugget>/dashboard")
+def dashboard(nugget):
+    # simulate getting a query from the sql backend
+    client_id = 1245921609433481236
+    user_data = Helpers.get_user_data()
+    return render_template(
+        "analytics-page.html",
+        invite_url=f"https://discord.com/oauth2/authorize?client_id={client_id}&permissions=36809024&integration_type=0&scope=bot",
+        nugget_alias=nugget,
+        avatar_url=f"https://cdn.discordapp.com/avatars/{user_data['id']}/{user_data['avatar']}.png",
+    )
+
+
+@app.route("/settings")
 @requires_auth
-def settings(nugget):
+def settings():
     user_data = Helpers.get_user_data()
     return render_template(
         "settings.html",
         username=user_data["username"],
         avatar_url=f"https://cdn.discordapp.com/avatars/{user_data['id']}/{user_data['avatar']}.png",
-        invite_url="https://discord.com/oauth2/authorize?client_id={CL}&permissions=36809024&integration_type=0&scope=bot",
     )
 
 
@@ -123,10 +142,19 @@ def settings(nugget):
 def memories(nugget):
     user_data = Helpers.get_user_data()
     return render_template(
-        "knowledge.html",
+        "memories.html",
         username=user_data["username"],
         avatar_url=f"https://cdn.discordapp.com/avatars/{user_data['id']}/{user_data['avatar']}.png",
         invite_url="https://discord.com/oauth2/authorize?client_id={CL}&permissions=36809024&integration_type=0&scope=bot",
+        bot_memories=[
+            {
+                "special_phrase": "the dog jumped over the boy's moon and the lazy brown fox watched.",
+                "content": "Jason goes on this adventure where he aquires a moon on his planet. a huge dog spiteful and evil decicded jason's moon was stealing the attention from him so he jumped over the boys moon, the wise brown fox was lazy and just watched.",
+            },
+            {
+                "special_phrase": "the dog jumped over the boy's moon and the lazy brown fox watched."
+            },
+        ],
     )
 
 

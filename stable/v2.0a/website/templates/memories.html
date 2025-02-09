@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nugget Tech Dashboard</title>
     <link rel="stylesheet" href="/static/style.css">
-    <script src="/static/script.js"></script>
+    <style>
+        body{
+        overflow-x: hidden;
+        }
+    </style>
 
 </head>
 <body>
@@ -13,12 +17,12 @@
         <button class="toggle-button" id="toggleSidebar">☰ Nugget Tech</button>
         <!-- <h1>Nugget Tech</h1> -->
         <label class="sidebar-label" id="home">Home</label>
-        <a href="/dashboard">🏠<span class="link-text">Dashboard</span></a>
+        <a href="/home">🏠<span class="link-text">Dashboard</span></a>
         <a href="{{invite_url}}">📭<span class="link-text">Add to server</span></a>
         <label class="sidebar-label" id="AEC">AI Engine Configuration</label>
         <a href="#">🚂<span class="link-text">Model Configuration</span></a>
-        <a href="/knowledge" id="current-page">🧠<span class="link-text">Knowledge</span></a>
-        <a href="#">📚<span class="link-text">Memories</span></a>
+        <a href="/knowledge">🧠<span class="link-text">Knowledge</span></a>
+        <a href="#" id="current-page">📚<span class="link-text">Memories</span></a>
         <label class="sidebar-label" id="pref">Preferences</label>
         <a href="#">🧑‍🦲<span class="link-text">Profile</span></a>
         <a href="#">🚪<span class="link-text">Logout</span></a>
@@ -31,11 +35,44 @@
         <img src="{{avatar_url}}" alt="Profile Picture">
     </div>
 
-    <div class="content">
-        <div class="card configuration">
-        <!-- <button class="button" id="modeSwitch">Switch Mode</button> -->
-        <h1>Theme</h1>
-        <button class="button" onclick=toggleDarkMode() id="modeSwitch"></button>
+    <div class="configuration">
+        <h1>Memories</h1>
+        {% for memory in bot_memories %} <!-- This is the name. -->
+        <div class="content">
+            <p class="memory-special-text"> {{memory.special_phrase}} </p>
+            <hr width="100">
+            <p class="memory-text"> {{memory.content}} </p>
+            <button class="button edit-button" onclick="editMemory(this)">✏️ Edit</button>
+            <button class="button delete-button" onclick="confirmDelete(this)">🗑️ Delete</button>
+        </div>
+        {% endfor %}
+        <!-- Add more memory cards as needed -->
+    </div>
+
+    <!-- Edit Memory Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">×</span>
+            <h2>Edit Memory</h2>
+            <textarea id="topContentInput" class="textarea top-content"></textarea>
+            <textarea id="bottomContentInput" class="textarea bottom-content"></textarea>
+            <div class="button-container">
+              <button class="button save-button" onclick="saveMemory()">💾 Save</button>
+              <button class="button delete-button" onclick="confirmDelete(this)">🗑️ Delete</button>
+            </div>
+          </div>        
+    </div>
+
+    <!-- Confirm Delete Modal -->
+    <div id="confirmDeleteModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Confirm Delete</h2>
+            <p>Are you sure you want to delete this memory?</p>
+            <button class="button confirm-button" onclick="deleteMemory()">✔️ Confirm</button>
+            <button class="button cancel-button" onclick="closeModal()">❌ Cancel</button>
         </div>
     </div>
+
+    <script src="/static/script.js"></script>
 </body>

@@ -21,7 +21,8 @@ cursor.execute(
     """
     CREATE TABLE IF NOT EXISTS bots (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        discord_id BIGINT NOT NULL
+        discord_id BIGINT NOT NULL,
+        bot_name VARCHAR(255) UNIQUE NOT NULL,
         avatar_url VARCHAR(255)
     )
     """

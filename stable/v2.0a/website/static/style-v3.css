@@ -145,7 +145,21 @@ body {
 .nugget-img {
     border-radius: 10px 10px 0px 0px;
 }
+
+.h1 {
+    text-align: center;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 .configuation {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 20px;
     /* background-color: var(--card-dark); */
     background-color: aqua;
     /* backdrop-filter: blur(10px); */
@@ -237,183 +251,38 @@ body {
     background: var(--button-dark);
 }
 
-
-/* CSS rules affecting the h1 tag, all together */
-
-.sidebar h1 {
-    color: var(--text-dark);
-    display: inline;
-    transition: margin-left 0.3s;
+@media (max-width: 768px) {
+  .sidebar.collapsed {
+    width: 0;
+  }
+  .content {
+    margin-left: 20px;
+  }
 }
 
-.sidebar-collapsed .sidebar h1 {
-    display: none;
-}
+/* new */
 
-.h1 {
-    text-align: center;
+.configuration {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     width: 100%;
-    margin: 0;
-    padding: 0;
     box-sizing: border-box;
-}
-
+  }
+  
 h1 {
   text-align: center;
   padding: 20px;
-  /* box-sizing: border-box; */
+  box-sizing: border-box;
   width: 100%;
   margin: 0px;
-  position: relative;
 }
 
-.memory-container {
-    padding: 2px;
-}
-
-.memory-card {
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin: 10px 0;
-    position: relative;
-}
-
-.button {
-    margin: 5px;
-}
-
-.edit-button {
-    background-color: grey;
-}
-
-.delete-button {
-    background-color: red;
-}
-
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 1px;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgb(0,0,0);
-    background-color: rgba(0,0,0,0.4);
-    overflow-y: hidden;
-}
-
-.modal-content {
-    background-color: #fefefe;
-    margin: 15% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-}
-
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.modal-content {
-    background-color: rgb(50, 50, 50);
-    color: rgb(255, 255, 255);
-    font-family: Arial;
-    padding: 20px;
-    border: 1px solid rgb(136, 136, 136);
-    border-radius: 5px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-    width: 500px;
-    height: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-#topContentInput, #bottomContentInput {
-  width: 100%;
+.content {
+  margin-left: calc(80px + 20px);
+  margin-right: 20px;
+  padding: 20px;
   box-sizing: border-box;
-  resize: vertical;
-  background-color: rgb(240, 240, 240);
-  color: rgb(0, 0, 0);
-  border: 1px solid rgb(136, 136, 136);
-  padding: 10px;
+  width: auto;
 }
-
-#topContentInput {
-  margin-bottom: 10px;
-  min-height: 50px;
-}
-
-#bottomContentInput {
-  margin-top: 10px;
-  min-height: 100px;
-}
-
-.modal-content > div {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-/*  */
-
-.modal-content {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-  
-.close {
-  cursor: pointer;
-}
-  
-.textarea {
-  width: 100%;
-  box-sizing: border-box;
-  resize: vertical;
-  background-color: rgb(50, 50, 50);
-  color: rgb(255, 255, 255);
-  border: 1px solid rgb(136, 136, 136);
-  padding: 10px;
-}
-
-.textarea.top-content {
-  margin-bottom: 10px;
-  min-height: 50px;
-}
-
-.textarea.bottom-content {
-  margin-top: 10px;
-  min-height: 100px;
-}
-
-.button-container {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.button {
-  cursor: pointer;
-}
-
-.save-button {
-  /* Add save button specific styles here if needed */
-}
-
-.delete-button {
-  /* Add delete button specific styles here if needed */
-}
-  
