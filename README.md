@@ -44,7 +44,7 @@ Read more:
 
 ## 📖 Documentation
 
-For full setup instructions, configuration details, and feature explanations, please visit the [Wiki](https://github.com/yourusername/Nugget/wiki).
+For full setup instructions, configuration details, and feature explanations, please visit the [Wiki](https://github.com/qr0n/Gemini-AI-Bot/wiki).
 
 ---
 
