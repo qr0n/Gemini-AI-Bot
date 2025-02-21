@@ -13,16 +13,16 @@
         <button class="toggle-button" id="toggleSidebar">☰ Nugget Tech</button>
         <!-- <h1>Nugget Tech</h1> -->
         <label class="sidebar-label" id="home">Home</label>
-        <a href="/dashboard">🏠<span class="link-text">Dashboard</span></a>
-        <a href="{{invite_url}}">📭<span class="link-text">Add to server</span></a>
+        <a href="/dashboard/home">🏠<span class="link-text">Dashboard</span></a>
+        <a href="{{ invite_url }}" target="_blank">📭<span class="link-text">Add to server</span></a>
         <label class="sidebar-label" id="AEC">AI Engine Configuration</label>
-        <a href="#">🚂<span class="link-text">Model Configuration</span></a>
-        <a href="/knowledge" id="current-page">🧠<span class="link-text">Knowledge</span></a>
-        <a href="#">📚<span class="link-text">Memories</span></a>
+        <!-- <a href="/{{ nugget_alias }}/model-configuration">🚂<span class="link-text">Model Configuration</span></a> -->
+        <a href="/dashboard/{{ nugget_alias }}/model-configuration">🚂<span class="link-text">Model Configuration</span></a>
+        <a href="/dashboard/{{ nugget_alias}}/knowledge" id="current-page">🧠<span class="link-text">Knowledge</span></a>
+        <a href="/dashboard/{{ nugget_alias }}/memories">📚<span class="link-text">Memories</span></a>
         <label class="sidebar-label" id="pref">Preferences</label>
         <a href="#">🧑‍🦲<span class="link-text">Profile</span></a>
         <a href="#">🚪<span class="link-text">Logout</span></a>
-        <a href="/settings">⚙️<span class="link-text">Settings</span></a>
     </div>
 
     <div class="navbar">
@@ -40,9 +40,9 @@
     </div>
 
     <div class="configuration">
-        <h2>Memories</h2>
+        <h2>Knowledge</h2>
         <div class="content">
-            <p class="memory-text">Memory 1</p>
+            <p class="memory-text">Knowledge 1</p>
             <p class="content">
                 <!-- {{memory_content}} -->
             </p>
@@ -50,7 +50,7 @@
             <button class="button delete-button" onclick="confirmDelete(this)">🗑️ Delete</button>
         </div>
         <div class="content">
-            <p class="memory-text">Memory 2</p>
+            <p class="memory-text">Knowledge 2</p>
             <button class="button edit-button" onclick="editMemory(this)">✏️ Edit</button>
             <button class="button delete-button" onclick="confirmDelete(this)">🗑️ Delete</button>
         </div>

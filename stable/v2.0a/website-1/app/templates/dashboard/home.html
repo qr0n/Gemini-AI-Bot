@@ -45,7 +45,7 @@
         <label class="sidebar-label" id="pref">Preferences</label>
         <a href="#">🧑‍🦲<span class="link-text">Profile</span></a>
         <a href="#">🚪<span class="link-text">Logout</span></a>
-        <a href="/settings">⚙️<span class="link-text">Settings</span></a>
+        <!-- <a href="/settings">⚙️<span class="link-text">Settings</span></a> -->
     </div>
 
     <div class="navbar">
@@ -60,20 +60,36 @@
         <div class="nugget-container">
             {% for nugget in nuggets %}
             <div class="nugget-card">
-                <img class="nugget-img" src="{{ nugget.image_url }}" alt="Card Image">
+                <img class="nugget-img" src="{{ nugget.avatar_url }}" alt="Card Image">
                 <div class="card-name">
-                <a href="/{{ nugget.alias }}/dashboard"><p>{{ nugget.name }}</p></a>
+                <a href="/dashboard/{{ nugget.alias }}/model-configuration"><p>{{ nugget.name }}</p></a>
                 </div>
             </div>
             {% endfor %}
         </div>
+        <button class="button add-button" onclick="showAddBotModal()">➕ Add New Bot</button>
     </div>
 
-    <div class="content">
-        <div class="card configuration">
-        <!-- <button class="button" id="modeSwitch">Switch Mode</button> -->
-        <h1>Theme</h1>
-        <button class="button" onclick=toggleDarkMode() id="modeSwitch"></button>
+    <div id="addBotModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddBotModal()">&times;</span>
+            <h2>Add New Bot</h2>
+            <div class="form-group">
+                <label for="botName">Bot Name:</label>
+                <input type="text" id="botName" class="one-line-textbox" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label for="discordId">Discord Bot ID:</label>
+                <input type="text" id="discordId" class="one-line-textbox" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label for="avatarUrl">Avatar URL (optional):</label>
+                <input type="text" id="avatarUrl" class="one-line-textbox" autocomplete="off">
+            </div>
+            <div class="button-container">
+                <button class="button save-button" onclick="addNewBot()">Add Bot</button>
+                <button class="button cancel-button" onclick="closeAddBotModal()">Cancel</button>
+            </div>
         </div>
     </div>
 </body>

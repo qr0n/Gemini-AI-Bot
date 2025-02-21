@@ -409,11 +409,122 @@ h1 {
   cursor: pointer;
 }
 
-.save-button {
-  /* Add save button specific styles here if needed */
+.small-textbox {
+    width: 100px;
+    padding: 5px;
+    margin: 5px 0;
 }
 
-.delete-button {
-  /* Add delete button specific styles here if needed */
+.one-line-textbox {
+    width: 300px;
+    padding: 5px;
+    margin: 5px 0;
 }
-  
+
+.paragraph-textbox {
+    width: 300px;
+    height: 100px;
+    padding: 5px;
+    margin: 5px 0;
+}
+
+.personality-container {
+    background-color: var(--card-dark);
+    color: var(--text-dark);
+    padding: 25px;
+    margin: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    width: calc(100% - 290px); /* Account for sidebar + margins */
+    min-width: 300px;
+    position: relative;
+    left: 0;
+}
+
+.personality-container h2 {
+    margin: 0 0 20px 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--button-dark);
+    color: var(--text-dark);
+}
+
+.personality-container .content {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 15px;
+    align-items: start;
+    margin: 0;
+    padding: 0;
+    position: static;
+}
+
+.personality-container label {
+    justify-self: start;
+    padding-top: 8px;
+}
+
+.personality-container .small-textbox {
+    width: 150px;
+    justify-self: start;
+}
+
+.personality-container .one-line-textbox {
+    width: 100%;
+}
+
+.personality-container .paragraph-textbox {
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* Make description field span full width */
+.personality-container label[for="description"] {
+    grid-column: 1 / -1;
+    padding-top: 15px;
+}
+
+.personality-container #description {
+    grid-column: 1 / -1;
+}
+
+.small-textbox, .one-line-textbox, .paragraph-textbox {
+    background-color: rgba(70, 70, 70, 0.3);
+    border: 1px solid var(--button-dark);
+    color: var(--text-dark);
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.small-textbox:focus, .one-line-textbox:focus, .paragraph-textbox:focus {
+    outline: none;
+    border-color: var(--button-hover-bg);
+    background-color: rgba(70, 70, 70, 0.5);
+}
+
+/* Adjust description field to span both columns */
+.content label[for="description"],
+.content #description {
+    grid-column: 1 / -1;
+}
+
+.paragraph-textbox {
+    margin-top: 5px;
+}
+
+.configuration {
+    position: absolute;
+    top: 60px; /* Height of navbar */
+    left: 250px; /* Width of sidebar */
+    right: 0;
+    padding: 20px;
+    z-index: 0;
+    transition: left 0.3s ease; /* Add smooth transition */
+}
+
+.sidebar-collapsed .configuration {
+    left: 80px; /* Width of collapsed sidebar */
+}
+
+.sidebar-collapsed .personality-container {
+    width: calc(100% - 120px); /* Adjust when sidebar is collapsed */
+}

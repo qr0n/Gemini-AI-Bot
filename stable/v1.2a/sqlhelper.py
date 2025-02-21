@@ -25,15 +25,20 @@ cursor.execute(
         special_phrase TEXT NOT NULL,
         memory TEXT NOT NULL,
         timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-
+    );"""
+)
+cursor.execute(
+    """
     CREATE TABLE IF NOT EXISTS bot_db (
     id INT AUTO_INCREMENT PRIMARY KEY,
     message_content TEXT NOT NULL,
     message_id BIGINT NOT NULL,
     jump_url TEXT NOT NULL
-    );
+    );"""
+)
 
+cursor.execute(
+    """
     CREATE TABLE IF NOT EXISTS reminders (
     reminder_name TEXT NOT NULL,
     reminder_time DATETIME,
@@ -42,7 +47,6 @@ cursor.execute(
     );
 
     """,
-    multi=True,
 )
 
 # Commit changes

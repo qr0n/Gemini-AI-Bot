@@ -20,13 +20,13 @@
         <a href="/home">🏠<span class="link-text">Dashboard</span></a>
         <a href="{{invite_url}}">📭<span class="link-text">Add to server</span></a>
         <label class="sidebar-label" id="AEC">AI Engine Configuration</label>
-        <a href="#">🚂<span class="link-text">Model Configuration</span></a>
+        <a href="/{{ nugget_alias }}/model-configuration" id="current-page">🚂<span class="link-text">Model Configuration</span></a>
         <a href="/knowledge">🧠<span class="link-text">Knowledge</span></a>
-        <a href="#" id="current-page">📚<span class="link-text">Memories</span></a>
+        <a href="/{{ nugget_alias }}/memories">📚<span class="link-text">Memories</span></a>
         <label class="sidebar-label" id="pref">Preferences</label>
         <a href="#">🧑‍🦲<span class="link-text">Profile</span></a>
         <a href="#">🚪<span class="link-text">Logout</span></a>
-        <a href="/settings">⚙️<span class="link-text">Settings</span></a>
+     <!-- <a href="/settings">⚙️<span class="link-text">Settings</span></a> --> -->
     </div>
 
     <div class="navbar">
@@ -36,17 +36,31 @@
     </div>
 
     <div class="configuration">
-        <h1>Memories</h1>
-        {% for memory in bot_memories %} <!-- This is the name. -->
-        <div class="content">
-            <p class="memory-special-text"> {{memory.special_phrase}} </p>
-            <hr width="100">
-            <p class="memory-text"> {{memory.content}} </p>
-            <button class="button edit-button" onclick="editMemory(this)">✏️ Edit</button>
-            <button class="button delete-button" onclick="confirmDelete(this)">🗑️ Delete</button>
+        <div class="personality-container" data-nugget-alias="{{ nugget_alias }}">
+            <h2>Personality Traits</h2>
+            <div class="content">
+                <label for="name">Name:</label>
+                <input type="text" id="name" class="small-textbox" autocomplete="off">
+                
+                <label for="age">Age:</label>
+                <input type="text" id="age" class="small-textbox" autocomplete="off">
+                
+                <label for="role">Role:</label>
+                <input type="text" id="role" class="one-line-textbox" autocomplete="off">
+                
+                <label for="description">Description:</label>
+                <textarea id="description" class="paragraph-textbox" autocomplete="off"></textarea>
+                
+                <label for="likes">Likes:</label>
+                <input type="text" id="likes" class="one-line-textbox" autocomplete="off">
+                
+                <label for="dislikes">Dislikes:</label>
+                <input type="text" id="dislikes" class="one-line-textbox" autocomplete="off">
+                <div class="button-container">
+                    <button class="button save-button" onclick="savePersonalityData()">💾 Save Changes</button>
+                </div>
+            </div>
         </div>
-        {% endfor %}
-        <!-- Add more memory cards as needed -->
     </div>
 
     <!-- Edit Memory Modal -->
@@ -76,3 +90,4 @@
 
     <script src="/static/script.js"></script>
 </body>
+</html>
