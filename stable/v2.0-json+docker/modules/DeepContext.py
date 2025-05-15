@@ -13,7 +13,6 @@ from discord.ext import commands
 from google.generativeai.types import HarmCategory
 from modules.ManagedMessages import ManagedMessages
 from modules.VoiceCall import VoiceCalls
-from modules.agent.reminder import Reminder
 from modules.CommonCalls import CommonCalls
 
 

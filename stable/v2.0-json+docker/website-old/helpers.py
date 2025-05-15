@@ -3,18 +3,14 @@ from flask import session, request, redirect, url_for, jsonify
 import requests
 import mysql.connector
 from mysql.connector import Error
-from pathlib import Path
 
 # Discord OAuth2 credentials
 CLIENT_ID = "1336834527951192134"
 CLIENT_SECRET = "5NA0Yh11FgHhH8o8H8yF_6AYSBgltizK"
-REDIRECT_URI = "http://localhost:5000/auth/callback"
+REDIRECT_URI = "http://localhost:5000/callback"
 API_BASE_URL = "https://discord.com/api"
 AUTHORIZATION_BASE_URL = "https://discord.com/api/oauth2/authorize"
 TOKEN_URL = "https://discord.com/api/oauth2/token"
-PERSONALITY_DATA_DIR = Path("data/personality_traits")
-PERSONALITY_DATA_DIR.mkdir(parents=True, exist_ok=True)
-
 
 db = mysql.connector.connect(
     host="localhost",
@@ -54,7 +50,7 @@ class Helpers:
                 return jsonify({"error": "Database connection failed"}), 500
 
             cursor = database.cursor(dictionary=True)
-            cursor.execute("SELECT name, alias, avatar_url FROM bots")
+            cursor.execute("SELECT name, avatar_url FROM bots")
             traits = cursor.fetchall()
             cursor.close()
 

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nugget Tech Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/script.js"></script>
+    <style>
+        /* CSS reset to remove default padding and margin */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .nugget-container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .nugget-card {
+            width: 100px; /* Adjust the width as needed */
+            height: 150px; /* Adjust the height as needed */
+            margin: 5px;
+            display: flex;
+            flex-direction: column;
+        }
+        .nugget-card img {
+            width: 100%;
+            height: 80%;
+            object-fit: cover; /* Ensure the image covers the area */
+            border: none; /* Remove any default border */
+        }
+        .card-name {
+            height: 20%;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <button class="toggle-button" id="toggleSidebar">☰ Nugget Tech</button>
+        <label class="sidebar-label" id="pref">Preferences</label>
+        <a href="#">🧑‍🦲<span class="link-text">Profile</span></a>
+        <a href="#">🚪<span class="link-text">Logout</span></a>
+        <!-- <a href="/settings">⚙️<span class="link-text">Settings</span></a> -->
+    </div>
+
+    <div class="navbar">
+        <!-- <button class="button" id="modeSwitch">Switch Mode</button> -->
+        <p class="username">{{username}}</p>
+        <img src="{{avatar_url}}" alt="Profile Picture">
+        <!-- <p><a href="/settings" style="right: 100px;">⚙️Settings</a></p> -->
+    </div>
+
+    <div class="content">
+        <h1> Your nuggets~ </h1>
+        <div class="nugget-container">
+            {% for nugget in nuggets %}
+            <div class="nugget-card">
+                <img class="nugget-img" src="{{ nugget.avatar_url }}" alt="Card Image">
+                <div class="card-name">
+                <a href="/dashboard/{{ nugget.alias }}/model-configuration"><p>{{ nugget.name }}</p></a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <button class="button add-button" onclick="showAddBotModal()">➕ Add New Bot</button>
+    </div>
+
+    <div id="addBotModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddBotModal()">&times;</span>
+            <h2>Add New Bot</h2>
+            <div class="form-group">
+                <label for="botName">Bot Name:</label>
+                <input type="text" id="botName" class="one-line-textbox" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label for="discordId">Discord Bot ID:</label>
+                <input type="text" id="discordId" class="one-line-textbox" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label for="avatarUrl">Avatar URL (optional):</label>
+                <input type="text" id="avatarUrl" class="one-line-textbox" autocomplete="off">
+            </div>
+            <div class="button-container">
+                <button class="button save-button" onclick="addNewBot()">Add Bot</button>
+                <button class="button cancel-button" onclick="closeAddBotModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
