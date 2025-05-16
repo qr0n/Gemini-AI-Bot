@@ -1,0 +1,12 @@
+{
+    "API_KEY" : "gemini key",
+    "AI_MODEL" : "gemini key",
+    "SQL_CREDENTIALS" : {
+        "username" : "",
+        "password" : "",
+        "host" : "",
+        "database" : "bot_memory"
+    },
+    "MAX_CONTEXT_WINDOW" : 10,
+    "TOKEN" : "discord token"
+}

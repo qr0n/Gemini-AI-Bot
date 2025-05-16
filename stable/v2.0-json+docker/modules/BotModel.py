@@ -5,7 +5,7 @@ import google.generativeai as genai
 from modules.ManagedMessages import ManagedMessages, headless_ManagedMessages
 from modules.CommonCalls import CommonCalls
 from discord import Message
-from google.generativeai.types import HarmCategory, HarmBlockThreshold
+from google.generativeai.types import HarmCategory
 
 with open("./config.json", "r") as ul_config:
     config = json.load(ul_config)

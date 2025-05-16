@@ -1,12 +1,12 @@
 {
-    "API_KEY" : "Google-Gemini-API_KEY",
-    "AI_MODEL" : "Google-Gemini-AI_MODEL",
-    "SQL_CREDENTIALS" : {
-        "username" : "SQL_CREDENTIALS-username",
-        "password" : "SQL_CREDENTIALS-password",
-        "host" : "SQL_CREDENTIALS-host",
-        "database" : "SQL_CREDENTIALS-database"
+    "API_KEY": "",
+    "AI_MODEL": "",
+    "SQL_CREDENTIALS": {
+        "username": "",
+        "password": "",
+        "host": "",
+        "database": "bot_memory"
     },
-    "MAX_CONTEXT_WINDOW" : 10,
-    "TOKEN" : "Discord-Bot-TOKEN"
+    "MAX_CONTEXT_WINDOW": 10,
+    "TOKEN": ""
 }

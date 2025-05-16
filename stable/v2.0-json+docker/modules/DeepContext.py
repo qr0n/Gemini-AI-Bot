@@ -1,77 +1,66 @@
 """
-This module is a WIP for Deep Context development and testing
-TODO :
-- overhaul AIAgent.py
-- apply patch to DiscordBot.py
+Deep Context module for handling context-aware interactions and classifications
 """
 
 import google.generativeai as genai
-import json
-import datetime
-
-from discord.ext import commands
 from google.generativeai.types import HarmCategory
-from modules.ManagedMessages import ManagedMessages
-from modules.VoiceCall import VoiceCalls
 from modules.CommonCalls import CommonCalls
 
 
 class DeepContext:
-    """
-    Parent class hosting both DeepContext Logic and DeepContext Hook
-    """
+    """Parent class hosting both DeepContext Logic and DeepContext Hook"""
 
     class Logic:
+        VALID_CATEGORIES = {
+            "voice-call-initialize",
+            "voice-call-end",
+            "normal-chat-normal",
+            "interesting-chat-good",
+            "interesting-chat-bad",
+            "none-none",
+        }
 
+        @staticmethod
         def is_in_vc(server_id) -> bool:
+            """Check if bot is in voice channel"""
             pass
 
+        @staticmethod
         async def classify(
             text: str, author_name: str, server_id: int = None, channel_id: int = None
         ):
             """
-            Description -
-            This function uses the Google Gemini API to classify text input from discord, based on the message it categorizes it into events.
+            Classify text input from discord using Google Gemini API.
 
-            Arguments -
-            `text : str`
+            Args:
+                text (str): The message text to classify
+                author_name (str): Name of the message author
+                server_id (int, optional): Discord server ID
+                channel_id (int, optional): Discord channel ID
 
-            Returns -
-            `clean_json : dict`
+            Returns:
+                dict: Classification results including category and hidden meaning
             """
-
-            json_format = """{"category" : general-category-type, "hidden-meaning" : the hidden meaning of the text}"""
-            remind_json = """{"category" : general-category-type, "datetime" : yyyy-mm-dd hh:mm:ss, "reason" : the reason why the reminder is made}"""
-
-            voice_condition_start = """
-            voice-call-initialize : When the user would like initialize a voice call with the user (keywords like call, speak and talk)\n
-            """
-            voice_condition_end = """
-            voice-call-end : When the user would like to end a voice call with the user (keywords like later, nice speaking and bye)\n
-            """
+            character_details = CommonCalls.load_character_details()
 
             system_instruction = f"""
-            You are an AI Agent named "{CommonCalls.load_character_details()['name']}"\n
-            however you will avoid referring to yourself as an AI or LLM,\n
-            The person who's data you're classifying is named {author_name}\n
-            ONLY initialize events when the user is mentioning YOUR name.\n
-            
-            you have two primary objectives, you will compile the evaluated and return as one.\n
-            Your first objective is to classify the following chunk of text into one of the following action categories\n
-            make sure to analyze this very carefully and answer carefully.\n
-            
-            {""}
+            You are an AI Agent named "{character_details['name']}"
+            However you will avoid referring to yourself as an AI or LLM.
+            The person who's data you're classifying is named {author_name}
+            ONLY initialize events when the user is mentioning YOUR name.
 
-            normal-chat-normal: When theres nothing interesting occuring in the current chat, just regular conversation\n
-            interesting-chat-good : When the conversation is dicussing something that falls within the likes {CommonCalls.load_character_details()["likes"]}\n
-            interesting-chat-bad  : When the conversation is discussing something that falls within the dislikes {CommonCalls.load_character_details()["dislikes"]}\n
+            Classify the text into one of these categories:
+            - normal-chat-normal: Regular conversation with nothing notable
+            - interesting-chat-good: Discussion aligns with likes: {character_details["likes"]}
+            - interesting-chat-bad: Discussion aligns with dislikes: {character_details["dislikes"]}
+            - voice-call-initialize: User wants to start voice call
+            - voice-call-end: User wants to end voice call
 
-            Your second objective is to find any hidden meanings in the text, any implied actions, \n
-            meanings or otherwise identify at least 3 (three) of these, if there is none, \n\n
-            
-            Return the classified text in the following json format:\n
-            {json_format}
+            Also identify any hidden meanings or implied actions in the text.
+
+            Return as JSON: {"category": "category-name", "hidden-meaning": "identified meanings"}
             """
+
             agent_model = genai.GenerativeModel(
                 CommonCalls.config()["GEMINI"]["AI_MODEL"],
                 system_instruction=system_instruction,
@@ -79,10 +68,10 @@ class DeepContext:
                 safety_settings={
                     HarmCategory.HARM_CATEGORY_HARASSMENT: CommonCalls.config()[
                         "GEMINI"
-                    ]["FILTERS"]["sexually_explicit"],
+                    ]["FILTERS"]["harassment"],
                     HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: CommonCalls.config()[
                         "GEMINI"
-                    ]["FILTERS"]["harassment"],
+                    ]["FILTERS"]["sexually_explicit"],
                     HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: CommonCalls.config()[
                         "GEMINI"
                     ]["FILTERS"]["dangerous_content"],
@@ -93,63 +82,19 @@ class DeepContext:
             )
 
             response = await agent_model.generate_content_async(text)
-            if CommonCalls.clean_json(response.text.lower())["category"] in [
-                "voice-call-initialize",
-                "voice-call-end",
-                "normal-chat-normal",
-                "interesting-chat-good",
-                "interesting-chat-bad",
-                "none-none",
-            ]:
-                # Checks if the json keys are valid
-                return CommonCalls.clean_json(response.text)
+            return CommonCalls.clean_json(response.text)
 
-            else:
-                return CommonCalls.clean_json(response.text)
-
-        def modifier(input_json: dict):
+        @staticmethod
+        def modifier(input_json: dict) -> dict:
             """
-            Description -
-            Takes input from DeepContext.Logic.classify,
-            checks if event called is an event that needs text generation
-            if so, add flag `kill`
+            Modify classification results by adding flags for certain categories.
 
-            Arguments -
-            input_json type : `dict`
+            Args:
+                input_json (dict): The classification results to modify
 
-            Returns -
-            modified_json type : `dict`
+            Returns:
+                dict: Modified classification results
             """
-
-            watch_list = ["voice-call-initialize"]
-            if input_json["category"] in watch_list:
+            if input_json["category"] == "voice-call-initialize":
                 input_json["kill"] = True
-                return input_json
-
-            else:
-                return input_json
-
-    #     async def event_caller(event : dict, ctx : commands.Context):
-
-    #         match event["category"]:
-
-    #             case "voice-call-initialize":
-
-    #                 print("Voice call event fired")
-
-    #             case "voice-call-end":
-    #                 await VoiceCalls.stop_recording(ctx)
-
-    #             case "reminder-start":                               # START EXAMPLE
-    #                 reminder_reason = ai_function.get("reason")
-    #                 reminder_date = ai_function.get("datetime", None)
-    #                 reminder_channel = ctx.channel.id
-    #                 reminder_message_author = ctx.author.id
-    #                 await Reminder.add_reminder(reminder_name=reminder_reason,
-    #                                             reminder_time=reminder_date,
-    #                                             reminder_channel_id=reminder_channel,
-    #                                             reminder_message_author=reminder_message_author)
-    #                                                                 # END EXAMPLE
-    #             case _:
-
-    # class Hook:
+            return input_json

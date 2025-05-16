@@ -19,7 +19,9 @@ class voicechannel(commands.Cog):
     async def on_voice_state_update(
         self, member: Member, before: VoiceState, after: VoiceState
     ):
-        if member.id == self.bot.id:
+        if (
+            member.id == 1245921609433481236
+        ):  # THIS IS TEMPORARY, IF YOU SEE THIS REPLACE THAT ID WITH YOUR BOTS ID
             return
 
         if (

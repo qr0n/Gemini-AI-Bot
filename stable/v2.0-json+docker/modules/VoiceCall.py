@@ -14,8 +14,8 @@ import os
 import io
 
 from elevenlabs.client import ElevenLabs
-from elevenlabs import play, stream, save
-from discord.ext import commands, tasks
+from elevenlabs import stream
+from discord.ext import commands
 from discord import AllowedMentions
 from typing import Dict
 from modules.BotModel import BotModel
@@ -28,10 +28,6 @@ client = ElevenLabs(api_key=config["VOICE"]["elevenlabs_api_key"])
 allowed_mentions = AllowedMentions(
     everyone=False, users=False, roles=False, replied_user=False
 )
-
-
-class newVoiceCall:
-    pass
 
 
 class VoiceCalls:
@@ -54,8 +50,6 @@ class VoiceCalls:
         while voice_client.is_playing():
             await asyncio.sleep(1)
 
-        await voice_client.disconnect()
-
     async def once_done(
         sink: discord.sinks,
         channel: discord.TextChannel,
@@ -77,15 +71,9 @@ class VoiceCalls:
             file = await BotModel.upload_attachment(file_name)  # Uploads
             stt = await BotModel.speech_to_text(audio_file=file)  # Converts to text +1
 
-            text = await channel.send(
-                f"What I got:\n```{author_name} : {stt}```",
-                allowed_mentions=allowed_mentions,
-            )
-
             response = await headless_Gemini.generate_response(
                 channel_id=channel.id, author_name=author_name, author_content=stt
-            )  # Responds to converted + 1
-            await text.reply(response)
+            )
 
             await VoiceCalls.say_with_elevenlabs(
                 voice_client=voice_client, text=response
@@ -96,29 +84,36 @@ class VoiceCalls:
                 file
             )  # Deletes the recorded file off google
 
-            await VoiceCalls.start_recording(ctx)
-
-        await channel.send(
-            f"Finished recording audio",
-        )
+            # Only start a new recording if we're still connected
+            if voice_client and voice_client.is_connected():
+                vc = connections.get(ctx.guild.id)
+                if vc and vc.is_connected():
+                    vc.start_recording(
+                        discord.sinks.WaveSink(), VoiceCalls.once_done, channel, vc, ctx
+                    )
+                    await asyncio.sleep(config["VOICE"]["record_time"])
+                    vc.stop_recording()
 
     async def start_recording(ctx: commands.Context) -> None:
-        voice = ctx.author.voice
-        # To add compatibility for linux/docker whatever i have to make it like use a debian container and add RUN with the lib opus
+        voice: discord.Member.voice = ctx.author.voice
 
         if not voice:
             await ctx.send("You aren't in a voice channel!")
             return
 
-        try:
-            vc: discord.VoiceClient = await voice.channel.connect()
-        except discord.ClientException:
-            await ctx.send(
-                "I couldn't connect to the voice channel. Please check my permissions."
-            )
-            return
+        # Check if we already have a connection for this guild
+        if ctx.guild.id in connections and connections[ctx.guild.id].is_connected():
+            vc = connections[ctx.guild.id]
+        else:
+            try:
+                vc: discord.VoiceClient = await voice.channel.connect()
+            except discord.ClientException:
+                await ctx.send(
+                    "I couldn't connect to the voice channel. Please check my permissions."
+                )
+                return
+            connections[ctx.guild.id] = vc
 
-        connections[ctx.guild.id] = vc
         print(connections)
 
         vc.start_recording(
@@ -130,8 +125,6 @@ class VoiceCalls:
         await asyncio.sleep(config["VOICE"]["record_time"])
 
         vc.stop_recording()
-
-        await ctx.send("Hold on! Let me process... :thinking:")
 
     async def stop_recording(ctx: commands.Context) -> None:
         """

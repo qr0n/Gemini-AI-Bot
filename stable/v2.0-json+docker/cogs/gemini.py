@@ -5,7 +5,7 @@ from discord.ext import commands
 from modules.DiscordBot import Gemini
 from modules.CommonCalls import CommonCalls
 from modules.ManagedMessages import ManagedMessages
-from discord import Message, AllowedMentions, Reaction
+from discord import Message, AllowedMentions, Reaction, Member
 
 allowed_mentions = AllowedMentions(everyone=False, users=False, roles=False)
 
@@ -40,7 +40,6 @@ class GeminiCog(commands.Cog):
 
         async with message.channel.typing():
             await asyncio.sleep(2)
-        # do stuff here?
 
         response = await Gemini.generate_response(
             message, await self.bot.get_context(message)
@@ -65,7 +64,7 @@ class GeminiCog(commands.Cog):
                 print(f"Error replying response: {E}")
 
     @commands.Cog.listener("on_reaction_add")
-    async def on_rxn_add(self, reaction: Reaction, user):
+    async def on_rxn_add(self, reaction: Reaction, user: Member):
         channel_id = reaction.message.channel.id
 
         match reaction.emoji:

@@ -1,0 +1,52 @@
+{
+    "SQL_CREDENTIALS" : {
+        "username" : "",
+        "password" : "",
+        "host" : "",
+        "database" : "bot_memory"
+
+    },
+    "GEMINI" : {
+        "API_KEY" : "",
+        "AI_MODEL" : "",
+        "MAX_CONTEXT_WINDOW" : 20,
+        "FILTERS" : {
+            "sexually_explicit" : "BLOCK_NONE",
+            "harassment" : "BLOCK_NONE",
+            "dangerous_content" : "BLOCK_NONE",
+            "hate_speech" : "BLOCK_NONE",
+            "unspecified" : "BLOCK_MEDIUM_AND_ABOVE"
+        },
+        "GENERATION_CONFIG" : {
+            "temperature" : 0,
+            "topP" : 0,
+            "topK" : 0
+        }
+    },
+    "FREEWILL": {
+        "enabled" : true,
+        "text_frequency" : 0.01,
+        "reaction_frequency" : 0,
+        "keywords_added_chance" : 0.79,
+        "keywords" : []
+    },
+    "MESSAGES" : {
+        "wack" : "Ow! Uhh, what were we talking about?",
+        "wack_error" : "Sorry, can't remove what's not there. :joy:",
+        "error" : "Nuh uh, not gonna happen.",
+        "activated_message" : "Hey! I'm new here :wave:",
+        "deactivated_message" : "Awh, sorry to see you go! You can still talk to me by pinging me :pleading_face:"
+    },
+    "VOICE" : {
+        "elevenlabs_api_key" : "",
+        "record_time" : 10
+    },
+    "FILES" : {
+        "allow" : true,
+        "keep_in_context" : false
+    },
+    "AGENT" : {
+        "enabled" : true
+    },
+    "BOT_TOKEN" : ""
+}
