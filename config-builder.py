@@ -26,7 +26,7 @@ def prompt_dict(data: dict, prefix="") -> dict:
     result = {}
     for key, value in data.items():
         if isinstance(value, dict):
-            print(f"\n🔽 Entering nested config for: {prefix + key}")
+            print(f"\n🔽 Entering config for: {prefix + key}")
             result[key] = prompt_dict(value, prefix=prefix + key + ".")
         else:
             user_input = input(f"{prefix + key} [{value}]: ") or value

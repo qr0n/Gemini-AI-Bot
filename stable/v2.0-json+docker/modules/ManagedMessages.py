@@ -106,22 +106,9 @@ class ManagedMessages:
                 config["MESSAGES"]["wack_error"] or "No context window found. :pensive:"
             )
 
-    # async def save_message_to_db(message_content, message_id, jump_url):
-    #     """Allows for the user to save a message permanently to a list"""
-
-    #     sql = """INSERT INTO bot_db (message_content, message_id, jump_url) VALUES (%s, %s, %s);"""
-    #     values = (message_content, message_id, jump_url)
-
-    #     cursor.execute(sql, values)
-    #     conn.commit()
-
-    # async def remove_message_from_db(message_id):
-    #     """Allows for the user to delete a message using its message id from the database"""
-    #     sql = f"""DELETE FROM bot_db WHERE message_id='{message_id}';"""
-
 
 class headless_ManagedMessages:
-    """This class deals"""
+    """This class deals with instances of managed messages without... without something im not sure what"""
 
     context_window: Dict[str | int, list] = {}
     managed_messages: Dict[str | int, list] = {}

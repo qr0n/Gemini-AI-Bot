@@ -1,22 +1,24 @@
 import json
-import google.generativeai as genai
-from discord import Message
-from google.generativeai.types import HarmCategory, HarmBlockThreshold
-from modules.ManagedMessages import ManagedMessages
-from google.protobuf.json_format import MessageToDict
 import os
+
+from google import genai
+from google.genai.types import (
+    GenerateContentConfig,
+    SafetySetting,
+    GenerateContentResponse,
+)
+from discord import Message
+from modules.ManagedMessages import ManagedMessages
 
 with open("./config.json", "r") as ul_config:
     config = json.load(ul_config)
 
 context_window = ManagedMessages.context_window
 
-genai.configure(api_key=config["GEMINI"]["API_KEY"])
-model = genai.GenerativeModel(config["GEMINI"]["AI_MODEL"])
+client = genai.Client(api_key=config["GEMINI"]["API_KEY"])
+# model = genai.GenerativeModel(config["GEMINI"]["AI_MODEL"])
 
-max_context_window = config["GEMINI"][
-    "MAX_CONTEXT_WINDOW"
-]  # TODO: need to patch unlimited context window
+max_context_window = config["GEMINI"]["MAX_CONTEXT_WINDOW"]
 
 # JSON storage paths
 MEMORIES_FILE = "./memories.json"
@@ -34,13 +36,13 @@ class Memories:
     def load_character_details():
         try:
             with open("prompt.json", "r") as unloaded_prompt_json:
-                prompt_json = json.load(unloaded_prompt_json)
+                prompt_json: dict = json.load(unloaded_prompt_json)
         except FileNotFoundError:
             raise FileNotFoundError("The prompt.json file was not found.")
         except json.JSONDecodeError:
             raise ValueError("The prompt.json file is not a valid JSON.")
 
-        personality_traits = prompt_json.get("personality_traits", {})
+        personality_traits: dict = prompt_json.get("personality_traits", {})
         name = personality_traits.get("name", "unknown_bot")
         role = personality_traits.get("role", "unknown_role")
         age = personality_traits.get("age", "unknown_age")
@@ -51,22 +53,29 @@ class Memories:
     async def summarize_context_window(self, channel_id, retry=3):
         prompt = f"You're a data analyst who's only purpose is to summarize large but concise summaries on text provided to you, try to retain most of the information! Your first task is to summarize this conversation from the perspective of {self.character_name} --- Conversation Start ---\n{'\n'.join(context_window[channel_id])} --- Conversation End ---"
 
-        response = await model.generate_content_async(
+        response: GenerateContentResponse = await client.aio.models.generate_content(
             prompt,
-            safety_settings={
-                HarmCategory.HARM_CATEGORY_HARASSMENT: config["GEMINI"]["FILTERS"][
-                    "sexually_explicit"
+            model=config["GEMINI"]["AI_MODEL"],
+            config=GenerateContentConfig(
+                safety_settings=[
+                    SafetySetting(
+                        category="HARM_CATEGORY_HATE_SPEECH",
+                        threshold=config["GEMINI"]["FILTERS"]["hate_speech"],
+                    ),
+                    SafetySetting(
+                        category="HARM_CATEGORY_HARASSMENT",
+                        threshold=config["GEMINI"]["FILTERS"]["harassment"],
+                    ),
+                    SafetySetting(
+                        category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                        threshold=config["GEMINI"]["FILTERS"]["sexually_explicit"],
+                    ),
+                    SafetySetting(
+                        category="HARM_CATEGORY_DANGEROUS_CONTENT",
+                        threshold=config["GEMINI"]["FILTERS"]["dangerous_content"],
+                    ),
                 ],
-                HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: config["GEMINI"][
-                    "FILTERS"
-                ]["harassment"],
-                HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: config["GEMINI"][
-                    "FILTERS"
-                ]["dangerous_content"],
-                HarmCategory.HARM_CATEGORY_HATE_SPEECH: config["GEMINI"]["FILTERS"][
-                    "hate_speech"
-                ],
-            },
+            ),
         )
 
         try:
@@ -85,7 +94,11 @@ class Memories:
                 return ""
 
     async def save_to_memory(self, message: Message, force=False):
+        print(
+            "Save to memory function call `Memories.save_to_memory` (Message from line 98 @ modules/Memories.py)"
+        )
         channel_id = message.channel.id
+        key = str(channel_id)  # Ensure key consistency
 
         # Load the current memories from the JSON file
         memories = self.load_memories()
@@ -104,7 +117,7 @@ class Memories:
             }
 
             # Append to the existing memories
-            memories[channel_id] = memories.get(channel_id, []) + [memory_entry]
+            memories[key] = memories.get(key, []) + [memory_entry]
 
             # Save the updated memories back to the JSON file
             self.save_memories(memories)
@@ -116,17 +129,20 @@ class Memories:
     def fetch_and_sort_entries(self, channel_id):
         # Load the current memories from the JSON file
         memories = self.load_memories()
+        key = str(channel_id)  # Ensure key consistency
 
         # Get the memories for the specific channel, sorted by timestamp
-        sorted_memories = sorted(
-            memories.get(channel_id, []), key=lambda x: x["timestamp"]
-        )
+        sorted_memories = sorted(memories.get(key, []), key=lambda x: x["timestamp"])
 
         # Create a dictionary with special_phrase as the key and memory as the value
         result = {entry["special_phrase"]: entry["memory"] for entry in sorted_memories}
+        print(result)
         return result
 
     async def is_worth_remembering(self, context):
+        print(
+            "Worth Remembering function call `Memories.is_worth_remembering` (Message from line 131 @ modules/Memories.py)"
+        )
         system_instruction = """
 Objective:
 Determine whether a conversation is worth remembering based on predefined criteria and if it is, provide a highly detailed phrase summarizing the entire conversation that you'd remember.
@@ -148,37 +164,50 @@ Instructions:
 
 Provide your response in a JSON format {"is_worth" : true/false, "special_phrase" : phrase_goes_here} without ANY formatting, ie.. no backticks '`' no syntax highlighting, no numbered lists.'
     """
-        remember_model = genai.GenerativeModel(
-            config["GEMINI"]["AI_MODEL"], system_instruction=system_instruction
-        )
+
         try:
-            unloaded_json = await remember_model.generate_content_async(
-                context,
-                generation_config={"response_mime_type": "application/json"},
-                safety_settings={
-                    HarmCategory.HARM_CATEGORY_HARASSMENT: config["GEMINI"]["FILTERS"][
-                        "sexually_explicit"
-                    ],
-                    HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: config["GEMINI"][
-                        "FILTERS"
-                    ]["harassment"],
-                    HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: config["GEMINI"][
-                        "FILTERS"
-                    ]["dangerous_content"],
-                    HarmCategory.HARM_CATEGORY_HATE_SPEECH: config["GEMINI"]["FILTERS"][
-                        "hate_speech"
-                    ],
-                },
+            unloaded_json: GenerateContentResponse = (
+                await client.aio.models.generate_content(
+                    context,
+                    model=config["GEMINI"]["AI_MODEL"],
+                    config=GenerateContentConfig(
+                        safety_settings=[
+                            SafetySetting(
+                                category="HARM_CATEGORY_HATE_SPEECH",
+                                threshold=config["GEMINI"]["FILTERS"]["hate_speech"],
+                            ),
+                            SafetySetting(
+                                category="HARM_CATEGORY_HARASSMENT",
+                                threshold=config["GEMINI"]["FILTERS"]["harassment"],
+                            ),
+                            SafetySetting(
+                                category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                                threshold=config["GEMINI"]["FILTERS"][
+                                    "sexually_explicit"
+                                ],
+                            ),
+                            SafetySetting(
+                                category="HARM_CATEGORY_DANGEROUS_CONTENT",
+                                threshold=config["GEMINI"]["FILTERS"][
+                                    "dangerous_content"
+                                ],
+                            ),
+                        ],
+                        system_instruction=system_instruction,
+                        response_mime_type="application/json",
+                    ),
+                )
             )
             clean_json = json.loads(self.clean_json(unloaded_json.text))
-            print("")  # TODO Add log here
             return clean_json
         except Exception as E:
             print(E)
 
     async def compare_memories(self, channel_id, message):
+        print(
+            "Compare Memories function call `Memories.compare_memories` (Message from line 202 @ modules/Memories.py)"
+        )
         entries = self.fetch_and_sort_entries(channel_id).keys()
-
         system_instruction = """
 Objective:
 Determine if the provided context or phrase is similar to another given phrase or message based on predefined criteria.
@@ -209,40 +238,43 @@ Provide your response in this JSON schema:
 
 without ANY formatting, i.e., no backticks '`', no syntax highlighting, no numbered lists.
 """
-        comparing_model = genai.GenerativeModel(
-            config["GEMINI"]["AI_MODEL"], system_instruction=system_instruction
-        )
         message_list = f"""
 Context: {"\n".join(context_window[channel_id])}
 List of phrases: {", ".join(entries)}
 """
-        print(
-            "Compare Memories function call `Memories.compare_memories` (Message from line 202 @ modules/Memories.py)"
-        )
         try:
-            unloaded_json = await comparing_model.generate_content_async(
-                message_list,
-                generation_config={"response_mime_type": "application/json"},
-                safety_settings={
-                    HarmCategory.HARM_CATEGORY_HARASSMENT: config["GEMINI"]["FILTERS"][
-                        "sexually_explicit"
+            unloaded_json = await client.aio.models.generate_content(
+                contents=message_list,
+                model=config["GEMINI"]["AI_MODEL"],
+                config=GenerateContentConfig(
+                    safety_settings=[
+                        SafetySetting(
+                            category="HARM_CATEGORY_HATE_SPEECH",
+                            threshold=config["GEMINI"]["FILTERS"]["hate_speech"],
+                        ),
+                        SafetySetting(
+                            category="HARM_CATEGORY_HARASSMENT",
+                            threshold=config["GEMINI"]["FILTERS"]["harassment"],
+                        ),
+                        SafetySetting(
+                            category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                            threshold=config["GEMINI"]["FILTERS"]["sexually_explicit"],
+                        ),
+                        SafetySetting(
+                            category="HARM_CATEGORY_DANGEROUS_CONTENT",
+                            threshold=config["GEMINI"]["FILTERS"]["dangerous_content"],
+                        ),
                     ],
-                    HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: config["GEMINI"][
-                        "FILTERS"
-                    ]["harassment"],
-                    HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: config["GEMINI"][
-                        "FILTERS"
-                    ]["dangerous_content"],
-                    HarmCategory.HARM_CATEGORY_HATE_SPEECH: config["GEMINI"]["FILTERS"][
-                        "hate_speech"
-                    ],
-                },
+                    system_instruction=system_instruction,
+                    response_mime_type="application/json",
+                ),
             )
             clean_json = json.loads(self.clean_json(unloaded_json.text))
+
             return clean_json
         except Exception as E:
             print(E)
-            return {"is_similar": False, "special_phrase": None}
+            return {"is_similar": False, "similar_phrase": None}
 
     def clean_json(self, json: str):
         if json.startswith("```json") and json.endswith("```"):

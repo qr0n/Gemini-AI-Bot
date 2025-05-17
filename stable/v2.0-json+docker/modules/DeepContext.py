@@ -2,9 +2,16 @@
 Deep Context module for handling context-aware interactions and classifications
 """
 
-import google.generativeai as genai
-from google.generativeai.types import HarmCategory
 from modules.CommonCalls import CommonCalls
+from google import genai
+
+from google.genai.types import (
+    SafetySetting,
+    GenerateContentConfig,
+    GenerateContentResponse,
+)
+
+client = genai.Client(api_key=CommonCalls.config()["GEMINI"]["API_KEY"])
 
 
 class DeepContext:
@@ -61,27 +68,42 @@ class DeepContext:
             Return as JSON: {"category": "category-name", "hidden-meaning": "identified meanings"}
             """
 
-            agent_model = genai.GenerativeModel(
-                CommonCalls.config()["GEMINI"]["AI_MODEL"],
-                system_instruction=system_instruction,
-                generation_config={"response_mime_type": "application/json"},
-                safety_settings={
-                    HarmCategory.HARM_CATEGORY_HARASSMENT: CommonCalls.config()[
-                        "GEMINI"
-                    ]["FILTERS"]["harassment"],
-                    HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: CommonCalls.config()[
-                        "GEMINI"
-                    ]["FILTERS"]["sexually_explicit"],
-                    HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: CommonCalls.config()[
-                        "GEMINI"
-                    ]["FILTERS"]["dangerous_content"],
-                    HarmCategory.HARM_CATEGORY_HATE_SPEECH: CommonCalls.config()[
-                        "GEMINI"
-                    ]["FILTERS"]["hate_speech"],
-                },
+            response: GenerateContentResponse = (
+                await client.aio.models.generate_content(
+                    model=CommonCalls.config()["GEMINI"]["AI_MODEL"],
+                    config=GenerateContentConfig(
+                        safety_settings=[
+                            SafetySetting(
+                                category="HARM_CATEGORY_HATE_SPEECH",
+                                threshold=CommonCalls.config()["GEMINI"]["FILTERS"][
+                                    "hate_speech"
+                                ],
+                            ),
+                            SafetySetting(
+                                category="HARM_CATEGORY_HARASSMENT",
+                                threshold=CommonCalls.config()["GEMINI"]["FILTERS"][
+                                    "harassment"
+                                ],
+                            ),
+                            SafetySetting(
+                                category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                                threshold=CommonCalls.config()["GEMINI"]["FILTERS"][
+                                    "sexually_explicit"
+                                ],
+                            ),
+                            SafetySetting(
+                                category="HARM_CATEGORY_DANGEROUS_CONTENT",
+                                threshold=CommonCalls.config()["GEMINI"]["FILTERS"][
+                                    "dangerous_content"
+                                ],
+                            ),
+                        ],
+                        system_instruction=system_instruction,
+                        response_mime_type="application/json",
+                    ),
+                )
             )
 
-            response = await agent_model.generate_content_async(text)
             return CommonCalls.clean_json(response.text)
 
         @staticmethod

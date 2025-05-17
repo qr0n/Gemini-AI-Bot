@@ -81,7 +81,7 @@ class VoiceCalls:
 
             os.remove(file_name)  # Deletes the recorded file
             await BotModel.delete_attachment(
-                file
+                file.name
             )  # Deletes the recorded file off google
 
             # Only start a new recording if we're still connected

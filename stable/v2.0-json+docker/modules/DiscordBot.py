@@ -47,9 +47,15 @@ class Gemini:
         remembered_memories = await memories.compare_memories(
             channel_id, message.content
         )
+        print(remembered_memories)
 
         if remembered_memories["is_similar"]:
-            prompt = read_prompt(message, remembered_memories["similar_phrase"])
+            prompt = read_prompt(
+                message,
+                memories.fetch_and_sort_entries(channel_id)[
+                    remembered_memories["similar_phrase"]
+                ],
+            )
         else:
             prompt = read_prompt(message)
 
@@ -82,7 +88,7 @@ class Gemini:
             )
 
             os.remove(save_name)
-            await BotModel.delete_attachment(file)
+            await BotModel.delete_attachment(file.name)
             return response
 
         # Add text file and audio support soon
@@ -101,7 +107,7 @@ class Gemini:
             )
 
             os.remove(save_name)
-            await BotModel.delete_attachment(file)
+            await BotModel.delete_attachment(file.name)
             return response
 
         elif attachments and attachments[0].filename.lower().endswith(".ogg"):
@@ -124,7 +130,7 @@ class Gemini:
             )
 
             os.remove(save_name)
-            await BotModel.delete_attachment(file)
+            await BotModel.delete_attachment(file.name)
             return response
 
         else:

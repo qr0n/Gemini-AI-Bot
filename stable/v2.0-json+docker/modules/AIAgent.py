@@ -2,12 +2,16 @@
 OLD: Use modules/DeepContext for additional functionality
 """
 
-import google.generativeai as genai
 import json
 import datetime
 
 from discord.ext import commands
-from google.generativeai.types import HarmCategory
+from google import genai
+from google.genai.types import (
+    GenerateContentConfig,
+    SafetySetting,
+    GenerateContentResponse,
+)
 from modules.ManagedMessages import ManagedMessages
 from modules.VoiceCall import VoiceCalls
 from modules.CommonCalls import CommonCalls
@@ -17,8 +21,7 @@ with open("./config.json", "r") as ul_config:
 
 context_window = ManagedMessages.context_window
 
-genai.configure(api_key=config["GEMINI"]["API_KEY"])
-model = genai.GenerativeModel(config["GEMINI"]["AI_MODEL"])
+client = genai.Client(api_key=config["GEMINI"]["API_KEY"])
 
 
 class AIAgent:
@@ -54,27 +57,33 @@ class AIAgent:
         {json_format}
         """
 
-        agent_model = genai.GenerativeModel(
-            config["GEMINI"]["AI_MODEL"],
-            system_instruction=system_instruction,
-            generation_config={"response_mime_type": "application/json"},
-            safety_settings={
-                HarmCategory.HARM_CATEGORY_HARASSMENT: config["GEMINI"]["FILTERS"][
-                    "sexually_explicit"
+        response: GenerateContentResponse = await client.aio.models.generate_content(
+            contents=text,
+            model=config["GEMINI"]["AI_MODEL"],
+            config=GenerateContentConfig(
+                safety_settings=[
+                    SafetySetting(
+                        category="HARM_CATEGORY_HATE_SPEECH",
+                        threshold=config["GEMINI"]["FILTERS"]["hate_speech"],
+                    ),
+                    SafetySetting(
+                        category="HARM_CATEGORY_HARASSMENT",
+                        threshold=config["GEMINI"]["FILTERS"]["harassment"],
+                    ),
+                    SafetySetting(
+                        category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                        threshold=config["GEMINI"]["FILTERS"]["sexually_explicit"],
+                    ),
+                    SafetySetting(
+                        category="HARM_CATEGORY_DANGEROUS_CONTENT",
+                        threshold=config["GEMINI"]["FILTERS"]["dangerous_content"],
+                    ),
                 ],
-                HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: config["GEMINI"][
-                    "FILTERS"
-                ]["harassment"],
-                HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: config["GEMINI"][
-                    "FILTERS"
-                ]["dangerous_content"],
-                HarmCategory.HARM_CATEGORY_HATE_SPEECH: config["GEMINI"]["FILTERS"][
-                    "hate_speech"
-                ],
-            },
+                system_instruction=system_instruction,
+                response_mime_type="application/json",
+            ),
         )
 
-        response = await agent_model.generate_content_async(text)
         if CommonCalls.clean_json(response.text.lower())["category"] in [
             "voice-call-initialize",
             "voice-call-end",

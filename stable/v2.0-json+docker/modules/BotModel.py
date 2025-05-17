@@ -1,18 +1,25 @@
 import json
 import asyncio
-import google.generativeai as genai
 
 from modules.ManagedMessages import ManagedMessages, headless_ManagedMessages
 from modules.CommonCalls import CommonCalls
 from discord import Message
-from google.generativeai.types import HarmCategory
+from google.genai.types import (
+    HarmCategory,
+    File,
+    GenerateContentResponse,
+    SafetySetting,
+    GenerateContentConfig,
+)
+from google import genai
 
 with open("./config.json", "r") as ul_config:
     config = json.load(ul_config)
 
 context_window = ManagedMessages().context_window
 
-genai.configure(api_key=config["GEMINI"]["API_KEY"])
+# genai.configure(api_key=config["GEMINI"]["API_KEY"])
+client = genai.Client(api_key=config["GEMINI"]["API_KEY"])
 
 
 def read_prompt(message: Message = None, memory: str = None, author_name: str = None):
@@ -102,9 +109,9 @@ def read_prompt(message: Message = None, memory: str = None, author_name: str = 
         """
 
 
-model = genai.GenerativeModel(
-    config["GEMINI"]["AI_MODEL"], system_instruction=read_prompt(), safety_settings={}
-)
+# model = genai.GenerativeModel(
+#     config["GEMINI"]["AI_MODEL"], system_instruction=read_prompt(), safety_settings={}
+# )
 
 
 class BotModel:
@@ -115,7 +122,7 @@ class BotModel:
 
     # Generate content
     async def generate_content(
-        prompt, channel_id=None, attachment: genai.types.File = None, retry=3
+        prompt, channel_id=None, attachment: File = None, retry=3
     ):
         """
         Description:
@@ -136,29 +143,35 @@ class BotModel:
 
         if attachment:
             media_addon = "Describe this piece of media to yourself in a way that if referenced again, you will be able to answer any potential question asked."
-            # full_prompt = [_prompt, "\n", image_addon, "\n", attachment] # Old stuff, experimenting with google file api
-            # attachment_file = genai.upload_file(attachment)
+
             full_prompt = [prompt_with_context, "\n", media_addon, "\n", attachment]
 
         else:
             full_prompt = prompt_with_context
 
-        response = await model.generate_content_async(
-            full_prompt,
-            safety_settings={
-                HarmCategory.HARM_CATEGORY_HARASSMENT: config["GEMINI"]["FILTERS"][
-                    "sexually_explicit"
+        response: GenerateContentResponse = await client.aio.models.generate_content(
+            contents=full_prompt,
+            model=config["GEMINI"]["AI_MODEL"],
+            config=GenerateContentConfig(
+                safety_settings=[
+                    SafetySetting(
+                        category="HARM_CATEGORY_HATE_SPEECH",
+                        threshold=config["GEMINI"]["FILTERS"]["hate_speech"],
+                    ),
+                    SafetySetting(
+                        category="HARM_CATEGORY_HARASSMENT",
+                        threshold=config["GEMINI"]["FILTERS"]["harassment"],
+                    ),
+                    SafetySetting(
+                        category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                        threshold=config["GEMINI"]["FILTERS"]["sexually_explicit"],
+                    ),
+                    SafetySetting(
+                        category="HARM_CATEGORY_DANGEROUS_CONTENT",
+                        threshold=config["GEMINI"]["FILTERS"]["dangerous_content"],
+                    ),
                 ],
-                HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: config["GEMINI"][
-                    "FILTERS"
-                ]["harassment"],
-                HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: config["GEMINI"][
-                    "FILTERS"
-                ]["dangerous_content"],
-                HarmCategory.HARM_CATEGORY_HATE_SPEECH: config["GEMINI"]["FILTERS"][
-                    "hate_speech"
-                ],
-            },
+            ),
         )
 
         try:
@@ -201,7 +214,7 @@ class BotModel:
         print(
             "[INIT] Uploading Attachment function call `BotModel.upload_attachment` (Message from line 168 @ modules/BotModel.py)"
         )
-        attachment_media = genai.upload_file(attachment)
+        attachment_media: File = client.files.upload(file=attachment)
 
         while True:
             if attachment_media.state.name == "PROCESSING":
@@ -209,7 +222,7 @@ class BotModel:
                     "[PROCESSING] Uploading Attachment function call `BotModel.upload_attachment` (Message from line 173 @ modules/BotModel.py)"
                 )
                 await asyncio.sleep(2)
-                attachment_media = genai.get_file(
+                attachment_media = client.files.get(
                     attachment_media.name
                 )  # Update the state
             elif attachment_media.state.name == "ACTIVE":
@@ -230,11 +243,11 @@ class BotModel:
         """
         come on, really?
         """
-        genai.delete_file(attachment)
+        client.files.delete(name=attachment)
 
     async def __generate_reaction(prompt, channel_id, attachment=None):
         """[UNUSED AND BUGGY]"""
-        reaction_model = genai.GenerativeModel(
+        reaction_model = client.models(
             model_name=config["GEMINI"]["AI_MODEL"], system_instruction=prompt
         )
 
@@ -255,7 +268,7 @@ class BotModel:
             # context_window[channel_id].append(f"You reacted with this emoji {response}")
             return response
 
-    async def speech_to_text(audio_file: genai.types.File):
+    async def speech_to_text(audio_file: File):
         """
         Description:
         This function is used for transcription of audio data provided via voice channels or .ogg files
@@ -269,29 +282,33 @@ class BotModel:
         print(
             "Speech To Text function call `speech_to_text` (Message from line 210 @ modules/BotModel.py)"
         )
-        system_instruction = """You are now a microphone, you will ONLY return the words in the audio file, DO NOT describe them."""
-        speech_to_text_model = genai.GenerativeModel(
-            config["GEMINI"]["AI_MODEL"],
-            system_instruction=system_instruction,
-            safety_settings={
-                HarmCategory.HARM_CATEGORY_HARASSMENT: config["GEMINI"]["FILTERS"][
-                    "sexually_explicit"
+        system_instruction = """You are now a microphone, you will ONLY return the words in the audio file, DO NOT describe them.\n\n"""
+        response: GenerateContentResponse = await client.aio.models.generate_content(
+            contents=[system_instruction, audio_file],
+            model=config["GEMINI"]["AI_MODEL"],
+            config=GenerateContentConfig(
+                safety_settings=[
+                    SafetySetting(
+                        category="HARM_CATEGORY_HATE_SPEECH",
+                        threshold=config["GEMINI"]["FILTERS"]["hate_speech"],
+                    ),
+                    SafetySetting(
+                        category="HARM_CATEGORY_HARASSMENT",
+                        threshold=config["GEMINI"]["FILTERS"]["harassment"],
+                    ),
+                    SafetySetting(
+                        category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                        threshold=config["GEMINI"]["FILTERS"]["sexually_explicit"],
+                    ),
+                    SafetySetting(
+                        category="HARM_CATEGORY_DANGEROUS_CONTENT",
+                        threshold=config["GEMINI"]["FILTERS"]["dangerous_content"],
+                    ),
                 ],
-                HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: config["GEMINI"][
-                    "FILTERS"
-                ]["harassment"],
-                HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: config["GEMINI"][
-                    "FILTERS"
-                ]["dangerous_content"],
-                HarmCategory.HARM_CATEGORY_HATE_SPEECH: config["GEMINI"]["FILTERS"][
-                    "hate_speech"
-                ],
-            },
+                system_instruction=system_instruction,
+            ),
         )
 
-        response = await speech_to_text_model.generate_content_async(
-            ["describe this audio file\n", audio_file]
-        )
         print("[RESPONSE] Response from STT Module: ", response.text)
         return response.text
 
@@ -323,22 +340,29 @@ class headless_BotModel:
         context = "\n".join(headless_mm.context_window[channel_id])
         full_prompt = prompt + "\n" + context
         # TODO HERE REMOVE THIS AND OPTIMIZE BY SENDING VOICE MESSAGE DIRECTLY TO API
-        response = await model.generate_content_async(
-            full_prompt,
-            safety_settings={
-                HarmCategory.HARM_CATEGORY_HARASSMENT: config["GEMINI"]["FILTERS"][
-                    "sexually_explicit"
+        response: GenerateContentResponse = await client.aio.models.generate_content(
+            contents=full_prompt,
+            model=config["GEMINI"]["AI_MODEL"],
+            config=GenerateContentConfig(
+                safety_settings=[
+                    SafetySetting(
+                        category="HARM_CATEGORY_HATE_SPEECH",
+                        threshold=config["GEMINI"]["FILTERS"]["hate_speech"],
+                    ),
+                    SafetySetting(
+                        category="HARM_CATEGORY_HARASSMENT",
+                        threshold=config["GEMINI"]["FILTERS"]["harassment"],
+                    ),
+                    SafetySetting(
+                        category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                        threshold=config["GEMINI"]["FILTERS"]["sexually_explicit"],
+                    ),
+                    SafetySetting(
+                        category="HARM_CATEGORY_DANGEROUS_CONTENT",
+                        threshold=config["GEMINI"]["FILTERS"]["dangerous_content"],
+                    ),
                 ],
-                HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: config["GEMINI"][
-                    "FILTERS"
-                ]["harassment"],
-                HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: config["GEMINI"][
-                    "FILTERS"
-                ]["dangerous_content"],
-                HarmCategory.HARM_CATEGORY_HATE_SPEECH: config["GEMINI"]["FILTERS"][
-                    "hate_speech"
-                ],
-            },
+            ),
         )
 
         try:
