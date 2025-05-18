@@ -8,7 +8,7 @@
     .content h1 {
         font-size: 2.5rem;
         margin-bottom: 30px;
-        background: linear-gradient(45deg, #fff, #7289da);
+        background: linear-gradient(45deg, var(--text-primary), var(--primary));
         -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -21,25 +21,25 @@
         gap: 25px;
         margin-bottom: 30px;
         padding: 20px;
-    }
-
-    .nugget-card {
-        background: rgba(255, 255, 255, 0.05);
+    }    .nugget-card {
+        background: var(--bg-overlay);
         border-radius: 16px;
         backdrop-filter: blur(10px);
         width: 100%;
         height: 320px;
         position: relative;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
         overflow: hidden;
         text-decoration: none;
         display: block;
         cursor: pointer;
+        color: inherit;
     }
 
     .nugget-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 8px 20px var(--shadow-primary);
+        background: var(--bg-card);
     }
 
     .nugget-card .avatar {
@@ -48,11 +48,11 @@
         border-radius: 50%;
         margin: 20px auto;
         display: block;
-        border: 3px solid #7289da;
+        border: 3px solid var(--primary);
     }
 
     .nugget-card .name {
-        color: #ffffff;
+        color: var(--text-primary);
         font-size: 1.5rem;
         text-align: center;
         margin: 10px 0;
@@ -67,30 +67,30 @@
     }
 
     .nugget-card .stat {
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--bg-button-secondary);
         padding: 10px;
         border-radius: 8px;
         text-align: center;
     }
 
     .nugget-card .stat-label {
-        color: #7289da;
+        color: var(--primary);
         font-size: 0.9rem;
     }
 
     .nugget-card .stat-value {
-        color: #ffffff;
+        color: var(--text-primary);
         font-size: 1.2rem;
         font-weight: 600;
     }
 
     .add-bot-card {
-        border: 2px dashed rgba(255, 255, 255, 0.2);
+        border: 2px dashed var(--border-color);
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--text-secondary);
     }
 
     .add-bot-card i {

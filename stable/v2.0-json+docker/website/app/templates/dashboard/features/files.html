@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}File Handling - Nugget Tech{% endblock %}
+{% block page_title %}File Handling{% endblock %}
+
+{% block content %}
+<div class="card-grid">
+    <div class="card">
+        <h2>File Access</h2>
+        <p class="description">Configure file access permissions and locations</p>
+        
+        <form class="settings-form">
+            <div class="input-group">
+                <label for="root_directory">Root Directory</label>
+                <input type="text" id="root_directory" name="root_directory" class="input" value="~/nugget-workspace">
+                <span class="hint">Base directory for file operations</span>
+            </div>
+
+            <div class="input-group">
+                <label class="switch-label">
+                    <input type="checkbox" id="allow_file_creation" name="allow_file_creation" class="switch-input">
+                    <span class="switch"></span>
+                    Allow File Creation
+                </label>
+                <span class="hint">Allow the bot to create new files</span>
+            </div>
+
+            <div class="input-group">
+                <label class="switch-label">
+                    <input type="checkbox" id="allow_file_modification" name="allow_file_modification" class="switch-input">
+                    <span class="switch"></span>
+                    Allow File Modification
+                </label>
+                <span class="hint">Allow the bot to modify existing files</span>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>File Types</h2>
+        <p class="description">Configure allowed file types and extensions</p>
+
+        <form class="settings-form">
+            <div class="input-group">
+                <label>Allowed File Types</label>
+                <div class="checkbox-grid">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="allowed_types" value="text" checked>
+                        Text Files (.txt, .md)
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="allowed_types" value="code" checked>
+                        Code Files (.py, .js, etc)
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="allowed_types" value="doc">
+                        Documents (.pdf, .doc)
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="allowed_types" value="image">
+                        Images (.jpg, .png)
+                    </label>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="custom_extensions">Custom Extensions</label>
+                <input type="text" id="custom_extensions" name="custom_extensions" class="input" placeholder=".custom, .ext">
+                <span class="hint">Additional file extensions to allow (comma-separated)</span>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>File Operations</h2>
+        <p class="description">Configure file operation behavior</p>
+
+        <form class="settings-form">
+            <div class="input-group">
+                <label for="max_file_size">Maximum File Size (MB)</label>
+                <input type="number" id="max_file_size" name="max_file_size" class="input" value="10" min="1" max="100">
+                <span class="hint">Maximum size for individual files</span>
+            </div>
+
+            <div class="input-group">
+                <label class="switch-label">
+                    <input type="checkbox" id="create_backups" name="create_backups" class="switch-input" checked>
+                    <span class="switch"></span>
+                    Create Backups
+                </label>
+                <span class="hint">Create backups before modifying files</span>
+            </div>
+
+            <div class="input-group">
+                <label for="backup_retention">Backup Retention (days)</label>
+                <input type="number" id="backup_retention" name="backup_retention" class="input" value="30" min="1" max="365">
+                <span class="hint">Number of days to keep backups</span>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="actions-bar">
+    <button type="button" class="button secondary-button">Reset to Defaults</button>
+    <button type="button" class="button primary-button">Save Changes</button>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Save changes
+document.querySelector('.primary-button').addEventListener('click', async () => {
+    const formData = {
+        allowed_types: Array.from(document.querySelectorAll('input[name="allowed_types"]:checked'))
+            .map(cb => cb.value)
+    };
+    
+    document.querySelectorAll('.settings-form input:not([name="allowed_types"])').forEach(input => {
+        formData[input.name] = input.type === 'checkbox' ? input.checked :
+                              input.type === 'number' ? Number(input.value) :
+                              input.value;
+    });
+    
+    try {
+        const response = await fetch('/api/settings/files', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+        
+        if (response.ok) {
+            showToast('Settings saved successfully');
+        } else {
+            throw new Error('Failed to save settings');
+        }
+    } catch (error) {
+        showToast('Error saving settings', 'error');
+    }
+});
+
+// Reset to defaults
+document.querySelector('.secondary-button').addEventListener('click', async () => {
+    if (confirm('Are you sure you want to reset all file handling settings to their defaults?')) {
+        try {
+            const response = await fetch('/api/settings/files/reset', {
+                method: 'POST'
+            });
+            
+            if (response.ok) {
+                const defaults = await response.json();
+                
+                // Reset checkboxes
+                document.querySelectorAll('input[name="allowed_types"]').forEach(cb => {
+                    cb.checked = defaults.allowed_types.includes(cb.value);
+                });
+                
+                // Reset other inputs
+                Object.entries(defaults).forEach(([key, value]) => {
+                    if (key !== 'allowed_types') {
+                        const input = document.querySelector(`[name="${key}"]`);
+                        if (input) {
+                            if (input.type === 'checkbox') {
+                                input.checked = value;
+                            } else {
+                                input.value = value;
+                            }
+                        }
+                    }
+                });
+                
+                showToast('Settings reset to defaults');
+            } else {
+                throw new Error('Failed to reset settings');
+            }
+        } catch (error) {
+            showToast('Error resetting settings', 'error');
+        }
+    }
+});
+</script>
+{% endblock %}

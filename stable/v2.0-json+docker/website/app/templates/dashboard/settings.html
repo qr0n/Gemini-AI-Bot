@@ -1,12 +1,295 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nugget Tech Dashboard</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <script src="/static/script.js"></script>
+{% extends "base.html" %}
 
+{% block title %}Settings - Nugget Tech{% endblock %}
+{% block page_title %}Settings{% endblock %}
+
+{% block extra_css %}
+<style>
+    .content h1 {
+        font-size: 2.5rem;
+        margin-bottom: 30px;
+        background: linear-gradient(45deg, #fff, #7289da);
+        -webkit-background-clip: text;
+        background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+        }
+
+        .settings-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .settings-card h2 {
+            font-size: 1.4rem;            color: var(--text);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .setting-group {
+            margin-bottom: 25px;
+        }
+
+        .setting-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-label {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .setting-description {
+            font-size: 0.85rem;
+            color: var(--text-description);
+            margin-top: 4px;
+        }
+
+        /* Switch styling */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;            background-color: var(--bg-button-secondary);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--text);
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Select styling */
+        .setting-select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;            color: var(--text);
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .setting-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .setting-select option {
+            background: var(--bg-card);
+            color: var(--text);
+        }
+
+        /* Button styling */
+        .danger-zone {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .danger-button {
+            background: rgba(240, 71, 71, 0.1);
+            color: #ff4444;
+            border: 1px solid rgba(240, 71, 71, 0.3);
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .danger-button:hover {
+            background: rgba(240, 71, 71, 0.2);
+            border-color: rgba(240, 71, 71, 0.4);
+        }
+
+        .save-button {
+            background: #5865F2;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .save-button:hover {
+            background: #4752C4;
+            transform: translateY(-2px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Theme preview */
+        .theme-preview {
+            width: 100%;
+            height: 100px;
+            border-radius: 8px;
+            margin-top: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .theme-dark {
+            background: linear-gradient(45deg, #1e1e2f, #2a2a4a);
+        }
+
+        .theme-light {
+            background: linear-gradient(45deg, #f0f0f5, #ffffff);
+        }
+
+        .theme-cosmic {
+            background: linear-gradient(45deg, #1a1b3b, #31234f);
+        }
+
+        /* New styles for API key inputs */
+        .api-key-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #fff;
+            padding: 10px;
+            font-size: 0.9rem;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .api-key-input:focus {
+            outline: none;
+            border-color: #5865F2;
+        }
+
+        /* Number input styling */
+        .number-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #fff;
+            padding: 10px;
+            font-size: 0.9rem;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .number-input:focus {
+            outline: none;
+            border-color: #5865F2;
+        }
+
+        /* Text input styling */
+        .text-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #fff;
+            padding: 10px;
+            font-size: 0.9rem;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: #5865F2;
+        }
+
+        /* Subsection title styling */
+        .subsection-title {
+            color: #7289da;
+            font-size: 1.1rem;
+            margin: 25px 0 15px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .setting-item.vertical {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .setting-item.vertical .text-input {
+            margin-top: 0;
+        }
+
+        /* Save button positioning */
+        .save-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            box-shadow: 0 4px 15px rgba(88, 101, 242, 0.4);
+        }
+
+        .save-button:hover {
+            box-shadow: 0 6px 20px rgba(88, 101, 242, 0.6);
+        }
+    </style>
 </head>
 <body>
     <div class="sidebar">
@@ -32,10 +315,374 @@
     </div>
 
     <div class="content">
-        <div class="card configuration">
-        <!-- <button class="button" id="modeSwitch">Switch Mode</button> -->
-        <h1>TODO REMAKE</h1>
-        <button class="button" onclick=toggleDarkMode() id="modeSwitch"></button>
+        <h1>⚙️ Settings</h1>
+        
+        <div class="settings-grid">
+            <!-- Authentication & API Keys -->
+            <div class="settings-card">
+                <h2>🔐 Authentication & API Keys</h2>
+                <div class="setting-group">
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Discord Bot Token</div>
+                            <div class="setting-description">Authentication token for your Discord bot</div>
+                        </div>
+                        <input type="password" class="api-key-input" id="botToken" placeholder="Enter bot token">
+                    </div>
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Gemini API Key</div>
+                            <div class="setting-description">API key for Google Gemini AI service</div>
+                        </div>
+                        <input type="password" class="api-key-input" id="geminiApiKey" placeholder="Enter Gemini API key">
+                    </div>
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">ElevenLabs API Key</div>
+                            <div class="setting-description">API key for ElevenLabs voice synthesis</div>
+                        </div>
+                        <input type="password" class="api-key-input" id="elevenLabsApiKey" placeholder="Enter ElevenLabs API key">
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Settings -->
+            <div class="settings-card">
+                <h2>🤖 AI Settings</h2>
+                <div class="setting-group">
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">AI Model</div>
+                            <div class="setting-description">Select the AI model to use</div>
+                        </div>
+                        <select class="setting-select" id="aiModel">
+                            <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Max Context Window</div>
+                            <div class="setting-description">Number of messages to keep in context</div>
+                        </div>
+                        <input type="number" class="number-input" id="maxContextWindow" value="20" min="1" max="100">
+                    </div>
+                </div>
+
+                <!-- Content Filters -->
+                <h3 class="subsection-title">Content Filters</h3>
+                <div class="setting-group">
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Sexually Explicit Content</div>
+                        </div>
+                        <select class="setting-select" id="filterSexuallyExplicit">
+                            <option value="BLOCK_NONE">Block None</option>
+                            <option value="BLOCK_SOME">Block Some</option>
+                            <option value="BLOCK_ALL">Block All</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Harassment</div>
+                        </div>
+                        <select class="setting-select" id="filterHarassment">
+                            <option value="BLOCK_NONE">Block None</option>
+                            <option value="BLOCK_SOME">Block Some</option>
+                            <option value="BLOCK_ALL">Block All</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Dangerous Content</div>
+                        </div>
+                        <select class="setting-select" id="filterDangerous">
+                            <option value="BLOCK_NONE">Block None</option>
+                            <option value="BLOCK_SOME">Block Some</option>
+                            <option value="BLOCK_ALL">Block All</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Hate Speech</div>
+                        </div>
+                        <select class="setting-select" id="filterHateSpeech">
+                            <option value="BLOCK_NONE">Block None</option>
+                            <option value="BLOCK_SOME">Block Some</option>
+                            <option value="BLOCK_ALL">Block All</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Unspecified Content</div>
+                        </div>
+                        <select class="setting-select" id="filterUnspecified">
+                            <option value="BLOCK_NONE">Block None</option>
+                            <option value="BLOCK_MEDIUM_AND_ABOVE" selected>Block Medium & Above</option>
+                            <option value="BLOCK_ALL">Block All</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Generation Config -->
+                <h3 class="subsection-title">Generation Settings</h3>
+                <div class="setting-group">
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Temperature</div>
+                            <div class="setting-description">Controls randomness in responses</div>
+                        </div>
+                        <input type="number" class="number-input" id="temperature" value="0" min="0" max="1" step="0.1">
+                    </div>
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Top P</div>
+                            <div class="setting-description">Token selection threshold</div>
+                        </div>
+                        <input type="number" class="number-input" id="topP" value="0" min="0" max="1" step="0.1">
+                    </div>
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Top K</div>
+                            <div class="setting-description">Number of tokens to consider</div>
+                        </div>
+                        <input type="number" class="number-input" id="topK" value="0" min="0">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Autonomy & Behavior -->
+            <div class="settings-card">
+                <h2>🧠 Autonomy / Behavior</h2>
+                <div class="setting-group">
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Enable Free Will</div>
+                            <div class="setting-description">Allow bot to act autonomously</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="freeWillEnabled">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Text Frequency</div>
+                            <div class="setting-description">How often the bot initiates conversation</div>
+                        </div>
+                        <input type="number" class="number-input" id="textFrequency" value="0.02" min="0" max="1" step="0.01">
+                    </div>
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Reaction Frequency</div>
+                            <div class="setting-description">How often the bot reacts to messages</div>
+                        </div>
+                        <input type="number" class="number-input" id="reactionFrequency" value="0" min="0" max="1" step="0.01">
+                    </div>
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Keywords Added Chance</div>
+                            <div class="setting-description">Probability of adding new keywords</div>
+                        </div>
+                        <input type="number" class="number-input" id="keywordsAddedChance" value="1" min="0" max="1" step="0.1">
+                    </div>
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Keywords</div>
+                            <div class="setting-description">Trigger words for autonomous responses</div>
+                        </div>
+                        <input type="text" class="text-input" id="keywords" placeholder="Enter keywords (comma-separated)">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div class="settings-card">
+                <h2>💬 User Messages / Responses</h2>
+                <div class="setting-group">
+                    <div class="setting-item vertical">
+                        <div>
+                            <div class="setting-label">Wack Response</div>
+                            <div class="setting-description">Message when bot loses context</div>
+                        </div>
+                        <input type="text" class="text-input" id="wackMessage" value="Ow! Uhh, what were we talking about?">
+                    </div>
+                    <div class="setting-item vertical">
+                        <div>
+                            <div class="setting-label">Wack Error</div>
+                            <div class="setting-description">Message when nothing to remove</div>
+                        </div>
+                        <input type="text" class="text-input" id="wackError" value="Sorry, can't remove what's not there. :joy:">
+                    </div>
+                    <div class="setting-item vertical">
+                        <div>
+                            <div class="setting-label">Error Message</div>
+                            <div class="setting-description">Generic error response</div>
+                        </div>
+                        <input type="text" class="text-input" id="errorMessage" value="Nuh uh, not gonna happen.">
+                    </div>
+                    <div class="setting-item vertical">
+                        <div>
+                            <div class="setting-label">Activation Message</div>
+                            <div class="setting-description">Message when bot joins server</div>
+                        </div>
+                        <input type="text" class="text-input" id="activatedMessage" value="Hey! I'm new here :wave:">
+                    </div>
+                    <div class="setting-item vertical">
+                        <div>
+                            <div class="setting-label">Deactivation Message</div>
+                            <div class="setting-description">Message when bot is deactivated</div>
+                        </div>
+                        <input type="text" class="text-input" id="deactivatedMessage" value="Awh, sorry to see you go! You can still talk to me by pinging me :pleading_face:">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Voice Configuration -->
+            <div class="settings-card">
+                <h2>🎙️ Voice Configuration</h2>
+                <div class="setting-group">
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Record Time</div>
+                            <div class="setting-description">Maximum voice recording duration (seconds)</div>
+                        </div>
+                        <input type="number" class="number-input" id="recordTime" value="10" min="1">
+                    </div>
+                </div>
+            </div>
+
+            <!-- File Handling -->
+            <div class="settings-card">
+                <h2>📁 File Handling</h2>
+                <div class="setting-group">
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Allow File Access</div>
+                            <div class="setting-description">Enable file handling capabilities</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="allowFiles" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Keep Files in Context</div>
+                            <div class="setting-description">Maintain file context in conversation</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="keepFilesInContext">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Agent Module -->
+            <div class="settings-card">
+                <h2>🧭 Agent Module</h2>
+                <div class="setting-group">
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Enable Agent</div>
+                            <div class="setting-description">Activate agent functionality</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="agentEnabled" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
         </div>
+
+        <button class="save-button" onclick="saveSettings()">
+            <span>💾</span> Save Changes
+        </button>
     </div>
+
+    <script>
+        function updateTheme() {
+            const theme = document.getElementById('themeSelect').value;
+            const preview = document.getElementById('themePreview');
+            preview.className = 'theme-preview theme-' + theme;
+        }
+
+        function confirmDataDeletion() {
+            if (confirm('Are you sure you want to delete all data? This action cannot be undone.')) {
+                // Implement data deletion logic here
+                alert('Data deletion requested. This feature is not yet implemented.');
+            }
+        }
+
+        // Load settings from server
+        async function loadSettings() {
+            // TODO: Add API call to load settings
+            // For now, using default values
+        }
+
+        // Save settings to server
+        async function saveSettings() {
+            const settings = {
+                authentication: {
+                    botToken: document.getElementById('botToken').value,
+                    geminiApiKey: document.getElementById('geminiApiKey').value,
+                    elevenLabsApiKey: document.getElementById('elevenLabsApiKey').value
+                },
+                ai: {
+                    model: document.getElementById('aiModel').value,
+                    maxContextWindow: parseInt(document.getElementById('maxContextWindow').value),
+                    filters: {
+                        sexuallyExplicit: document.getElementById('filterSexuallyExplicit').value,
+                        harassment: document.getElementById('filterHarassment').value,
+                        dangerousContent: document.getElementById('filterDangerous').value,
+                        hateSpeech: document.getElementById('filterHateSpeech').value,
+                        unspecified: document.getElementById('filterUnspecified').value
+                    },
+                    generation: {
+                        temperature: parseFloat(document.getElementById('temperature').value),
+                        topP: parseFloat(document.getElementById('topP').value),
+                        topK: parseInt(document.getElementById('topK').value)
+                    }
+                },
+                freewill: {
+                    enabled: document.getElementById('freeWillEnabled').checked,
+                    textFrequency: parseFloat(document.getElementById('textFrequency').value),
+                    reactionFrequency: parseFloat(document.getElementById('reactionFrequency').value),
+                    keywordsAddedChance: parseFloat(document.getElementById('keywordsAddedChance').value),
+                    keywords: document.getElementById('keywords').value.split(',').map(k => k.trim())
+                },
+                messages: {
+                    wack: document.getElementById('wackMessage').value,
+                    wackError: document.getElementById('wackError').value,
+                    error: document.getElementById('errorMessage').value,
+                    activatedMessage: document.getElementById('activatedMessage').value,
+                    deactivatedMessage: document.getElementById('deactivatedMessage').value
+                },
+                voice: {
+                    recordTime: parseInt(document.getElementById('recordTime').value)
+                },
+                files: {
+                    allow: document.getElementById('allowFiles').checked,
+                    keepInContext: document.getElementById('keepFilesInContext').checked
+                },
+                agent: {
+                    enabled: document.getElementById('agentEnabled').checked
+                }
+            };
+
+            try {
+                // TODO: Add API call to save settings
+                console.log('Settings to save:', settings);
+                alert('Settings saved successfully!');
+            } catch (error) {
+                console.error('Error saving settings:', error);
+                alert('Error saving settings. Please try again.');
+            }
+        }
+
+        // Initialize settings when page loads
+        document.addEventListener('DOMContentLoaded', loadSettings);
+    </script>
 </body>
+</html>

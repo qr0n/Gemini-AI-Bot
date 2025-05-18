@@ -34,8 +34,7 @@
         }
 
         .settings-card h2 {
-            font-size: 1.4rem;
-            color: #fff;
+            font-size: 1.4rem;            color: var(--text);
             margin-bottom: 20px;
             display: flex;
             align-items: center;
@@ -55,7 +54,7 @@
             align-items: center;
             justify-content: space-between;
             padding: 15px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid var(--border-color);
         }
 
         .setting-item:last-child {
@@ -63,13 +62,13 @@
         }
 
         .setting-label {
-            color: #b4b4d1;
+            color: var(--text-secondary);
             font-size: 0.95rem;
         }
 
         .setting-description {
             font-size: 0.85rem;
-            color: #8e8ea0;
+            color: var(--text-description);
             margin-top: 4px;
         }
 
@@ -93,8 +92,7 @@
             top: 0;
             left: 0;
             right: 0;
-            bottom: 0;
-            background-color: rgba(255, 255, 255, 0.1);
+            bottom: 0;            background-color: var(--bg-button-secondary);
             transition: .4s;
             border-radius: 34px;
         }
@@ -106,13 +104,13 @@
             width: 20px;
             left: 3px;
             bottom: 3px;
-            background-color: white;
+            background-color: var(--text);
             transition: .4s;
             border-radius: 50%;
         }
 
         input:checked + .slider {
-            background-color: #5865F2;
+            background-color: var(--primary);
         }
 
         input:checked + .slider:before {
@@ -123,8 +121,7 @@
         .setting-select {
             background: rgba(255, 255, 255, 0.05);
             border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: #fff;
+            border-radius: 8px;            color: var(--text);
             padding: 8px 12px;
             font-size: 0.9rem;
             cursor: pointer;
@@ -133,12 +130,12 @@
 
         .setting-select:focus {
             outline: none;
-            border-color: #5865F2;
+            border-color: var(--primary);
         }
 
         .setting-select option {
-            background: #2a2a4a;
-            color: #fff;
+            background: var(--bg-card);
+            color: var(--text);
         }
 
         /* Button styling */

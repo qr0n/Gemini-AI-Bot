@@ -219,3 +219,116 @@ async function deleteBot(botName) {
         alert('Error deleting bot. Please try again.');
     }
 }
+
+// Show toast notification
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    // Remove toast after 3 seconds
+    setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease-in forwards';
+        setTimeout(() => document.body.removeChild(toast), 300);
+    }, 3000);
+}
+
+// Bot Modal Functions
+window.showAddBotModal = function() {
+    const modal = document.getElementById('addBotModal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+};
+
+window.hideAddBotModal = function() {
+    const modal = document.getElementById('addBotModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+};
+
+window.handleAddBot = async function(event) {
+    event.preventDefault();
+    
+    const formData = {
+        bot_name: document.getElementById('botName').value,
+        discord_id: document.getElementById('discordId').value,
+        avatar_url: document.getElementById('avatarUrl').value || ''
+    };
+
+    try {
+        const response = await fetch('/api/bots', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+            hideAddBotModal();
+            showToast('Bot created successfully!');
+            window.location.reload();
+        } else {
+            const error = await response.json();
+            showToast(error.message || 'Failed to create bot', 'error');
+        }
+    } catch (error) {
+        console.error('Error creating bot:', error);
+        showToast('Failed to create bot. Please try again.', 'error');
+    }
+    
+    return false;
+}
+
+// Initialize UI controls when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize slider value displays
+    document.querySelectorAll('.slider').forEach(slider => {
+        const valueDisplay = slider.nextElementSibling;
+        if (valueDisplay && valueDisplay.classList.contains('value-display')) {
+            valueDisplay.textContent = slider.value;
+            
+            slider.addEventListener('input', () => {
+                valueDisplay.textContent = slider.value;
+            });
+        }
+    });
+    
+    // Initialize password toggles
+    document.querySelectorAll('.toggle-visibility').forEach(button => {
+        button.addEventListener('click', () => {
+            const input = button.parentElement.querySelector('input');
+            const icon = button.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        });
+    });
+
+    // Handle form submissions
+    document.querySelectorAll('.settings-form').forEach(form => {
+        form.addEventListener('change', () => {
+            const saveButton = document.querySelector('.primary-button');
+            if (saveButton) {
+                saveButton.classList.add('highlight');
+            }
+        });
+    });
+
+    // Setup modal close on outside click
+    const modal = document.getElementById('addBotModal');
+    if (modal) {
+        modal.addEventListener('click', function(event) {
+            if (event.target === this) {
+                hideAddBotModal();
+            }
+        });
+    }
+});

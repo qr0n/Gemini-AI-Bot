@@ -11,6 +11,100 @@
         gap: 20px;
         margin-top: 20px;
     }
+
+    .analytics-card {
+        background: var(--bg-button-secondary);
+        border-radius: 12px;
+        padding: 20px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 6px var(--shadow-primary);
+        transition: transform 0.3s ease;
+    }
+
+    .analytics-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .stat {
+        background: var(--primary-shadow);
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .stat:hover {
+        background: var(--primary-shadow-hover);
+    }
+
+    .stat h4 {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .stat p {
+        margin: 10px 0 0;
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: var(--text-primary);
+    }
+
+    .chart-container {
+        position: relative;
+        height: 300px;
+        margin-top: 20px;
+    }
+
+    .trend-indicator {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-top: 5px;
+        font-size: 0.9rem;
+    }
+
+    .trend-up {
+        color: var(--success);
+    }
+
+    .trend-down {
+        color: var(--danger);
+    }
+
+    .performance-metrics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .metric {
+        text-align: center;
+        padding: 15px;
+        background: var(--bg-overlay);
+        border-radius: 8px;
+    }
+
+    .metric span {
+        display: block;
+        font-size: 0.9rem;
+        color: #b4b4d1;
+    }
+
+    .metric strong {
+        display: block;
+        font-size: 1.4rem;
+        margin-top: 5px;
+        color: #fff;
+    }
 </style>
 {% endblock %}
 
@@ -18,101 +112,6 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
 
-        .analytics-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 20px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .analytics-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .stat {
-            background: rgba(88, 101, 242, 0.1);
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .stat:hover {
-            background: rgba(88, 101, 242, 0.2);
-        }
-
-        .stat h4 {
-            margin: 0;
-            color: #b4b4d1;
-            font-size: 0.9rem;
-        }
-
-        .stat p {
-            margin: 10px 0 0;
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #fff;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 300px;
-            margin-top: 20px;
-        }
-
-        .trend-indicator {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            margin-top: 5px;
-            font-size: 0.9rem;
-        }
-
-        .trend-up {
-            color: #4CAF50;
-        }
-
-        .trend-down {
-            color: #f44336;
-        }
-
-        .performance-metrics {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .metric {
-            text-align: center;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-        }
-
-        .metric span {
-            display: block;
-            font-size: 0.9rem;
-            color: #b4b4d1;
-        }
-
-        .metric strong {
-            display: block;
-            font-size: 1.4rem;
-            margin-top: 5px;
-            color: #fff;
-        }
-    </style>
-</head>
 <body>
     <div class="sidebar">
         <button class="toggle-button" id="toggleSidebar">☰ Nugget Tech</button>

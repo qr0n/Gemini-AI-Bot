@@ -1,96 +1,361 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nugget Tech Dashboard</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <script src="/static/script.js"></script>
-    <style>
-        /* CSS reset to remove default padding and margin */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        .nugget-container {
-            display: flex;
-            flex-wrap: wrap;
-        }
-        .nugget-card {
-            width: 100px; /* Adjust the width as needed */
-            height: 150px; /* Adjust the height as needed */
-            margin: 5px;
-            display: flex;
-            flex-direction: column;
-        }
-        .nugget-card img {
-            width: 100%;
-            height: 80%;
-            object-fit: cover; /* Ensure the image covers the area */
-            border: none; /* Remove any default border */
-        }
-        .card-name {
-            height: 20%;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-    </style>
-</head>
-<body>
-    <div class="sidebar">
-        <button class="toggle-button" id="toggleSidebar">☰ Nugget Tech</button>
-        <label class="sidebar-label" id="pref">Preferences</label>
-        <a href="#">🧑‍🦲<span class="link-text">Profile</span></a>
-        <a href="#">🚪<span class="link-text">Logout</span></a>
-        <!-- <a href="/settings">⚙️<span class="link-text">Settings</span></a> -->
+{% extends "base.html" %}
+
+{% block title %}Nugget Tech Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .content h1 {
+        font-size: 2.5rem;
+        margin-bottom: 30px;
+        background: linear-gradient(45deg, var(--text-primary), var(--primary));
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 700;
+    }
+
+    .nugget-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 25px;
+        margin-bottom: 30px;
+        padding: 20px;
+    }    .nugget-card {
+        background: var(--bg-overlay);
+        border-radius: 16px;
+        backdrop-filter: blur(10px);
+        width: 100%;
+        height: 320px;
+        position: relative;
+        transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+        overflow: hidden;
+        text-decoration: none;
+        display: block;
+        cursor: pointer;
+        color: inherit;
+    }
+
+    .nugget-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px var(--shadow-primary);
+        background: var(--bg-card);
+    }
+
+    .nugget-card .avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        margin: 20px auto;
+        display: block;
+        border: 3px solid var(--primary);
+    }
+
+    .nugget-card .name {
+        color: var(--text-primary);
+        font-size: 1.5rem;
+        text-align: center;
+        margin: 10px 0;
+        font-weight: 600;
+    }
+
+    .nugget-card .stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding: 15px;
+    }
+
+    .nugget-card .stat {
+        background: var(--bg-button-secondary);
+        padding: 10px;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .nugget-card .stat-label {
+        color: var(--primary);
+        font-size: 0.9rem;
+    }
+
+    .nugget-card .stat-value {
+        color: var(--text-primary);
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+
+    .add-bot-card {
+        border: 2px dashed var(--border-color);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-secondary);
+    }
+
+    .add-bot-card i {
+        font-size: 3rem;
+        margin-bottom: 15px;
+    }
+
+    .add-bot-card:hover {
+        border-color: #7289da;
+        color: #7289da;
+    }
+
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(5px);
+        z-index: 1000;
+    }
+
+    .modal-content {
+        background: #2a2a4a;
+        border-radius: 16px;
+        padding: 30px;
+        width: 90%;
+        max-width: 500px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal h2 {
+        margin-bottom: 25px;
+        color: #fff;
+        font-size: 1.8rem;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #b4b4d1;
+        font-size: 0.9rem;
+    }
+
+    .one-line-textbox {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        color: #fff;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+    }
+
+    .one-line-textbox:focus {
+        outline: none;
+        border-color: #5865F2;
+    }
+
+    .button-container {
+        display: flex;
+        gap: 15px;
+        margin-top: 25px;
+    }
+
+    .save-button, .cancel-button {
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .save-button {
+        background: #5865F2;
+        color: white;
+        border: none;
+    }
+
+    .save-button:hover {
+        background: #4752C4;
+    }
+
+    .cancel-button {
+        background: transparent;
+        color: #b4b4d1;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .cancel-button:hover {
+        border-color: #b4b4d1;
+    }
+
+    .close {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        font-size: 24px;
+        color: #b4b4d1;
+        cursor: pointer;
+        transition: color 0.3s ease;
+    }
+
+    .close:hover {
+        color: #fff;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: #b4b4d1;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .nugget-card {
+        animation: fadeIn 0.5s ease-out;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="page-header">
+        <h1>Welcome back, {{ username }}!</h1>
+        <p class="page-description">Manage your Nugget bots and their configurations.</p>
     </div>
 
-    <div class="navbar">
-        <!-- <button class="button" id="modeSwitch">Switch Mode</button> -->
-        <p class="username">{{username}}</p>
-        <img src="{{avatar_url}}" alt="Profile Picture">
-        <!-- <p><a href="/settings" style="right: 100px;">⚙️Settings</a></p> -->
+    {% if error %}
+    <div class="alert alert-error">
+        {{ error }}
     </div>
+    {% endif %}
 
-    <div class="content">
-        <h1> Your nuggets~ </h1>
-        <div class="nugget-container">
+    <div class="nugget-container">
+        {% if nuggets and nuggets|length > 0 %}
             {% for nugget in nuggets %}
-            <div class="nugget-card">
-                <img class="nugget-img" src="{{ nugget.avatar_url }}" alt="Card Image">
-                <div class="card-name">
-                <a href="/dashboard/{{ nugget.alias }}/model-configuration"><p>{{ nugget.name }}</p></a>
+            <a href="/dashboard/{{ nugget.alias }}/dashboard" class="nugget-card">
+                <img src="{{ nugget.avatar_url or 'https://cdn.discordapp.com/embed/avatars/0.png' }}" alt="{{ nugget.name }}" class="avatar">
+                <h2 class="name">{{ nugget.name }}</h2>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-label">Status</div>
+                        <div class="stat-value">Online</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Messages</div>
+                        <div class="stat-value">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Memory</div>
+                        <div class="stat-value">0 KB</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Servers</div>
+                        <div class="stat-value">0</div>
+                    </div>
                 </div>
-            </div>
+            </a>
             {% endfor %}
-        </div>
-        <button class="button add-button" onclick="showAddBotModal()">➕ Add New Bot</button>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-robot"></i>
+                <h2>No Bots Yet</h2>
+                <p>Click the "Add New Bot" card to create your first Nugget bot!</p>
+            </div>
+        {% endif %}
+        
+        <a href="#" class="nugget-card add-bot-card" onclick="window.showAddBotModal()">
+            <i class="fas fa-plus-circle"></i>
+            <span>Add New Bot</span>
+        </a>
     </div>
+</div>
 
-    <div id="addBotModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeAddBotModal()">&times;</span>
-            <h2>Add New Bot</h2>
+<!-- Add Bot Modal -->
+<div class="modal" id="addBotModal">
+    <div class="modal-content">
+        <h2>Add New Bot</h2>
+        <form id="addBotForm" onsubmit="return window.handleAddBot(event)">
             <div class="form-group">
-                <label for="botName">Bot Name:</label>
-                <input type="text" id="botName" class="one-line-textbox" autocomplete="off">
-            </div>
-            <div class="form-group">
-                <label for="discordId">Discord Bot ID:</label>
-                <input type="text" id="discordId" class="one-line-textbox" autocomplete="off">
+                <label for="botName">Bot Name</label>
+                <input type="text" id="botName" name="botName" required placeholder="Enter bot name">
             </div>
             <div class="form-group">
-                <label for="avatarUrl">Avatar URL (optional):</label>
-                <input type="text" id="avatarUrl" class="one-line-textbox" autocomplete="off">
+                <label for="discordId">Discord Client ID</label>
+                <input type="text" id="discordId" name="discordId" required placeholder="Enter Discord client ID">
             </div>
-            <div class="button-container">
-                <button class="button save-button" onclick="addNewBot()">Add Bot</button>
-                <button class="button cancel-button" onclick="closeAddBotModal()">Cancel</button>
+            <div class="form-group">
+                <label for="avatarUrl">Avatar URL (optional)</label>
+                <input type="url" id="avatarUrl" name="avatarUrl" placeholder="Enter avatar URL">
             </div>
-        </div>
+            <div class="form-actions">
+                <button type="button" onclick="window.hideAddBotModal()" class="button secondary">Cancel</button>
+                <button type="submit" class="button primary">Create Bot</button>
+            </div>
+        </form>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showAddBotModal() {
+    document.getElementById('addBotModal').style.display = 'flex';
+}
+
+function hideAddBotModal() {
+    document.getElementById('addBotModal').style.display = 'none';
+}
+
+async function handleAddBot(event) {
+    event.preventDefault();
+    
+    const formData = {
+        bot_name: document.getElementById('botName').value,
+        discord_id: document.getElementById('discordId').value,
+        avatar_url: document.getElementById('avatarUrl').value || ''
+    };
+
+    try {
+        const response = await fetch('/api/bots', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+            hideAddBotModal();
+            window.location.reload();
+        } else {
+            const error = await response.json();
+            alert(error.message || 'Failed to create bot');
+        }
+    } catch (error) {
+        console.error('Error creating bot:', error);
+        alert('Failed to create bot. Please try again.');
+    }
+    
+    return false;
+}
+
+// Close modal when clicking outside
+document.getElementById('addBotModal').addEventListener('click', function(event) {
+    if (event.target === this) {
+        hideAddBotModal();
+    }
+});
+</script>
+{% endblock %}

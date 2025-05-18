@@ -1,16 +1,24 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledge Management - Nugget Tech</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .configuration {
+            padding: 30px;
+            margin-left: 250px;
+            margin-top: 60px;
+        }
 
-{% block title %}Knowledge Management - Nugget Tech{% endblock %}
-{% block page_title %}Knowledge Management{% endblock %}
-
-{% block extra_css %}
-<style>
-    .configuration h2 {
-        font-size: 2.5rem;
-        margin-bottom: 10px;
-        background: linear-gradient(45deg, #fff, #7289da);
-        -webkit-background-clip: text;
-        background-clip: text;
+        .configuration h2 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--text-primary), var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 700;
             text-align: left;
@@ -19,7 +27,7 @@
 
         .configuration .subtitle {
             font-size: 1.1rem;
-            color: #b4b4d1;
+            color: var(--text-secondary);
             margin-bottom: 30px;
             text-align: left;
             display: block;
@@ -36,7 +44,7 @@
         }
 
         .knowledge-card {
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--bg-overlay);
             border-radius: 12px;
             padding: 20px;
             position: relative;
@@ -46,13 +54,13 @@
 
         .knowledge-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 20px var(--shadow-primary);
         }
 
         .memory-text {
             font-size: 1.2rem;
             font-weight: 600;
-            color: #fff;
+            color: var(--text-primary);
             margin-bottom: 10px;
             display: flex;
             align-items: center;
@@ -65,7 +73,7 @@
         }
 
         .knowledge-content {
-            color: #b4b4d1;
+            color: var(--text-secondary);
             font-size: 0.95rem;
             line-height: 1.6;
             margin-bottom: 15px;
@@ -79,12 +87,12 @@
         }
 
         .knowledge-content::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--bg-overlay);
             border-radius: 3px;
         }
 
         .knowledge-content::-webkit-scrollbar-thumb {
-            background: rgba(114, 137, 218, 0.3);
+            background: var(--primary-shadow);
             border-radius: 3px;
         }
 
@@ -345,6 +353,7 @@
                 {% endfor %}
             {% else %}
                 <div class="empty-state">
+                    <i class="fas fa-book"></i>
                     <h3>No knowledge entries yet</h3>
                     <p>Add your first knowledge entry to help your bot learn</p>
                 </div>
@@ -363,11 +372,11 @@
             <h2>Edit Knowledge Entry</h2>
             <div class="form-group">
                 <label for="knowledgeTitle">Title</label>
-                <input type="text" id="knowledgeTitle" class="one-line-textbox" placeholder="Enter a title for this knowledge">
+                <input type="text" id="knowledgeTitle" placeholder="Enter a title for this knowledge">
             </div>
             <div class="form-group">
                 <label for="knowledgeTags">Tags (comma-separated)</label>
-                <input type="text" id="knowledgeTags" class="one-line-textbox" placeholder="e.g., greetings, rules, faq">
+                <input type="text" id="knowledgeTags" placeholder="e.g., greetings, rules, faq">
             </div>
             <div class="form-group">
                 <label for="knowledgeContent">Content</label>
@@ -420,26 +429,6 @@
             document.getElementById('confirmDeleteModal').style.display = 'block';
         }
 
-        function saveKnowledge() {
-            const title = document.getElementById('knowledgeTitle').value;
-            const tags = document.getElementById('knowledgeTags').value.split(',').map(tag => tag.trim());
-            const content = document.getElementById('knowledgeContent').value;
-
-            // Here you would typically make an API call to save the data
-            // If it's a new entry (currentKnowledgeId is null) or update existing one
-
-            closeModal();
-            // Refresh the page or update the UI
-            location.reload();
-        }
-
-        function deleteKnowledge() {
-            // Here you would typically make an API call to delete the entry
-            closeModal();
-            // Refresh the page or update the UI
-            location.reload();
-        }
-
         function closeModal() {
             document.getElementById('editModal').style.display = 'none';
             document.getElementById('confirmDeleteModal').style.display = 'none';
@@ -450,6 +439,57 @@
         window.onclick = function(event) {
             if (event.target.classList.contains('modal')) {
                 closeModal();
+            }
+        }
+
+        async function saveKnowledge() {
+            const title = document.getElementById('knowledgeTitle').value;
+            const tags = document.getElementById('knowledgeTags').value.split(',').map(tag => tag.trim());
+            const content = document.getElementById('knowledgeContent').value;
+
+            try {
+                const response = await fetch(`/api/${nugget_alias}/knowledge`, {
+                    method: currentKnowledgeId ? 'PUT' : 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: currentKnowledgeId,
+                        title,
+                        tags,
+                        content
+                    })
+                });
+
+                if (response.ok) {
+                    closeModal();
+                    window.location.reload();
+                } else {
+                    const error = await response.json();
+                    alert(error.message || 'Failed to save knowledge entry');
+                }
+            } catch (error) {
+                console.error('Error saving knowledge:', error);
+                alert('Failed to save knowledge entry');
+            }
+        }
+
+        async function deleteKnowledge() {
+            try {
+                const response = await fetch(`/api/${nugget_alias}/knowledge/${currentKnowledgeId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    closeModal();
+                    window.location.reload();
+                } else {
+                    const error = await response.json();
+                    alert(error.message || 'Failed to delete knowledge entry');
+                }
+            } catch (error) {
+                console.error('Error deleting knowledge:', error);
+                alert('Failed to delete knowledge entry');
             }
         }
     </script>

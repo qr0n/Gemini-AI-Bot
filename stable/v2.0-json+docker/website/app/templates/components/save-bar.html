@@ -1,0 +1,237 @@
+<!-- Floating Save Bar Component -->
+<div class="floating-save-bar" id="saveBar">
+    <div class="save-bar-content">
+        <div class="save-status">
+            <span class="status-icon">●</span>
+            <span class="status-text">Unsaved changes</span>
+        </div>
+        <div class="save-actions">
+            <button type="button" class="button outline" onclick="resetDefaults()">
+                Reset
+            </button>
+            <button type="button" class="button primary" onclick="saveSettings()">
+                Save Changes
+            </button>
+        </div>
+    </div>
+    <div class="save-progress-bar"></div>
+</div>
+
+<style>
+    .floating-save-bar {
+        position: fixed;
+        bottom: -100px; /* Start hidden below the viewport */
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(calc(100% - 4rem), 600px);
+        background: var(--bg-card);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px var(--shadow-heavy);
+        padding: 1rem;
+        z-index: 1000;
+        transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 0;
+        backdrop-filter: blur(10px);
+    }
+
+    .floating-save-bar.visible {
+        bottom: 2rem;
+        opacity: 1;
+    }
+
+    .floating-save-bar.saving {
+        pointer-events: none;
+    }
+
+    .save-bar-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .save-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+    }
+
+    .status-icon {
+        color: var(--warning);
+        font-size: 0.75rem;
+        animation: pulse 2s infinite;
+    }
+
+    .floating-save-bar.saved .status-icon {
+        color: var(--success);
+        animation: none;
+    }
+
+    .save-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .save-actions .button {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .button.outline {
+        background: transparent;
+        border: 2px solid var(--border-color);
+        color: var(--text-primary);
+    }
+
+    .button.outline:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .button.primary {
+        background: var(--primary);
+        color: white;
+        border: none;
+    }
+
+    .button.primary:hover {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
+    }
+
+    .save-progress-bar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: var(--primary);
+        border-radius: 0 0 16px 16px;
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s ease;
+    }
+
+    .floating-save-bar.saving .save-progress-bar {
+        transform: scaleX(1);
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    @media (max-width: 640px) {
+        .floating-save-bar {
+            width: calc(100% - 2rem);
+            border-radius: 12px;
+        }
+
+        .save-status {
+            font-size: 0.85rem;
+        }
+
+        .save-actions .button {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.85rem;
+        }
+    }
+</style>
+
+<script>
+    class SaveBar {
+        constructor() {
+            this.bar = document.getElementById('saveBar');
+            this.hasChanges = false;
+            this.saving = false;
+            this.saveTimeout = null;
+            this.setupFormTracking();
+        }
+
+        show() {
+            if (!this.hasChanges) {
+                this.hasChanges = true;
+                this.bar.classList.add('visible');
+            }
+        }
+
+        hide() {
+            this.hasChanges = false;
+            this.bar.classList.remove('visible', 'saved');
+        }
+
+        async save() {
+            if (!this.hasChanges || this.saving) return;
+            
+            this.saving = true;
+            this.bar.classList.add('saving');
+            
+            try {
+                await saveSettings();
+                this.bar.classList.remove('saving');
+                this.bar.classList.add('saved');
+                this.saving = false;
+                
+                // Hide after showing success for 2 seconds
+                clearTimeout(this.saveTimeout);
+                this.saveTimeout = setTimeout(() => this.hide(), 2000);
+            } catch (error) {
+                this.bar.classList.remove('saving');
+                this.saving = false;
+            }
+        }
+
+        setupFormTracking() {
+            // Track all form inputs
+            document.querySelectorAll('input, select, textarea').forEach(input => {
+                const originalValue = this.getInputValue(input);
+                
+                input.addEventListener('input', () => {
+                    const currentValue = this.getInputValue(input);
+                    if (currentValue !== originalValue) {
+                        this.show();
+                    } else {
+                        // Check if all inputs match their original values
+                        this.checkAllInputs();
+                    }
+                });
+            });
+
+            // Add keyboard shortcut (Ctrl/Cmd + S)
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                    e.preventDefault();
+                    this.save();
+                }
+            });
+        }
+
+        getInputValue(input) {
+            return input.type === 'checkbox' ? input.checked : input.value;
+        }
+
+        checkAllInputs() {
+            const allUnchanged = Array.from(document.querySelectorAll('input, select, textarea'))
+                .every(input => {
+                    const original = input.dataset.originalValue;
+                    const current = this.getInputValue(input);
+                    return original === current;
+                });
+
+            if (allUnchanged) {
+                this.hide();
+            }
+        }
+    }
+
+    // Initialize save bar when the page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        window.saveBar = new SaveBar();
+    });
+</script>
