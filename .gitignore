@@ -5,4 +5,5 @@ TODO
 *.pyc
 __pycache__
 Archives
-# DO-NOT-RELEASE
+DO-NOT-RELEASE
+config.json
