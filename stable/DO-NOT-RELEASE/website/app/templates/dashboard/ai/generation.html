@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Generation Configuration - Nugget Tech{% endblock %}
+{% block page_title %}Generation Configuration{% endblock %}
+
+{% block content %}
+<div class="card-grid">
+    <div class="card">
+        <h2>Response Generation</h2>
+        <p class="description">Configure how the AI generates its responses</p>
+        
+        <form class="settings-form">
+            <div class="input-group">
+                <label for="max_tokens">Maximum Tokens</label>
+                <input type="number" id="max_tokens" name="max_tokens" class="input" value="2048" min="1" max="4096">
+                <span class="hint">Maximum number of tokens to generate in each response</span>
+            </div>
+
+            <div class="input-group">
+                <label for="temperature">Temperature</label>
+                <input type="range" id="temperature" name="temperature" class="slider" min="0" max="2" step="0.1" value="0.7">
+                <span class="value-display">0.7</span>
+                <span class="hint">Controls randomness in the output (0 = focused, 2 = more creative)</span>
+            </div>
+
+            <div class="input-group">
+                <label for="top_p">Top P</label>
+                <input type="range" id="top_p" name="top_p" class="slider" min="0" max="1" step="0.05" value="0.9">
+                <span class="value-display">0.9</span>
+                <span class="hint">Nucleus sampling threshold</span>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>Context Window</h2>
+        <p class="description">Control how much conversation history is used</p>
+
+        <form class="settings-form">
+            <div class="input-group">
+                <label for="context_length">Context Length</label>
+                <input type="number" id="context_length" name="context_length" class="input" value="4096" min="512" max="8192" step="512">
+                <span class="hint">Maximum number of tokens to use from conversation history</span>
+            </div>
+
+            <div class="input-group">
+                <label for="memory_window">Memory Window</label>
+                <input type="number" id="memory_window" name="memory_window" class="input" value="10" min="1" max="50">
+                <span class="hint">Number of previous messages to include in context</span>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>Stop Sequences</h2>
+        <p class="description">Configure response termination conditions</p>
+
+        <form class="settings-form">
+            <div class="input-group">
+                <label for="stop_sequences">Stop Sequences</label>
+                <textarea id="stop_sequences" name="stop_sequences" class="input textarea" rows="3" placeholder="Enter one stop sequence per line"></textarea>
+                <span class="hint">Sequences that will cause the response to end</span>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="actions-bar">
+    <button type="button" class="button secondary-button">Reset to Defaults</button>
+    <button type="button" class="button primary-button">Save Changes</button>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll('.slider').forEach(slider => {
+    const valueDisplay = slider.nextElementSibling;
+    slider.addEventListener('input', () => {
+        valueDisplay.textContent = slider.value;
+    });
+});
+
+// Save changes
+document.querySelector('.primary-button').addEventListener('click', async () => {
+    const formData = {};
+    document.querySelectorAll('.settings-form input, .settings-form textarea').forEach(input => {
+        formData[input.name] = input.type === 'number' ? Number(input.value) : input.value;
+    });
+    
+    try {
+        const response = await fetch('/api/settings/generation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+        
+        if (response.ok) {
+            showToast('Settings saved successfully');
+        } else {
+            throw new Error('Failed to save settings');
+        }
+    } catch (error) {
+        showToast('Error saving settings', 'error');
+    }
+});
+
+// Reset to defaults
+document.querySelector('.secondary-button').addEventListener('click', async () => {
+    if (confirm('Are you sure you want to reset all generation settings to their defaults?')) {
+        try {
+            const response = await fetch('/api/settings/generation/reset', {
+                method: 'POST'
+            });
+            
+            if (response.ok) {
+                const defaults = await response.json();
+                Object.entries(defaults).forEach(([key, value]) => {
+                    const input = document.querySelector(`[name="${key}"]`);
+                    if (input) input.value = value;
+                });
+                showToast('Settings reset to defaults');
+            } else {
+                throw new Error('Failed to reset settings');
+            }
+        } catch (error) {
+            showToast('Error resetting settings', 'error');
+        }
+    }
+});
+</script>
+{% endblock %}

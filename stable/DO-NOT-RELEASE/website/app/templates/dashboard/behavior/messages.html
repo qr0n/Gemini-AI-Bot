@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}Messages Configuration - Nugget Tech{% endblock %}
+{% block page_title %}Messages Configuration{% endblock %}
+
+{% block content %}
+<div class="card-grid">
+    <div class="card">
+        <h2>Message Formatting</h2>
+        <p class="description">Configure how messages are formatted and displayed</p>
+        
+        <form class="settings-form">
+            <div class="input-group">
+                <label for="message_style">Message Style</label>
+                <select id="message_style" name="message_style" class="input select">
+                    <option value="casual">Casual</option>
+                    <option value="formal">Formal</option>
+                    <option value="technical">Technical</option>
+                    <option value="friendly">Friendly</option>
+                </select>
+                <span class="hint">Overall tone and style of bot messages</span>
+            </div>
+
+            <div class="input-group">
+                <label for="max_message_length">Maximum Message Length</label>
+                <input type="number" id="max_message_length" name="max_message_length" class="input" value="2000" min="100" max="10000">
+                <span class="hint">Maximum length of a single message in characters</span>
+            </div>
+
+            <div class="input-group">
+                <label class="switch-label">
+                    <input type="checkbox" id="use_markdown" name="use_markdown" class="switch-input" checked>
+                    <span class="switch"></span>
+                    Enable Markdown Formatting
+                </label>
+                <span class="hint">Allow messages to use Markdown for rich text formatting</span>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>Response Behavior</h2>
+        <p class="description">Configure how the bot responds to messages</p>
+
+        <form class="settings-form">
+            <div class="input-group">
+                <label class="switch-label">
+                    <input type="checkbox" id="auto_reply" name="auto_reply" class="switch-input">
+                    <span class="switch"></span>
+                    Auto Reply
+                </label>
+                <span class="hint">Automatically respond to messages without explicit commands</span>
+            </div>
+
+            <div class="input-group">
+                <label for="typing_speed">Typing Simulation Speed</label>
+                <select id="typing_speed" name="typing_speed" class="input select">
+                    <option value="instant">Instant</option>
+                    <option value="fast">Fast</option>
+                    <option value="medium">Medium</option>
+                    <option value="natural">Natural</option>
+                </select>
+                <span class="hint">Speed at which responses appear to be typed</span>
+            </div>
+
+            <div class="input-group">
+                <label for="response_delay">Response Delay (ms)</label>
+                <input type="number" id="response_delay" name="response_delay" class="input" value="500" min="0" max="5000" step="100">
+                <span class="hint">Delay before starting to respond (in milliseconds)</span>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>Message Templates</h2>
+        <p class="description">Configure common message templates and responses</p>
+
+        <form class="settings-form">
+            <div class="input-group">
+                <label for="greeting_message">Greeting Message</label>
+                <textarea id="greeting_message" name="greeting_message" class="input textarea" rows="2" placeholder="Enter greeting message template">Hi! I'm your AI assistant. How can I help you today?</textarea>
+            </div>
+
+            <div class="input-group">
+                <label for="error_message">Error Message</label>
+                <textarea id="error_message" name="error_message" class="input textarea" rows="2" placeholder="Enter error message template">I apologize, but I encountered an error. Please try again.</textarea>
+            </div>
+
+            <div class="input-group">
+                <label for="farewell_message">Farewell Message</label>
+                <textarea id="farewell_message" name="farewell_message" class="input textarea" rows="2" placeholder="Enter farewell message template">Thank you for chatting with me. Have a great day!</textarea>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="actions-bar">
+    <button type="button" class="button secondary-button">Reset to Defaults</button>
+    <button type="button" class="button primary-button">Save Changes</button>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Save changes
+document.querySelector('.primary-button').addEventListener('click', async () => {
+    const formData = {};
+    document.querySelectorAll('.settings-form input, .settings-form select, .settings-form textarea').forEach(input => {
+        formData[input.name] = input.type === 'checkbox' ? input.checked :
+                              input.type === 'number' ? Number(input.value) :
+                              input.value;
+    });
+    
+    try {
+        const response = await fetch('/api/settings/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+        
+        if (response.ok) {
+            showToast('Settings saved successfully');
+        } else {
+            throw new Error('Failed to save settings');
+        }
+    } catch (error) {
+        showToast('Error saving settings', 'error');
+    }
+});
+
+// Reset to defaults
+document.querySelector('.secondary-button').addEventListener('click', async () => {
+    if (confirm('Are you sure you want to reset all message settings to their defaults?')) {
+        try {
+            const response = await fetch('/api/settings/messages/reset', {
+                method: 'POST'
+            });
+            
+            if (response.ok) {
+                const defaults = await response.json();
+                Object.entries(defaults).forEach(([key, value]) => {
+                    const input = document.querySelector(`[name="${key}"]`);
+                    if (input) {
+                        if (input.type === 'checkbox') {
+                            input.checked = value;
+                        } else {
+                            input.value = value;
+                        }
+                    }
+                });
+                showToast('Settings reset to defaults');
+            } else {
+                throw new Error('Failed to reset settings');
+            }
+        } catch (error) {
+            showToast('Error resetting settings', 'error');
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}Autonomy Settings - Nugget Tech{% endblock %}
+{% block page_title %}Autonomy Settings{% endblock %}
+
+{% block content %}
+<div class="card-grid">
+    <div class="card">
+        <h2>Decision Making</h2>
+        <p class="description">Configure how independently the bot can make decisions</p>
+        
+        <form class="settings-form">
+            <div class="input-group">
+                <label class="switch-label">
+                    <input type="checkbox" id="autonomous_mode" name="autonomous_mode" class="switch-input">
+                    <span class="switch"></span>
+                    Enable Autonomous Mode
+                </label>
+                <span class="hint">Allow the bot to make certain decisions without user confirmation</span>
+            </div>
+
+            <div class="input-group">
+                <label for="confidence_threshold">Confidence Threshold</label>
+                <input type="range" id="confidence_threshold" name="confidence_threshold" class="slider" min="0" max="1" step="0.05" value="0.85">
+                <span class="value-display">0.85</span>
+                <span class="hint">Minimum confidence level required for autonomous actions</span>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>Action Permissions</h2>
+        <p class="description">Control which actions the bot can perform autonomously</p>
+
+        <form class="settings-form">
+            <div class="input-group">
+                <label class="switch-label">
+                    <input type="checkbox" id="file_operations" name="file_operations" class="switch-input">
+                    <span class="switch"></span>
+                    File Operations
+                </label>
+                <span class="hint">Allow the bot to read and write files</span>
+            </div>
+
+            <div class="input-group">
+                <label class="switch-label">
+                    <input type="checkbox" id="network_access" name="network_access" class="switch-input">
+                    <span class="switch"></span>
+                    Network Access
+                </label>
+                <span class="hint">Allow the bot to make network requests</span>
+            </div>
+
+            <div class="input-group">
+                <label class="switch-label">
+                    <input type="checkbox" id="system_commands" name="system_commands" class="switch-input">
+                    <span class="switch"></span>
+                    System Commands
+                </label>
+                <span class="hint">Allow the bot to execute system commands</span>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>Interaction Limits</h2>
+        <p class="description">Set boundaries for autonomous interactions</p>
+
+        <form class="settings-form">
+            <div class="input-group">
+                <label for="max_autonomous_turns">Maximum Autonomous Turns</label>
+                <input type="number" id="max_autonomous_turns" name="max_autonomous_turns" class="input" value="5" min="1" max="20">
+                <span class="hint">Maximum number of consecutive autonomous actions</span>
+            </div>
+
+            <div class="input-group">
+                <label for="user_confirmation_timeout">User Confirmation Timeout</label>
+                <input type="number" id="user_confirmation_timeout" name="user_confirmation_timeout" class="input" value="30" min="5" max="300">
+                <span class="hint">Seconds to wait for user confirmation before falling back to default action</span>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="actions-bar">
+    <button type="button" class="button secondary-button">Reset to Defaults</button>
+    <button type="button" class="button primary-button">Save Changes</button>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll('.slider').forEach(slider => {
+    const valueDisplay = slider.nextElementSibling;
+    slider.addEventListener('input', () => {
+        valueDisplay.textContent = slider.value;
+    });
+});
+
+// Save changes
+document.querySelector('.primary-button').addEventListener('click', async () => {
+    const formData = {};
+    document.querySelectorAll('.settings-form input').forEach(input => {
+        formData[input.name] = input.type === 'checkbox' ? input.checked :
+                              input.type === 'number' ? Number(input.value) :
+                              input.value;
+    });
+    
+    try {
+        const response = await fetch('/api/settings/autonomy', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+        
+        if (response.ok) {
+            showToast('Settings saved successfully');
+        } else {
+            throw new Error('Failed to save settings');
+        }
+    } catch (error) {
+        showToast('Error saving settings', 'error');
+    }
+});
+
+// Reset to defaults
+document.querySelector('.secondary-button').addEventListener('click', async () => {
+    if (confirm('Are you sure you want to reset all autonomy settings to their defaults?')) {
+        try {
+            const response = await fetch('/api/settings/autonomy/reset', {
+                method: 'POST'
+            });
+            
+            if (response.ok) {
+                const defaults = await response.json();
+                Object.entries(defaults).forEach(([key, value]) => {
+                    const input = document.querySelector(`[name="${key}"]`);
+                    if (input) {
+                        if (input.type === 'checkbox') {
+                            input.checked = value;
+                        } else {
+                            input.value = value;
+                        }
+                    }
+                });
+                showToast('Settings reset to defaults');
+            } else {
+                throw new Error('Failed to reset settings');
+            }
+        } catch (error) {
+            showToast('Error resetting settings', 'error');
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,160 @@
+{% macro sidebar(nugget_alias) %}
+<div class="sidebar">    <div class="sidebar-header">
+        <a href="/dashboard/home" class="sidebar-logo">
+            <i class="fas fa-robot"></i>
+            <span class="logo-text">Nugget Tech</span>
+        </a>
+    </div>
+
+    <nav class="nav-section">
+        <div class="nav-section-title">Main</div>
+        <ul class="nav-items">
+            <li class="nav-item">
+                <a href="/dashboard/home" class="nav-link {% if active_page == 'dashboard' %}active{% endif %}">
+                    <i class="fas fa-home nav-link-icon"></i>
+                    <span class="nav-link-text">Dashboard</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Authentication & API Keys -->
+    <nav class="nav-section">
+        <div class="nav-section-title">Authentication</div>
+        <ul class="nav-items">
+            <li class="nav-item">                <a href="/dashboard/{{ nugget_alias }}/api-keys" class="nav-link {% if active_page == 'api-keys' %}active{% endif %}">
+                    <i class="fas fa-key nav-link-icon"></i>
+                    <span class="nav-link-text">API Keys</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- AI Settings -->
+    <nav class="nav-section">
+        <div class="nav-section-title">AI Configuration</div>
+        <ul class="nav-items">
+            <li class="nav-item">
+                <a href="/dashboard/{{ nugget_alias }}/ai/model" class="nav-link {% if active_page == 'ai-model' %}active{% endif %}">
+                    <i class="fas fa-microchip nav-link-icon"></i>
+                    <span class="nav-link-text">Model Settings</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/dashboard/{{ nugget_alias }}/ai/filters" class="nav-link {% if active_page == 'ai-filters' %}active{% endif %}">
+                    <i class="fas fa-shield-alt nav-link-icon"></i>
+                    <span class="nav-link-text">Content Filters</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/dashboard/{{ nugget_alias }}/ai/generation" class="nav-link {% if active_page == 'ai-generation' %}active{% endif %}">
+                    <i class="fas fa-cog nav-link-icon"></i>
+                    <span class="nav-link-text">Generation Config</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Behavior -->
+    <nav class="nav-section">
+        <div class="nav-section-title">Behavior</div>
+        <ul class="nav-items">
+            <li class="nav-item">
+                <a href="/dashboard/{{ nugget_alias }}/behavior/autonomy" class="nav-link {% if active_page == 'autonomy' %}active{% endif %}">
+                    <i class="fas fa-brain nav-link-icon"></i>
+                    <span class="nav-link-text">Autonomy</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/dashboard/{{ nugget_alias }}/behavior/messages" class="nav-link {% if active_page == 'messages' %}active{% endif %}">
+                    <i class="fas fa-comment-alt nav-link-icon"></i>
+                    <span class="nav-link-text">Messages</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Features -->
+    <nav class="nav-section">
+        <div class="nav-section-title">Features</div>
+        <ul class="nav-items">
+            <li class="nav-item">
+                <a href="/dashboard/{{ nugget_alias }}/features/voice" class="nav-link {% if active_page == 'voice' %}active{% endif %}">
+                    <i class="fas fa-microphone nav-link-icon"></i>
+                    <span class="nav-link-text">Voice</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/dashboard/{{ nugget_alias }}/features/files" class="nav-link {% if active_page == 'files' %}active{% endif %}">
+                    <i class="fas fa-folder nav-link-icon"></i>
+                    <span class="nav-link-text">File Handling</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/dashboard/{{ nugget_alias }}/features/agent" class="nav-link {% if active_page == 'agent' %}active{% endif %}">
+                    <i class="fas fa-user-robot nav-link-icon"></i>
+                    <span class="nav-link-text">Agent Module</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Knowledge -->
+    <nav class="nav-section">
+        <div class="nav-section-title">Knowledge</div>
+        <ul class="nav-items">
+            <li class="nav-item">
+                <a href="/dashboard/{{ nugget_alias }}/knowledge" class="nav-link {% if active_page == 'knowledge' %}active{% endif %}">
+                    <i class="fas fa-book nav-link-icon"></i>
+                    <span class="nav-link-text">Knowledge Base</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/dashboard/{{ nugget_alias }}/memories" class="nav-link {% if active_page == 'memories' %}active{% endif %}">
+                    <i class="fas fa-memory nav-link-icon"></i>
+                    <span class="nav-link-text">Memories</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
+{% endmacro %}
+
+    <!-- Knowledge Base -->
+    <nav class="nav-section">
+        <div class="nav-section-title">Knowledge</div>
+        <ul class="nav-items">
+            <li class="nav-item">
+                <a href="/dashboard/{{ nugget_alias }}/knowledge" class="nav-link {% if active_page == 'knowledge' %}active{% endif %}">
+                    <span class="nav-link-icon">📚</span>
+                    <span class="nav-link-text">Knowledge Base</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/dashboard/{{ nugget_alias }}/memories" class="nav-link {% if active_page == 'memories' %}active{% endif %}">
+                    <span class="nav-link-icon">💭</span>
+                    <span class="nav-link-text">Memories</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- User -->
+    <nav class="nav-section">
+        <div class="nav-section-title">User</div>
+        <ul class="nav-items">
+            <li class="nav-item">
+                <a href="/dashboard/user/profile" class="nav-link {% if active_page == 'profile' %}active{% endif %}">
+                    <span class="nav-link-icon">👤</span>
+                    <span class="nav-link-text">Profile</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/auth/logout" class="nav-link">
+                    <span class="nav-link-icon">🚪</span>
+                    <span class="nav-link-text">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>

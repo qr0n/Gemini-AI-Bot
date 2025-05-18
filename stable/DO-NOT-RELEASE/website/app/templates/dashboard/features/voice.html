@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}Voice Settings - Nugget Tech{% endblock %}
+{% block page_title %}Voice Settings{% endblock %}
+
+{% block content %}
+<div class="card-grid">
+    <div class="card">
+        <h2>Text-to-Speech</h2>
+        <p class="description">Configure how the bot speaks</p>
+        
+        <form class="settings-form">
+            <div class="input-group">
+                <label for="voice_id">Voice</label>
+                <select id="voice_id" name="voice_id" class="input select">
+                    <option value="en-US-Neural2-A">US English - Female</option>
+                    <option value="en-US-Neural2-C">US English - Male</option>
+                    <option value="en-GB-Neural2-A">British English - Female</option>
+                    <option value="en-GB-Neural2-B">British English - Male</option>
+                </select>
+                <span class="hint">Select the voice for text-to-speech</span>
+            </div>
+
+            <div class="input-group">
+                <label for="speaking_rate">Speaking Rate</label>
+                <input type="range" id="speaking_rate" name="speaking_rate" class="slider" min="0.5" max="2" step="0.1" value="1">
+                <span class="value-display">1</span>
+                <span class="hint">Speed of speech (1 = normal)</span>
+            </div>
+
+            <div class="input-group">
+                <label for="pitch">Pitch</label>
+                <input type="range" id="pitch" name="pitch" class="slider" min="-10" max="10" step="1" value="0">
+                <span class="value-display">0</span>
+                <span class="hint">Voice pitch adjustment</span>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>Speech Recognition</h2>
+        <p class="description">Configure voice input settings</p>
+
+        <form class="settings-form">
+            <div class="input-group">
+                <label class="switch-label">
+                    <input type="checkbox" id="enable_voice_input" name="enable_voice_input" class="switch-input">
+                    <span class="switch"></span>
+                    Enable Voice Input
+                </label>
+                <span class="hint">Allow voice commands and dictation</span>
+            </div>
+
+            <div class="input-group">
+                <label for="language">Recognition Language</label>
+                <select id="language" name="language" class="input select">
+                    <option value="en-US">US English</option>
+                    <option value="en-GB">British English</option>
+                    <option value="en-AU">Australian English</option>
+                    <option value="en-CA">Canadian English</option>
+                </select>
+                <span class="hint">Language for speech recognition</span>
+            </div>
+
+            <div class="input-group">
+                <label for="sensitivity">Microphone Sensitivity</label>
+                <input type="range" id="sensitivity" name="sensitivity" class="slider" min="0" max="100" step="5" value="75">
+                <span class="value-display">75</span>
+                <span class="hint">Adjust microphone input sensitivity</span>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>Voice Triggers</h2>
+        <p class="description">Configure voice activation settings</p>
+
+        <form class="settings-form">
+            <div class="input-group">
+                <label for="wake_word">Wake Word</label>
+                <input type="text" id="wake_word" name="wake_word" class="input" value="Hey Nugget">
+                <span class="hint">Word or phrase to activate voice input</span>
+            </div>
+
+            <div class="input-group">
+                <label for="idle_timeout">Idle Timeout (seconds)</label>
+                <input type="number" id="idle_timeout" name="idle_timeout" class="input" value="30" min="5" max="300">
+                <span class="hint">Time to wait for voice input before timing out</span>
+            </div>
+
+            <div class="input-group">
+                <label class="switch-label">
+                    <input type="checkbox" id="continuous_listening" name="continuous_listening" class="switch-input">
+                    <span class="switch"></span>
+                    Continuous Listening
+                </label>
+                <span class="hint">Always listen for the wake word</span>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="actions-bar">
+    <button type="button" class="button secondary-button">Reset to Defaults</button>
+    <button type="button" class="button primary-button">Save Changes</button>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll('.slider').forEach(slider => {
+    const valueDisplay = slider.nextElementSibling;
+    slider.addEventListener('input', () => {
+        valueDisplay.textContent = slider.value;
+    });
+});
+
+// Save changes
+document.querySelector('.primary-button').addEventListener('click', async () => {
+    const formData = {};
+    document.querySelectorAll('.settings-form input, .settings-form select').forEach(input => {
+        formData[input.name] = input.type === 'checkbox' ? input.checked :
+                              input.type === 'number' ? Number(input.value) :
+                              input.value;
+    });
+    
+    try {
+        const response = await fetch('/api/settings/voice', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+        
+        if (response.ok) {
+            showToast('Settings saved successfully');
+        } else {
+            throw new Error('Failed to save settings');
+        }
+    } catch (error) {
+        showToast('Error saving settings', 'error');
+    }
+});
+
+// Reset to defaults
+document.querySelector('.secondary-button').addEventListener('click', async () => {
+    if (confirm('Are you sure you want to reset all voice settings to their defaults?')) {
+        try {
+            const response = await fetch('/api/settings/voice/reset', {
+                method: 'POST'
+            });
+            
+            if (response.ok) {
+                const defaults = await response.json();
+                Object.entries(defaults).forEach(([key, value]) => {
+                    const input = document.querySelector(`[name="${key}"]`);
+                    if (input) {
+                        if (input.type === 'checkbox') {
+                            input.checked = value;
+                        } else {
+                            input.value = value;
+                        }
+                    }
+                });
+                showToast('Settings reset to defaults');
+            } else {
+                throw new Error('Failed to reset settings');
+            }
+        } catch (error) {
+            showToast('Error resetting settings', 'error');
+        }
+    }
+});
+
+// Test voice
+let testVoice = null;
+document.getElementById('voice_id').addEventListener('change', async () => {
+    const voiceId = document.getElementById('voice_id').value;
+    const rate = document.getElementById('speaking_rate').value;
+    const pitch = document.getElementById('pitch').value;
+    
+    try {
+        const response = await fetch('/api/voice/test', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ voiceId, rate, pitch })
+        });
+        
+        if (response.ok) {
+            const audio = await response.blob();
+            if (testVoice) {
+                testVoice.pause();
+            }
+            testVoice = new Audio(URL.createObjectURL(audio));
+            testVoice.play();
+        }
+    } catch (error) {
+        showToast('Error testing voice', 'error');
+    }
+});
+</script>
+{% endblock %}

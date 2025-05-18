@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}API Keys - Nugget Tech{% endblock %}
+{% block page_title %}API Keys{% endblock %}
+
+{% block content %}
+<div class="card-grid">
+    <div class="card">
+        <h2>AI Service Keys</h2>
+        <p class="description">Configure API keys for AI services</p>
+        
+        <form class="settings-form">
+            <div class="input-group">
+                <label for="openai_api_key">OpenAI API Key</label>
+                <div class="input-with-button">
+                    <input type="password" id="openai_api_key" name="openai_api_key" class="input" placeholder="sk-...">
+                    <button type="button" class="button icon-button toggle-visibility" aria-label="Toggle visibility">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <span class="hint">Your OpenAI API key for GPT models</span>
+            </div>
+
+            <div class="input-group">
+                <label for="anthropic_api_key">Anthropic API Key</label>
+                <div class="input-with-button">
+                    <input type="password" id="anthropic_api_key" name="anthropic_api_key" class="input" placeholder="sk-ant-...">
+                    <button type="button" class="button icon-button toggle-visibility" aria-label="Toggle visibility">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <span class="hint">Your Anthropic API key for Claude models</span>
+            </div>
+
+            <div class="input-group">
+                <label for="gemini_api_key">Google AI API Key</label>
+                <div class="input-with-button">
+                    <input type="password" id="gemini_api_key" name="gemini_api_key" class="input" placeholder="AIza...">
+                    <button type="button" class="button icon-button toggle-visibility" aria-label="Toggle visibility">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <span class="hint">Your Google AI API key for Gemini models</span>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>API Usage</h2>
+        <p class="description">Monitor and configure API usage limits</p>
+
+        <form class="settings-form">
+            <div class="input-group">
+                <label for="monthly_budget">Monthly Budget (USD)</label>
+                <input type="number" id="monthly_budget" name="monthly_budget" class="input" value="50" min="0" max="1000">
+                <span class="hint">Maximum monthly spending on API calls</span>
+            </div>
+
+            <div class="input-group">
+                <label for="request_limit">Request Limit (per hour)</label>
+                <input type="number" id="request_limit" name="request_limit" class="input" value="100" min="1" max="1000">
+                <span class="hint">Maximum number of API requests per hour</span>
+            </div>
+
+            <div class="input-group">
+                <label class="switch-label">
+                    <input type="checkbox" id="enable_quota_alerts" name="enable_quota_alerts" class="switch-input" checked>
+                    <span class="switch"></span>
+                    Enable Usage Alerts
+                </label>
+                <span class="hint">Get notifications when nearing usage limits</span>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>API Access Control</h2>
+        <p class="description">Configure API access and security settings</p>
+
+        <form class="settings-form">
+            <div class="input-group">
+                <label for="allowed_origins">Allowed Origins</label>
+                <textarea id="allowed_origins" name="allowed_origins" class="input textarea" rows="3" placeholder="Enter one domain per line"></textarea>
+                <span class="hint">Domains allowed to make API requests</span>
+            </div>
+
+            <div class="input-group">
+                <label for="rate_limit">Rate Limit (requests/minute)</label>
+                <input type="number" id="rate_limit" name="rate_limit" class="input" value="60" min="1" max="1000">
+                <span class="hint">Maximum requests per minute per client</span>
+            </div>
+
+            <div class="input-group">
+                <label class="switch-label">
+                    <input type="checkbox" id="require_authentication" name="require_authentication" class="switch-input" checked>
+                    <span class="switch"></span>
+                    Require Authentication
+                </label>
+                <span class="hint">Require API key authentication for all requests</span>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="actions-bar">
+    <button type="button" class="button secondary-button">Reset to Defaults</button>
+    <button type="button" class="button primary-button">Save Changes</button>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Toggle password visibility
+document.querySelectorAll('.toggle-visibility').forEach(button => {
+    button.addEventListener('click', () => {
+        const input = button.parentElement.querySelector('input');
+        const icon = button.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    });
+});
+
+// Save changes
+document.querySelector('.primary-button').addEventListener('click', async () => {
+    const formData = {};
+    document.querySelectorAll('.settings-form input, .settings-form textarea').forEach(input => {
+        formData[input.name] = input.type === 'checkbox' ? input.checked :
+                              input.type === 'number' ? Number(input.value) :
+                              input.value;
+    });
+    
+    try {
+        const response = await fetch('/api/settings/api-keys', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+        
+        if (response.ok) {
+            showToast('Settings saved successfully');
+        } else {
+            throw new Error('Failed to save settings');
+        }
+    } catch (error) {
+        showToast('Error saving settings', 'error');
+    }
+});
+
+// Reset to defaults
+document.querySelector('.secondary-button').addEventListener('click', async () => {
+    if (confirm('Are you sure you want to reset all API settings to their defaults?')) {
+        try {
+            const response = await fetch('/api/settings/api-keys/reset', {
+                method: 'POST'
+            });
+            
+            if (response.ok) {
+                const defaults = await response.json();
+                Object.entries(defaults).forEach(([key, value]) => {
+                    const input = document.querySelector(`[name="${key}"]`);
+                    if (input) {
+                        if (input.type === 'checkbox') {
+                            input.checked = value;
+                        } else {
+                            input.value = value;
+                        }
+                    }
+                });
+                showToast('Settings reset to defaults');
+            } else {
+                throw new Error('Failed to reset settings');
+            }
+        } catch (error) {
+            showToast('Error resetting settings', 'error');
+        }
+    }
+});
+
+// Validate API keys as they're entered
+document.querySelectorAll('input[type="password"]').forEach(input => {
+    input.addEventListener('blur', async () => {
+        if (!input.value) return;
+        
+        try {
+            const response = await fetch('/api/validate-key', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    key: input.value,
+                    service: input.name.replace('_api_key', '')
+                })
+            });
+            
+            if (!response.ok) {
+                input.classList.add('error');
+                showToast(`Invalid API key for ${input.name.replace('_api_key', '')}`, 'error');
+            } else {
+                input.classList.remove('error');
+            }
+        } catch (error) {
+            showToast('Error validating API key', 'error');
+        }
+    });
+});
+</script>
+{% endblock %}
