@@ -9,6 +9,7 @@
         font-size: 2.5rem;
         margin-bottom: 30px;
         background: linear-gradient(45deg, var(--text-primary), var(--primary));
+        background: linear-gradient(45deg, var(--text-primary), var(--primary));
         -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -23,21 +24,27 @@
         padding: 20px;
     }    .nugget-card {
         background: var(--bg-overlay);
+    }    .nugget-card {
+        background: var(--bg-overlay);
         border-radius: 16px;
         backdrop-filter: blur(10px);
         width: 100%;
         height: 320px;
         position: relative;
         transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+        transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
         overflow: hidden;
         text-decoration: none;
         display: block;
         cursor: pointer;
         color: inherit;
+        color: inherit;
     }
 
     .nugget-card:hover {
         transform: translateY(-5px);
+        box-shadow: 0 8px 20px var(--shadow-primary);
+        background: var(--bg-card);
         box-shadow: 0 8px 20px var(--shadow-primary);
         background: var(--bg-card);
     }
@@ -48,6 +55,7 @@
         border-radius: 50%;
         margin: 20px auto;
         display: block;
+        border: 3px solid var(--primary);
         border: 3px solid var(--primary);
     }
 
@@ -68,12 +76,14 @@
 
     .nugget-card .stat {
         background: var(--bg-button-secondary);
+        background: var(--bg-button-secondary);
         padding: 10px;
         border-radius: 8px;
         text-align: center;
     }
 
     .nugget-card .stat-label {
+        color: var(--primary);
         color: var(--primary);
         font-size: 0.9rem;
     }
@@ -86,10 +96,12 @@
 
     .add-bot-card {
         border: 2px dashed var(--border-color);
+        border: 2px dashed var(--border-color);
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        color: var(--text-secondary);
         color: var(--text-secondary);
     }
 
