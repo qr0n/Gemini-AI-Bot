@@ -52,23 +52,35 @@
                     <span class="nav-link-text">Generation Config</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="/dashboard/{{ nugget_alias }}/ai/messages" class="nav-link {% if active_page == 'ai-messages' %}active{% endif %}">
+                    <i class="fas fa-comment-alt nav-link-icon"></i>
+                    <span class="nav-link-text">Messages</span>
+                </a>
+            </li>
         </ul>
     </nav>
 
-    <!-- Behavior -->
+    <!-- Personality & Prompting -->
     <nav class="nav-section">
-        <div class="nav-section-title">Behavior</div>
+        <div class="nav-section-title">Personality</div>
         <ul class="nav-items">
             <li class="nav-item">
-                <a href="/dashboard/{{ nugget_alias }}/behavior/autonomy" class="nav-link {% if active_page == 'autonomy' %}active{% endif %}">
-                    <i class="fas fa-brain nav-link-icon"></i>
-                    <span class="nav-link-text">Autonomy</span>
+                <a href="/dashboard/{{ nugget_alias }}/personality/traits" class="nav-link {% if active_page == 'personality-traits' %}active{% endif %}">
+                    <i class="fas fa-user-circle nav-link-icon"></i>
+                    <span class="nav-link-text">Personality Traits</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="/dashboard/{{ nugget_alias }}/behavior/messages" class="nav-link {% if active_page == 'messages' %}active{% endif %}">
-                    <i class="fas fa-comment-alt nav-link-icon"></i>
-                    <span class="nav-link-text">Messages</span>
+                <a href="/dashboard/{{ nugget_alias }}/personality/prompting" class="nav-link {% if active_page == 'personality-prompting' %}active{% endif %}">
+                    <i class="fas fa-comment-dots nav-link-icon"></i>
+                    <span class="nav-link-text">System & Examples</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/dashboard/{{ nugget_alias }}/personality/autonomy" class="nav-link {% if active_page == 'personality-autonomy' %}active{% endif %}">
+                    <i class="fas fa-brain nav-link-icon"></i>
+                    <span class="nav-link-text">Autonomy</span>
                 </a>
             </li>
         </ul>
@@ -85,14 +97,8 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="/dashboard/{{ nugget_alias }}/features/files" class="nav-link {% if active_page == 'files' %}active{% endif %}">
-                    <i class="fas fa-folder nav-link-icon"></i>
-                    <span class="nav-link-text">File Handling</span>
-                </a>
-            </li>
-            <li class="nav-item">
                 <a href="/dashboard/{{ nugget_alias }}/features/agent" class="nav-link {% if active_page == 'agent' %}active{% endif %}">
-                    <i class="fas fa-user-robot nav-link-icon"></i>
+                    <i class="fa-solid fa-robot nav-link-icon"></i>
                     <span class="nav-link-text">Agent Module</span>
                 </a>
             </li>
@@ -117,27 +123,6 @@
             </li>
         </ul>
     </nav>
-</div>
-{% endmacro %}
-
-    <!-- Knowledge Base -->
-    <nav class="nav-section">
-        <div class="nav-section-title">Knowledge</div>
-        <ul class="nav-items">
-            <li class="nav-item">
-                <a href="/dashboard/{{ nugget_alias }}/knowledge" class="nav-link {% if active_page == 'knowledge' %}active{% endif %}">
-                    <span class="nav-link-icon">📚</span>
-                    <span class="nav-link-text">Knowledge Base</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="/dashboard/{{ nugget_alias }}/memories" class="nav-link {% if active_page == 'memories' %}active{% endif %}">
-                    <span class="nav-link-icon">💭</span>
-                    <span class="nav-link-text">Memories</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
 
     <!-- User -->
     <nav class="nav-section">
@@ -145,16 +130,17 @@
         <ul class="nav-items">
             <li class="nav-item">
                 <a href="/dashboard/user/profile" class="nav-link {% if active_page == 'profile' %}active{% endif %}">
-                    <span class="nav-link-icon">👤</span>
+                    <i class="fas fa-user nav-link-icon"></i>
                     <span class="nav-link-text">Profile</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="/auth/logout" class="nav-link">
-                    <span class="nav-link-icon">🚪</span>
+                    <i class="fas fa-sign-out-alt nav-link-icon"></i>
                     <span class="nav-link-text">Logout</span>
                 </a>
             </li>
         </ul>
     </nav>
 </div>
+{% endmacro %}

@@ -221,6 +221,7 @@ body {
     height: 23px;
     border-radius: 50%;
     margin-right: 1rem;
+    color: var(--text);
 }
 
 .content {
@@ -444,7 +445,7 @@ h1 {
 }
 
 .modal-content h2 {
-    margin: 0 0 1.5rem 0;
+    margin: 0 0 1.5rem 0;   
     color: var(--text);
     font-size: 1.5rem;
 }
@@ -1208,3 +1209,15 @@ input:checked + .slider:before {
     color: var(--text-muted);
     font-size: 0.875rem;
 }
+
+.button-primary {
+    background: var(--primary);
+    color: var(--text);
+    box-shadow: 0 4px 15px rgba(88, 101, 242, 0.4);
+    }
+
+.button-primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(88, 101, 242, 0.6);
+    }

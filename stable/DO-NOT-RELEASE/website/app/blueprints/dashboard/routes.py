@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for
+from flask import render_template, redirect, url_for, request
 from . import dashboard_bp
 from ...extensions import Helpers
 import logging
@@ -130,25 +130,61 @@ def ai_model(nugget):
     )
 
 
-# Behavior routes
-@dashboard_bp.route("/<nugget>/behavior/autonomy")
+@dashboard_bp.route("/<nugget>/ai/prompting")
 @Helpers.requires_auth
-def behavior_autonomy(nugget):
+def prompting(nugget):
     user_data = Helpers.get_user_data()
     return render_template(
-        "dashboard/behavior/autonomy.html",
+        "dashboard/ai/prompting.html",
         nugget_alias=nugget,
         username=user_data["username"],
         avatar_url=f"https://cdn.discordapp.com/avatars/{user_data['id']}/{user_data['avatar']}.png",
     )
 
 
-@dashboard_bp.route("/<nugget>/behavior/messages")
+@dashboard_bp.route("/<nugget>/ai/messages")
 @Helpers.requires_auth
-def behavior_messages(nugget):
+def ai_messages(nugget):
     user_data = Helpers.get_user_data()
     return render_template(
-        "dashboard/behavior/messages.html",
+        "dashboard/ai/messages.html",
+        nugget_alias=nugget,
+        username=user_data["username"],
+        avatar_url=f"https://cdn.discordapp.com/avatars/{user_data['id']}/{user_data['avatar']}.png",
+    )
+
+
+# Personality routes
+@dashboard_bp.route("/<nugget>/personality/traits")
+@Helpers.requires_auth
+def personality_traits(nugget):
+    user_data = Helpers.get_user_data()
+    return render_template(
+        "dashboard/personality/traits.html",
+        nugget_alias=nugget,
+        username=user_data["username"],
+        avatar_url=f"https://cdn.discordapp.com/avatars/{user_data['id']}/{user_data['avatar']}.png",
+    )
+
+
+@dashboard_bp.route("/<nugget>/personality/prompting")
+@Helpers.requires_auth
+def personality_prompting(nugget):
+    user_data = Helpers.get_user_data()
+    return render_template(
+        "dashboard/personality/prompting.html",
+        nugget_alias=nugget,
+        username=user_data["username"],
+        avatar_url=f"https://cdn.discordapp.com/avatars/{user_data['id']}/{user_data['avatar']}.png",
+    )
+
+
+@dashboard_bp.route("/<nugget>/personality/autonomy")
+@Helpers.requires_auth
+def personality_autonomy(nugget):
+    user_data = Helpers.get_user_data()
+    return render_template(
+        "dashboard/personality/autonomy.html",
         nugget_alias=nugget,
         username=user_data["username"],
         avatar_url=f"https://cdn.discordapp.com/avatars/{user_data['id']}/{user_data['avatar']}.png",
@@ -192,13 +228,17 @@ def features_voice(nugget):
     )
 
 
-@dashboard_bp.route("/<nugget>/api-keys")
+@dashboard_bp.route("/<nugget>/api-keys", methods=["GET", "POST"])
 @Helpers.requires_auth
 def api_keys(nugget):
-    user_data = Helpers.get_user_data()
-    return render_template(
-        "dashboard/authentication/api-keys.html",
-        nugget_alias=nugget,
-        username=user_data["username"],
-        avatar_url=f"https://cdn.discordapp.com/avatars/{user_data['id']}/{user_data['avatar']}.png",
-    )
+    if request.method == "GET":
+        user_data = Helpers.get_user_data()
+        return render_template(
+            "dashboard/authentication/api-keys.html",
+            nugget_alias=nugget,
+            username=user_data["username"],
+            avatar_url=f"https://cdn.discordapp.com/avatars/{user_data['id']}/{user_data['avatar']}.png",
+        )
+    if request.method == "POST":
+        print(request.args)
+        return "hello"

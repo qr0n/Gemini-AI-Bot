@@ -1,717 +1,186 @@
 {% extends "base.html" %}
 
-{% block title %}Response Generation - Nugget Tech{% endblock %}
+{% block title %}Generation Settings - Nugget Tech{% endblock %}
+
+{% block page_title %}⚙️ Generation Settings{% endblock %}
 
 {% block content %}
-{% include 'components/save-bar.html' %}
-
 <div class="page-content">
     <div class="page-header">
-        <h1>🎯 Response Generation</h1>
-        <p class="page-description">Fine-tune how your AI generates and structures its responses</p>
+        <p class="page-description">Configure the generation parameters that control how your bot generates responses.</p>
     </div>
 
-    <div class="settings-grid">
-        <!-- Core Generation Settings -->
-        <div class="settings-card primary">
-            <div class="card-header">
-                <h2>Core Parameters</h2>
-                <p class="section-desc">Fundamental settings that control response generation</p>
-            </div>
-            
-            <form class="settings-form">
-                <div class="setting-group">
-                    <label for="temperature">
-                        Temperature
-                        <span class="value-badge" id="tempValue">0.7</span>
-                    </label>
-                    <div class="slider-container">
-                        <input type="range" id="temperature" 
-                               class="slider" min="0" max="2" 
-                               step="0.1" value="0.7">
-                        <div class="slider-labels">
-                            <span>Focused</span>
-                            <span>Creative</span>
-                        </div>
-                    </div>
-                    <span class="setting-desc">Controls response creativity and randomness</span>
-                </div>
-
-                <div class="setting-row">
-                    <div class="setting-group">
-                        <label for="maxTokens">Max Response Length</label>
-                        <div class="number-input">
-                            <input type="number" id="maxTokens" 
-                                   value="2048" min="1" max="4096">
-                            <span class="input-suffix">tokens</span>
-                        </div>
-                        <span class="setting-desc">Maximum length of generated responses</span>
-                    </div>
-
-                    <div class="setting-group">
-                        <label for="topP">Response Diversity</label>
-                        <div class="number-input">
-                            <input type="number" id="topP" 
-                                   value="0.9" min="0" max="1" step="0.1">
-                        </div>
-                        <span class="setting-desc">Controls variety in word choices</span>
+    <form class="settings-form" id="generationSettingsForm">
+        <div class="settings-group">
+            <div class="settings-card">
+                <h2 class="card-title">Generation Config</h2>
+                
+                <div class="form-group">
+                    <label for="temperature">Temperature</label>
+                    <div class="input-description">Controls randomness in responses. Higher values make output more creative but less focused.</div>
+                    <div class="input-with-suffix">
+                        <input type="number" class="input number" id="temperature" name="temperature" 
+                               value="0.7" min="0" max="2" step="0.1">
+                        <span class="input-suffix">0-2</span>
                     </div>
                 </div>
-            </form>
-        </div>
 
-        <!-- Context Management -->
-        <div class="settings-card">
-            <div class="card-header">
-                <h2>Context & Memory</h2>
-                <p class="section-desc">Configure how your AI uses conversation history</p>
+                <div class="form-group">
+                    <label for="topP">Top P</label>
+                    <div class="input-description">Nucleus sampling threshold. Lower values make output more focused.</div>
+                    <div class="input-with-suffix">
+                        <input type="number" class="input number" id="topP" name="topP" 
+                               value="0.95" min="0" max="1" step="0.01">
+                        <span class="input-suffix">0-1</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="topK">Top K</label>
+                    <div class="input-description">Limits vocabulary to top K tokens. Lower values make output more predictable.</div>
+                    <div class="input-with-suffix">
+                        <input type="number" class="input number" id="topK" name="topK" 
+                               value="40" min="1" max="100">
+                        <span class="input-suffix">tokens</span>
+                    </div>
+                </div>
             </div>
-            
-            <form class="settings-form">
-                <div class="setting-group">
-                    <label for="contextWindow">Memory Window</label>
-                    <div class="number-input">
-                        <input type="number" id="contextWindow" 
-                               value="10" min="1" max="50">
+
+            <div class="settings-card">
+                <h2 class="card-title">Context and Memory</h2>
+                
+                <div class="form-group">
+                    <label for="memoryWindow">Memory Window</label>
+                    <div class="input-description">Number of past conversations to keep in long-term memory</div>
+                    <div class="input-with-suffix">
+                        <input type="number" class="input number" id="memoryWindow" name="memoryWindow" 
+                               value="50" min="1" max="1000">
                         <span class="input-suffix">messages</span>
                     </div>
-                    <span class="setting-desc">Number of previous messages to include</span>
                 </div>
 
-                <div class="setting-row">
-                    <div class="toggle-group">
-                        <label class="toggle-label">
-                            Continuous Learning
-                            <div class="toggle-switch">
-                                <input type="checkbox" id="continuousLearning" checked>
-                                <span class="toggle-slider"></span>
-                            </div>
-                        </label>
-                        <span class="setting-desc">Learn from ongoing conversations</span>
-                    </div>
-
-                    <div class="toggle-group">
-                        <label class="toggle-label">
-                            Memory Persistence
-                            <div class="toggle-switch">
-                                <input type="checkbox" id="memoryPersistence" checked>
-                                <span class="toggle-slider"></span>
-                            </div>
-                        </label>
-                        <span class="setting-desc">Maintain context between sessions</span>
+                <div class="form-group">
+                    <label for="contextWindow">Context Window</label>
+                    <div class="input-description">Number of tokens to include in immediate conversation context</div>
+                    <div class="input-with-suffix">
+                        <input type="number" class="input number" id="contextWindow" name="contextWindow" 
+                               value="8192" min="1" max="32768">
+                        <span class="input-suffix">tokens</span>
                     </div>
                 </div>
-            </form>
-        </div>
-
-        <!-- Response Formatting -->
-        <div class="settings-card">
-            <div class="card-header">
-                <h2>Response Format</h2>
-                <p class="section-desc">Customize how responses are structured</p>
             </div>
-            
-            <form class="settings-form">
-                <div class="setting-group">
-                    <label for="responseStyle">Style Preset</label>
-                    <select id="responseStyle" class="select-input">
-                        <option value="balanced">Balanced</option>
-                        <option value="concise">Concise</option>
-                        <option value="detailed">Detailed</option>
-                        <option value="technical">Technical</option>
-                        <option value="friendly">Friendly</option>
-                    </select>
-                    <span class="setting-desc">Overall response formatting style</span>
-                </div>
-
-                <div class="setting-row checkboxes">
-                    <div class="checkbox-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="useEmoji" checked>
-                            <span>Use Emojis</span>
-                        </label>
-                        <span class="setting-desc">Include relevant emojis in responses</span>
-                    </div>
-
-                    <div class="checkbox-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="useFormatting" checked>
-                            <span>Rich Formatting</span>
-                        </label>
-                        <span class="setting-desc">Use markdown for better readability</span>
-                    </div>
-                </div>
-            </form>
         </div>
 
-        <!-- Stop Sequences -->
-        <div class="settings-card">
-            <div class="card-header">
-                <h2>Stop Sequences</h2>
-                <p class="section-desc">Define when responses should end</p>
-            </div>
-            
-            <form class="settings-form">
-                <div class="setting-group">
-                    <label for="stopSequences">Custom Stop Sequences</label>
-                    <textarea id="stopSequences" 
-                              placeholder="Enter one sequence per line"
-                              rows="3"></textarea>
-                    <span class="setting-desc">Sequences that will terminate the response</span>
-                </div>
-            </form>
+        <div class="form-actions">
+            <button type="submit" class="button button-primary">
+                <span class="button-icon">💾</span>
+                Save Changes
+            </button>
         </div>
-    </div>
-
-    <div class="actions-bar">
-        <button type="button" class="button secondary" onclick="resetDefaults()">
-            Reset to Defaults
-        </button>
-        <button type="button" class="button primary" onclick="saveSettings()">
-            Save Changes
-        </button>
-    </div>
+    </form>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize temperature slider
-    const tempSlider = document.getElementById('temperature');
-    const tempValue = document.getElementById('tempValue');
-    
-    if (tempSlider && tempValue) {
-        tempSlider.addEventListener('input', () => {
-            tempValue.textContent = tempSlider.value;
-        });
-    }
-
-    // Store original values for change detection
-    document.querySelectorAll('input, select, textarea').forEach(input => {
-        input.dataset.originalValue = input.type === 'checkbox' ? input.checked : input.value;
-        
-        // Add change detection
-        input.addEventListener('input', () => {
-            const currentValue = input.type === 'checkbox' ? input.checked : input.value;
-            if (currentValue !== input.dataset.originalValue) {
-                window.saveBar?.show();
-            } else {
-                // Check if all inputs match their original values
-                const allUnchanged = Array.from(document.querySelectorAll('input, select, textarea'))
-                    .every(el => {
-                        const original = el.dataset.originalValue;
-                        const current = el.type === 'checkbox' ? el.checked : el.value;
-                        return original === String(current);
-                    });
-
-                if (allUnchanged) {
-                    window.saveBar?.hide();
-                }
-            }
-        });
-    });
-});
-
-async function saveSettings() {
-    try {
-        const formData = new FormData();
-        document.querySelectorAll('input, select, textarea').forEach(input => {
-            formData.append(input.name, input.type === 'checkbox' ? input.checked : input.value);
-        });
-
-        const response = await fetch('/api/settings/generation', {
-            method: 'POST',
-            body: formData
-        });
-
-        if (!response.ok) throw new Error('Failed to save settings');
-        
-        // Update original values after successful save
-        document.querySelectorAll('input, select, textarea').forEach(input => {
-            input.dataset.originalValue = input.type === 'checkbox' ? input.checked : input.value;
-        });
-
-        return true;
-    } catch (error) {
-        console.error('Error saving settings:', error);
-        return false;
-    }
-}
-
-async function resetDefaults() {
-    if (!confirm('Reset all generation settings to their defaults?')) return;
-
-    try {
-        const response = await fetch('/api/settings/generation/defaults');
-        if (response.ok) {
-            const defaults = await response.json();
-            
-            // Apply core defaults
-            document.getElementById('temperature').value = defaults.core.temperature;
-            document.getElementById('maxTokens').value = defaults.core.maxTokens;
-            document.getElementById('topP').value = defaults.core.topP;
-            temperatureValue.textContent = defaults.core.temperature;
-
-            // Apply context defaults
-            document.getElementById('contextWindow').value = defaults.context.contextWindow;
-            document.getElementById('continuousLearning').checked = defaults.context.continuousLearning;
-            document.getElementById('memoryPersistence').checked = defaults.context.memoryPersistence;
-
-            // Apply formatting defaults
-            document.getElementById('responseStyle').value = defaults.formatting.responseStyle;
-            document.getElementById('useEmoji').checked = defaults.formatting.useEmoji;
-            document.getElementById('useFormatting').checked = defaults.formatting.useFormatting;
-
-            // Apply stop sequences
-            document.getElementById('stopSequences').value = defaults.stopSequences.join('\n');
-
-            showToast('Settings reset to defaults');
-        } else {
-            throw new Error('Failed to reset settings');
-        }
-    } catch (error) {
-        showToast('Error resetting settings', 'error');
-    }
-}
-
-function showToast(message, type = 'success') {
-    // Implementation depends on your toast notification system
-    alert(message);
-}
-</script>
 {% endblock %}
 
 {% block extra_css %}
 <style>
     .page-content {
-        max-width: 1200px;
+        max-width: 800px;
         margin: 0 auto;
-        padding: 2rem;
+        padding: 20px;
     }
 
-    .page-header {
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-
-    .page-header h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        background: linear-gradient(45deg, var(--text-primary), var(--primary));
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .page-description {
-        color: var(--text-secondary);
-        font-size: 1.1rem;
-    }
-
-    .settings-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(min(100%, 500px), 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
+    .settings-group {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin-bottom: 30px;
     }
 
     .settings-card {
-        background: var(--bg-card);
+        background: rgba(255, 255, 255, 0.05);
         border-radius: 16px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 20px var(--shadow-subtle);
+        padding: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .settings-card.primary {
-        background: linear-gradient(135deg, 
-            var(--bg-card) 0%,
-            color-mix(in srgb, var(--primary) 8%, var(--bg-card)) 100%);
-    }
-
-    .card-header {
-        margin-bottom: 1.5rem;
-    }
-
-    .card-header h2 {
-        font-size: 1.25rem;
+    .card-title {
+        font-size: 1.4rem;
         font-weight: 600;
-        color: var(--text-primary);
-        margin-bottom: 0.5rem;
+        margin-bottom: 20px;
+        background: linear-gradient(45deg, #fff, #7289da);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
 
-    .section-desc {
-        color: var(--text-secondary);
-        font-size: 0.9rem;
+    .form-group {
+        margin-bottom: 20px;
     }
 
-    .settings-form {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-
-    .setting-row {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-    }
-
-    .setting-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    label {
-        font-size: 0.95rem;
+    .form-group label {
+        display: block;
         font-weight: 500;
-        color: var(--text-primary);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        margin-bottom: 5px;
+        color: #FFFFFF;
     }
 
-    .value-badge {
-        background: var(--primary);
-        color: white;
-        padding: 0.15rem 0.5rem;
-        border-radius: 12px;
+    .input-description {
         font-size: 0.85rem;
-        font-weight: 500;
+        color: #8e8ea0;
+        margin-bottom: 8px;
     }
 
-    .setting-desc {
-        color: var(--text-secondary);
-        font-size: 0.85rem;
-    }
-
-    /* Slider Styling */
-    .slider-container {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .slider {
-        -webkit-appearance: none;
-        appearance: none;
+    .input {
         width: 100%;
-        height: 6px;
-        border-radius: 3px;
-        background: var(--bg-button-secondary);
-        outline: none;
-    }
-
-    .slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        background: var(--primary);
-        cursor: pointer;
-        border: 2px solid var(--bg-card);
-        box-shadow: 0 2px 4px var(--shadow-subtle);
-        transition: all 0.2s ease;
-    }
-
-    .slider::-webkit-slider-thumb:hover {
-        transform: scale(1.1);
-    }
-
-    .slider-labels {
-        display: flex;
-        justify-content: space-between;
-        color: var(--text-secondary);
-        font-size: 0.85rem;
-    }
-
-    /* Input Styling */
-    .number-input {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .number-input input,
-    .select-input,
-    textarea {
-        background: var(--bg-input);
-        border: 2px solid var(--border-color);
+        padding: 10px;
         border-radius: 8px;
-        padding: 0.5rem 0.75rem;
-        color: var(--text-primary);
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #FFFFFF;
         font-size: 0.95rem;
-        transition: all 0.2s ease;
-        width: 100%;
     }
 
-    .number-input input {
-        width: 120px;
+    .input-with-suffix {
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
     .input-suffix {
-        color: var(--text-secondary);
-        font-size: 0.9rem;
-    }
-
-    textarea {
-        resize: vertical;
-        min-height: 80px;
-        font-family: inherit;
-    }
-
-    /* Toggle Switch */
-    .toggle-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .toggle-label {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        cursor: pointer;
-    }
-
-    .toggle-switch {
-        position: relative;
-        width: 44px;
-        height: 24px;
-    }
-
-    .toggle-switch input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-
-    .toggle-slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: var(--bg-button-secondary);
-        border-radius: 24px;
-        transition: 0.4s;
-    }
-
-    .toggle-slider:before {
-        content: "";
-        position: absolute;
-        height: 18px;
-        width: 18px;
-        left: 3px;
-        bottom: 3px;
-        background: var(--text-primary);
-        border-radius: 50%;
-        transition: 0.4s;
-    }
-
-    .toggle-switch input:checked + .toggle-slider {
-        background: var(--primary);
-    }
-
-    .toggle-switch input:checked + .toggle-slider:before {
-        transform: translateX(20px);
-        background: white;
-    }
-
-    /* Checkbox Styling */
-    .checkboxes {
-        margin-top: 0.5rem;
-    }
-
-    .checkbox-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-    }
-
-    .checkbox-label {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        cursor: pointer;
-    }
-
-    .checkbox-label input[type="checkbox"] {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 18px;
-        height: 18px;
-        border: 2px solid var(--border-color);
-        border-radius: 4px;
-        cursor: pointer;
-        display: grid;
-        place-content: center;
-    }
-
-    .checkbox-label input[type="checkbox"]:checked {
-        background: var(--primary);
-        border-color: var(--primary);
-    }
-
-    .checkbox-label input[type="checkbox"]:checked::before {
-        content: "✓";
-        color: white;
-        font-size: 12px;
-        font-weight: bold;
-    }
-
-    /* Action Buttons */
-    .actions-bar {
-        display: flex;
-        justify-content: flex-end;
-        gap: 1rem;
+        color: #b4b4d1;
+        font-size: 0.85rem;
     }
 
     .button {
-        padding: 0.75rem 1.5rem;
+        padding: 10px 20px;
         border-radius: 8px;
-        font-size: 0.95rem;
         font-weight: 500;
         cursor: pointer;
-        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
     }
 
-    .button.primary {
-        background: var(--primary);
-        color: white;
+    .button-primary {
+        background: #5865F2;
+        color: #FFFFFF;
+        border: none;
     }
 
-    .button.primary:hover {
-        background: var(--primary-hover);
-        transform: translateY(-1px);
+    .button-primary:hover {
+        background: #4752C4;
+        box-shadow: 0 0 15px rgba(88, 101, 242, 0.4);
     }
 
-    .button.secondary {
-        background: var(--bg-button-secondary);
-        color: var(--text-primary);
+    .button-icon {
+        font-size: 1.1rem;
     }
 
-    .button.secondary:hover {
-        background: var(--bg-button-secondary-hover);
-    }
-
-    /* Focus States */
-    input:focus,
-    select:focus,
-    textarea:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 2px var(--primary-shadow);
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 20px;
     }
 </style>
-{% endblock %}
-
-{% block scripts %}
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize temperature slider
-    const tempSlider = document.getElementById('temperature');
-    const tempValue = document.getElementById('tempValue');
-    
-    if (tempSlider && tempValue) {
-        tempSlider.addEventListener('input', () => {
-            tempValue.textContent = tempSlider.value;
-        });
-    }
-
-    // Store original values for change detection
-    document.querySelectorAll('input, select, textarea').forEach(input => {
-        input.dataset.originalValue = input.type === 'checkbox' ? input.checked : input.value;
-        
-        // Add change detection
-        input.addEventListener('input', () => {
-            const currentValue = input.type === 'checkbox' ? input.checked : input.value;
-            if (currentValue !== input.dataset.originalValue) {
-                window.saveBar?.show();
-            } else {
-                // Check if all inputs match their original values
-                const allUnchanged = Array.from(document.querySelectorAll('input, select, textarea'))
-                    .every(el => {
-                        const original = el.dataset.originalValue;
-                        const current = el.type === 'checkbox' ? el.checked : el.value;
-                        return original === String(current);
-                    });
-
-                if (allUnchanged) {
-                    window.saveBar?.hide();
-                }
-            }
-        });
-    });
-});
-
-async function saveSettings() {
-    try {
-        const formData = new FormData();
-        document.querySelectorAll('input, select, textarea').forEach(input => {
-            formData.append(input.name, input.type === 'checkbox' ? input.checked : input.value);
-        });
-
-        const response = await fetch('/api/settings/generation', {
-            method: 'POST',
-            body: formData
-        });
-
-        if (!response.ok) throw new Error('Failed to save settings');
-        
-        // Update original values after successful save
-        document.querySelectorAll('input, select, textarea').forEach(input => {
-            input.dataset.originalValue = input.type === 'checkbox' ? input.checked : input.value;
-        });
-
-        return true;
-    } catch (error) {
-        console.error('Error saving settings:', error);
-        return false;
-    }
-}
-
-async function resetDefaults() {
-    if (!confirm('Reset all generation settings to their defaults?')) return;
-
-    try {
-        const response = await fetch('/api/settings/generation/defaults');
-        if (response.ok) {
-            const defaults = await response.json();
-            
-            // Apply core defaults
-            document.getElementById('temperature').value = defaults.core.temperature;
-            document.getElementById('maxTokens').value = defaults.core.maxTokens;
-            document.getElementById('topP').value = defaults.core.topP;
-            temperatureValue.textContent = defaults.core.temperature;
-
-            // Apply context defaults
-            document.getElementById('contextWindow').value = defaults.context.contextWindow;
-            document.getElementById('continuousLearning').checked = defaults.context.continuousLearning;
-            document.getElementById('memoryPersistence').checked = defaults.context.memoryPersistence;
-
-            // Apply formatting defaults
-            document.getElementById('responseStyle').value = defaults.formatting.responseStyle;
-            document.getElementById('useEmoji').checked = defaults.formatting.useEmoji;
-            document.getElementById('useFormatting').checked = defaults.formatting.useFormatting;
-
-            // Apply stop sequences
-            document.getElementById('stopSequences').value = defaults.stopSequences.join('\n');
-
-            showToast('Settings reset to defaults');
-        } else {
-            throw new Error('Failed to reset settings');
-        }
-    } catch (error) {
-        showToast('Error resetting settings', 'error');
-    }
-}
-
-function showToast(message, type = 'success') {
-    // Implementation depends on your toast notification system
-    alert(message);
-}
-</script>
 {% endblock %}

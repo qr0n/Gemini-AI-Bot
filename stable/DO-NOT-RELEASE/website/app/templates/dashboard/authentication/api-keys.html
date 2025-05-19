@@ -7,112 +7,53 @@
 <div class="page-content">
     <div class="page-header">
         <p class="page-description">Configure and manage API keys for various AI services used by your bot.</p>
-    </div>
-
-    <div class="settings-group">
-        <div class="settings-card">
-            <h2 class="card-title">🤖 AI Service Keys</h2>
-                        
-            <form class="settings-form">
+    </div>    <form id="api-keys-form" class="settings-form" action="/dashboard/{{nugget_alias}}/api-keys">
+        <div class="settings-group">
+            <div class="settings-card">
+                <h2 class="card-title">🤖 AI Service Keys</h2>
+                
                 <div class="form-group">
-                    <label for="openai_api_key">OpenAI API Key</label>
+                    <label for="gemini_api_key">Google Gemini API Key</label>
                     <div class="input-with-button">
-                        <input type="password" id="openai_api_key" name="openai_api_key" class="input" placeholder="sk-...">
+                        <input type="password" id="gemini_api_key" name="gemini_api_key" class="input" value="{{ request.args.get('gemini_api_key', '') }}">
                         <button type="button" class="button button-icon toggle-visibility" aria-label="Toggle visibility">
                             <i class="fas fa-eye"></i>
                         </button>
                     </div>
-                    <div class="input-description">Your OpenAI API key for GPT models</div>
+                    <div class="input-description">Your Gemini key for Gemini models</div>
                 </div>
 
                 <div class="form-group">
-                    <label for="anthropic_api_key">Anthropic API Key</label>
+                    <label for="elevenlabs_api_key">ElevenLabs API Key</label>
                     <div class="input-with-button">
-                        <input type="password" id="anthropic_api_key" name="anthropic_api_key" class="input" placeholder="sk-ant-...">
+                        <input type="password" id="elevenlabs_api_key" name="elevenlabs_api_key" class="input" value="{{ request.args.get('elevenlabs_api_key', '') }}">
                         <button type="button" class="button button-icon toggle-visibility" aria-label="Toggle visibility">
                             <i class="fas fa-eye"></i>
                         </button>
                     </div>
-                    <div class="input-description">Your Anthropic API key for Claude models</div>
+                    <div class="input-description">Your ElevenLabs API key for voice models</div>
                 </div>
 
                 <div class="form-group">
-                    <label for="gemini_api_key">Google AI API Key</label>
+                    <label for="discord_token">Discord Bot Token</label>
                     <div class="input-with-button">
-                        <input type="password" id="gemini_api_key" name="gemini_api_key" class="input" placeholder="AIza...">
+                        <input type="password" id="discord_token" name="discord_token" class="input" value="{{ request.args.get('discord_token', '') }}">
                         <button type="button" class="button button-icon toggle-visibility" aria-label="Toggle visibility">
                             <i class="fas fa-eye"></i>
                         </button>
                     </div>
-                    <div class="input-description">Your Google AI API key for Gemini models</div>
+                    <div class="input-description">Your Discord bot token</div>
                 </div>
-            </form>
-        </div>        <div class="settings-card">
-            <h2 class="card-title">📊 API Usage</h2>
-            <p class="text-description">Monitor and configure API usage limits</p>
-
-            <form class="settings-form">
-                <div class="form-group">
-                    <label for="monthly_budget">Monthly Budget (USD)</label>
-                    <input type="number" id="monthly_budget" name="monthly_budget" class="input" value="50" min="0" max="1000">
-                    <div class="input-description">Maximum monthly spending on API calls</div>
-                </div>
-
-                <div class="form-group">
-                    <label for="request_limit">Request Limit (per hour)</label>
-                    <input type="number" id="request_limit" name="request_limit" class="input" value="100" min="1" max="1000">
-                    <div class="input-description">Maximum number of API requests per hour</div>
-                </div>
-
-                <div class="form-group">
-                    <label for="enable_quota_alerts" class="switch-label">
-                        <div class="switch-label-text">Enable Usage Alerts</div>
-                        <div class="switch">
-                            <input type="checkbox" id="enable_quota_alerts" name="enable_quota_alerts" checked>
-                            <span class="slider"></span>
-                        </div>
-                    </label>
-                    <div class="input-description">Get notifications when nearing usage limits</div>
-                </div>
-            </form>
-        </div>        <div class="settings-card">
-            <h2 class="card-title">🔒 API Access Control</h2>
-            <p class="text-description">Configure API access and security settings</p>
-
-            <form class="settings-form">
-                <div class="form-group">
-                    <label for="allowed_origins">Allowed Origins</label>
-                    <textarea id="allowed_origins" name="allowed_origins" class="input" rows="3" placeholder="Enter one domain per line"></textarea>
-                    <div class="input-description">Domains allowed to make API requests</div>
-                </div>
-
-                <div class="form-group">
-                    <label for="rate_limit">Rate Limit (requests/minute)</label>
-                    <input type="number" id="rate_limit" name="rate_limit" class="input" value="60" min="1" max="1000">
-                    <div class="input-description">Maximum requests per minute per client</div>
-                </div>
-
-                <div class="form-group">
-                    <label for="require_authentication" class="switch-label">
-                        <div class="switch-label-text">Require Authentication</div>
-                        <div class="switch">
-                            <input type="checkbox" id="require_authentication" name="require_authentication" checked>
-                            <span class="slider"></span>
-                        </div>
-                    </label>
-                    <div class="input-description">Require API key authentication for all requests</div>
-                </div>
-            </form>
+            </div>
         </div>
-    </div>
-</div>
 
-<div class="form-actions">
-    <button type="button" class="button button-secondary">Reset to Defaults</button>
-    <button type="button" class="button button-primary">
-        <span>💾</span>
-        Save Changes
-    </button>
+        <div class="form-actions">
+            <button type="submit" class="button button-primary">
+                <span class="button-icon">💾</span>
+                Save Changes
+            </button>
+        </div>
+    </form>
 </div>
 {% endblock %}
 
@@ -133,87 +74,51 @@ document.querySelectorAll('.toggle-visibility').forEach(button => {
     });
 });
 
-// Save changes
-document.querySelector('.primary-button').addEventListener('click', async () => {
-    const formData = {};
-    document.querySelectorAll('.settings-form input, .settings-form textarea').forEach(input => {
-        formData[input.name] = input.type === 'checkbox' ? input.checked :
-                              input.type === 'number' ? Number(input.value) :
-                              input.value;
-    });
+document.getElementById('api-keys-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
     
+    // Get form data and convert to URL parameters
+    const formData = new FormData(e.target);
+    const params = new URLSearchParams();
+    for (const [key, value] of formData.entries()) {
+        if (value) params.append(key, value);
+    }
+    
+    // Construct URL with parameters
+    const baseUrl = '/dashboard/auth/api-keys/save';
+    const url = `${baseUrl}?${params.toString()}`;
+    
+    // Update the browser's URL to include the parameters
+    window.history.pushState({}, '', url);
+    
+    // Submit the form
     try {
-        const response = await fetch('/api/settings/api-keys', {
+        const response = await fetch(url, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(formData)
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(Object.fromEntries(formData))
         });
-        
+
         if (response.ok) {
-            showToast('Settings saved successfully');
+            alert('API keys saved successfully!');
         } else {
-            throw new Error('Failed to save settings');
+            throw new Error('Failed to save API keys');
         }
     } catch (error) {
-        showToast('Error saving settings', 'error');
+        console.error('Error saving API keys:', error);
+        alert('Error saving API keys. Please try again.');
     }
 });
 
-// Reset to defaults
-document.querySelector('.secondary-button').addEventListener('click', async () => {
-    if (confirm('Are you sure you want to reset all API settings to their defaults?')) {
-        try {
-            const response = await fetch('/api/settings/api-keys/reset', {
-                method: 'POST'
-            });
-            
-            if (response.ok) {
-                const defaults = await response.json();
-                Object.entries(defaults).forEach(([key, value]) => {
-                    const input = document.querySelector(`[name="${key}"]`);
-                    if (input) {
-                        if (input.type === 'checkbox') {
-                            input.checked = value;
-                        } else {
-                            input.value = value;
-                        }
-                    }
-                });
-                showToast('Settings reset to defaults');
-            } else {
-                throw new Error('Failed to reset settings');
-            }
-        } catch (error) {
-            showToast('Error resetting settings', 'error');
-        }
+// Load values from URL parameters on page load
+document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    for (const [key, value] of params) {
+        const input = document.querySelector(`input[name="${key}"]`);
+        if (input) input.value = value;
     }
-});
-
-// Validate API keys as they're entered
-document.querySelectorAll('input[type="password"]').forEach(input => {
-    input.addEventListener('blur', async () => {
-        if (!input.value) return;
-        
-        try {
-            const response = await fetch('/api/validate-key', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    key: input.value,
-                    service: input.name.replace('_api_key', '')
-                })
-            });
-            
-            if (!response.ok) {
-                input.classList.add('error');
-                showToast(`Invalid API key for ${input.name.replace('_api_key', '')}`, 'error');
-            } else {
-                input.classList.remove('error');
-            }
-        } catch (error) {
-            showToast('Error validating API key', 'error');
-        }
-    });
 });
 </script>
 {% endblock %}

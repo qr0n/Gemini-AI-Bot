@@ -1,8 +1,8 @@
 [
     {
-        "name": "test",
-        "discord_id": "123",
-        "avatar_url": "",
-        "alias": "b40a1a45-fdb3-4b9d-a16f-50de7851bfcb"
+        "name": "test_bot",
+        "discord_id": "000012344",
+        "avatar_url": "https://cdn.discordapp.com/avatars/578789460141932555/7c7738cf8a1584294cd24f11bbce6422.png",
+        "alias": "39c12d1b-e05c-4a5e-a38c-1d06d3f751ff"
     }
 ]
