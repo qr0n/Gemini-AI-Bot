@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "components/save-button.html" import save_button %}
 
 {% block title %}AI Model Settings - Nugget Tech{% endblock %}
 
@@ -19,8 +20,10 @@
                     <label for="aiModel">AI Model</label>
                     <div class="input-description">Select which AI model to use for your bot</div>
                     <select class="input select" id="aiModel" name="aiModel">
-                        <option value="gemini-2.0-flash">gemini-2.0-flash</option>
-                    </select>
+    {% for model in models %}
+        <option value="{{ model }}">{{ model }}</option>
+    {% endfor %}
+</select>
                 </div>
 
                 <div class="form-group">
@@ -36,10 +39,7 @@
         </div>
 
         <div class="form-actions">
-            <button type="submit" class="button button-primary">
-                <span class="button-icon">💾</span>
-                Save Changes
-            </button>
+            {{ save_button() }}
         </div>
     </form>
 </div>
@@ -124,6 +124,12 @@
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23b4b4d1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
         background-repeat: no-repeat;
         background-position: right 15px center;
+    }
+
+    .input.select option {
+        background-color: #1e1e2f; /* Match your site's dark background */
+        color: #ffffff; /* Text color */
+        border: 1px solid #444; /* Optional: to match your theme */
     }
 
     .input.number {

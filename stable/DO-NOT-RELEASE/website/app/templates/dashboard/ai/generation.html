@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "components/save-button.html" import save_button %}
 
 {% block title %}Generation Settings - Nugget Tech{% endblock %}
 
@@ -72,10 +73,7 @@
         </div>
 
         <div class="form-actions">
-            <button type="submit" class="button button-primary">
-                <span class="button-icon">💾</span>
-                Save Changes
-            </button>
+            {{ save_button() }}
         </div>
     </form>
 </div>
@@ -182,4 +180,5 @@
         margin-top: 20px;
     }
 </style>
+{% endblock extra_css %}
 {% endblock %}

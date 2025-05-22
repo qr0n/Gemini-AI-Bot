@@ -47,6 +47,13 @@ def save_personality(nugget):
         return jsonify({"error": str(e)}), 500
 
 
+@api_bp.route("/<nugget>/config", methods=["GET"])
+@Helpers.requires_auth
+def configure_bot(nugget):
+    # This function is only meant to pull config data for this bot
+    return Helpers.get_config(nugget)
+
+
 @api_bp.route("/bots", methods=["POST"])
 @Helpers.requires_auth
 def add_bot():
@@ -61,18 +68,12 @@ def add_bot():
         success, alias = Helpers.save_nugget(bot_data)
         if success:
             # Create empty personality file
-            json_path = PERSONALITY_DATA_DIR / f"{data['bot_name']}.json"
+            json_path = PERSONALITY_DATA_DIR / f"{alias}.json"
             with open(json_path, "w") as f:
                 json.dump(
                     {
                         "bot_name": data["bot_name"],
                         "alias": alias,
-                        "name": "",
-                        "age": "",
-                        "role": "",
-                        "description": "",
-                        "likes": "",
-                        "dislikes": "",
                         "last_updated": datetime.datetime.now().isoformat(),
                     },
                     f,

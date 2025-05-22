@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "components/save-button.html" import save_button %}
 
 {% block title %}Messages Configuration - Nugget Tech{% endblock %}
 {% block page_title %}💬 Messages Configuration{% endblock %}
@@ -39,6 +40,7 @@
                     </label>
                     <div class="input-description">Allow messages to use Markdown for rich text formatting</div>
                 </div>
+                {{ save_button() }}
             </form>
         </div>
 

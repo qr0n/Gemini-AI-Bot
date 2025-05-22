@@ -1,9 +1,15 @@
-from flask import render_template, redirect, url_for, request
+from flask import render_template, request
 from . import dashboard_bp
 from ...extensions import Helpers
 import logging
+from google import genai
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 logger = logging.getLogger(__name__)
+client = genai.Client(api_key=os.getenv("API_KEY"))  # TODO: UNIFY IN .env
 
 
 # Main routes
@@ -98,6 +104,26 @@ def knowledge(nugget):
 @Helpers.requires_auth
 def ai_filters(nugget):
     user_data = Helpers.get_user_data()
+    if any(
+        item in request.args
+        for item in [
+            "filterSexuallyExplicit",
+            "filterHarassment",
+            "filterDangerous",
+            "filterHateSpeech",
+            "filterUnspecified",
+        ]
+    ):  # this checks to see if any of the items that can change have changed, if so we need to check to see which one of these is none
+        # then we need to check to see if any of these items have a corresponding value in a databank, if they do and the request argument is none
+        # then we can safely ignore it and retain the original item
+        print("Checking to see which item is not none")
+        for item in request.args:
+            if request.args.get(item) == "":
+                print(f"{item} is none")
+                # TODO: send this to the back back end to determine if a value exists for this key, if it does then ignore it
+                # if it doesnt then dont change it until a new, present value is input
+            Helpers.save_config(nugget, config=request.args.to_dict())
+
     return render_template(
         "dashboard/ai/filters.html",
         nugget_alias=nugget,
@@ -110,6 +136,26 @@ def ai_filters(nugget):
 @Helpers.requires_auth
 def ai_generation(nugget):
     user_data = Helpers.get_user_data()
+    if any(
+        item in request.args
+        for item in [
+            "temperature",
+            "topP",
+            "topK",
+            "memoryWindow",
+            "contextWindow",
+        ]
+    ):  # this checks to see if any of the items that can change have changed, if so we need to check to see which one of these is none
+        # then we need to check to see if any of these items have a corresponding value in a databank, if they do and the request argument is none
+        # then we can safely ignore it and retain the original item
+        print("Checking to see which item is not none")
+        for item in request.args:
+            if request.args.get(item) == "":
+                print(f"{item} is none")
+                # TODO: send this to the back back end to determine if a value exists for this key, if it does then ignore it
+                # if it doesnt then dont change it until a new, present value is input
+            Helpers.save_config(nugget, config=request.args.to_dict())
+
     return render_template(
         "dashboard/ai/generation.html",
         nugget_alias=nugget,
@@ -121,11 +167,29 @@ def ai_generation(nugget):
 @dashboard_bp.route("/<nugget>/ai/model")
 @Helpers.requires_auth
 def ai_model(nugget):
+    if any(
+        item in request.args for item in ["aiModel", "maxContext"]
+    ):  # this checks to see if any of the items that can change have changed, if so we need to check to see which one of these is none
+        # then we need to check to see if any of these items have a corresponding value in a databank, if they do and the request argument is none
+        # then we can safely ignore it and retain the original item
+        print("Checking to see which item is not none")
+        for item in request.args:
+            if request.args.get(item) == "":
+                print(f"{item} is none")
+                # TODO: send this to the back back end to determine if a value exists for this key, if it does then ignore it
+                # if it doesnt then dont change it until a new, present value is input
+            Helpers.save_config(nugget, config=request.args.to_dict())
+
     user_data = Helpers.get_user_data()
     return render_template(
         "dashboard/ai/model.html",
         nugget_alias=nugget,
         username=user_data["username"],
+        models=[
+            m.name
+            for m in client.models.list()
+            if "generateContent" in m.supported_actions
+        ],
         avatar_url=f"https://cdn.discordapp.com/avatars/{user_data['id']}/{user_data['avatar']}.png",
     )
 
@@ -133,6 +197,7 @@ def ai_model(nugget):
 @dashboard_bp.route("/<nugget>/ai/prompting")
 @Helpers.requires_auth
 def prompting(nugget):
+
     user_data = Helpers.get_user_data()
     return render_template(
         "dashboard/ai/prompting.html",
@@ -146,6 +211,25 @@ def prompting(nugget):
 @Helpers.requires_auth
 def ai_messages(nugget):
     user_data = Helpers.get_user_data()
+    if any(
+        item in request.args
+        for item in [
+            "wack_message",
+            "wack_error",
+            "error_message",
+            "activate_message",
+            "deactivate_message",
+        ]
+    ):  # this checks to see if any of the items that can change have changed, if so we need to check to see which one of these is none
+        # then we need to check to see if any of these items have a corresponding value in a databank, if they do and the request argument is none
+        # then we can safely ignore it and retain the original item
+        print("Checking to see which item is not none")
+        for item in request.args:
+            if request.args.get(item) == "":
+                print(f"{item} is none")
+                # TODO: send this to the back back end to determine if a value exists for this key, if it does then ignore it
+                # if it doesnt then dont change it until a new, present value is input
+            Helpers.save_config(nugget, config=request.args.to_dict())
     return render_template(
         "dashboard/ai/messages.html",
         nugget_alias=nugget,
@@ -159,6 +243,19 @@ def ai_messages(nugget):
 @Helpers.requires_auth
 def personality_traits(nugget):
     user_data = Helpers.get_user_data()
+    if any(
+        item in request.args
+        for item in ["name", "age", "role", "description", "likes", "dislikes"]
+    ):  # this checks to see if any of the items that can change have changed, if so we need to check to see which one of these is none
+        # then we need to check to see if any of these items have a corresponding value in a databank, if they do and the request argument is none
+        # then we can safely ignore it and retain the original item
+        print("Checking to see which item is not none")
+        for item in request.args:
+            if request.args.get(item) == "":
+                print(f"{item} is none")
+                # TODO: send this to the back back end to determine if a value exists for this key, if it does then ignore it
+                # if it doesnt then dont change it until a new, present value is input
+            Helpers.save_personality(nugget, personality=request.args.to_dict())
     return render_template(
         "dashboard/personality/traits.html",
         nugget_alias=nugget,
@@ -171,6 +268,18 @@ def personality_traits(nugget):
 @Helpers.requires_auth
 def personality_prompting(nugget):
     user_data = Helpers.get_user_data()
+    if any(
+        item in request.args for item in ["systemNote", "examples"]
+    ):  # this checks to see if any of the items that can change have changed, if so we need to check to see which one of these is none
+        # then we need to check to see if any of these items have a corresponding value in a databank, if they do and the request argument is none
+        # then we can safely ignore it and retain the original item
+        print("Checking to see which item is not none")
+        for item in request.args:
+            if request.args.get(item) == "":
+                print(f"{item} is none")
+                # TODO: send this to the back back end to determine if a value exists for this key, if it does then ignore it
+                # if it doesnt then dont change it until a new, present value is input
+            Helpers.save_personality(nugget, personality=request.args.to_dict())
     return render_template(
         "dashboard/personality/prompting.html",
         nugget_alias=nugget,
@@ -183,6 +292,26 @@ def personality_prompting(nugget):
 @Helpers.requires_auth
 def personality_autonomy(nugget):
     user_data = Helpers.get_user_data()
+    if any(
+        item in request.args
+        for item in [
+            "deepContext",
+            "freewill",
+            "textFrequency",
+            "keywordChance",
+            "keywords",
+        ]
+    ):  # this checks to see if any of the items that can change have changed, if so we need to check to see which one of these is none
+        # then we need to check to see if any of these items have a corresponding value in a databank, if they do and the request argument is none
+        # then we can safely ignore it and retain the original item
+        print("Checking to see which item is not none")
+        for item in request.args:
+            if request.args.get(item) == "":
+                print(f"{item} is none")
+                # TODO: send this to the back back end to determine if a value exists for this key, if it does then ignore it
+                # if it doesnt then dont change it until a new, present value is input
+        print(request.args.get("deepContext"))
+        Helpers.save_config(nugget, config=request.args.to_dict())
     return render_template(
         "dashboard/personality/autonomy.html",
         nugget_alias=nugget,
@@ -220,6 +349,22 @@ def features_files(nugget):
 @Helpers.requires_auth
 def features_voice(nugget):
     user_data = Helpers.get_user_data()
+    if any(
+        item in request.args
+        for item in [
+            "vociceModel",
+            "recording-time",
+        ]
+    ):  # this checks to see if any of the items that can change have changed, if so we need to check to see which one of these is none
+        # then we need to check to see if any of these items have a corresponding value in a databank, if they do and the request argument is none
+        # then we can safely ignore it and retain the original item
+        print("Checking to see which item is not none")
+        for item in request.args:
+            if request.args.get(item) == "":
+                print(f"{item} is none")
+                # TODO: send this to the back back end to determine if a value exists for this key, if it does then ignore it
+                # if it doesnt then dont change it until a new, present value is input
+            Helpers.save_config(nugget, config=request.args.to_dict())
     return render_template(
         "dashboard/features/voice.html",
         nugget_alias=nugget,
@@ -231,14 +376,23 @@ def features_voice(nugget):
 @dashboard_bp.route("/<nugget>/api-keys", methods=["GET", "POST"])
 @Helpers.requires_auth
 def api_keys(nugget):
-    if request.method == "GET":
-        user_data = Helpers.get_user_data()
-        return render_template(
-            "dashboard/authentication/api-keys.html",
-            nugget_alias=nugget,
-            username=user_data["username"],
-            avatar_url=f"https://cdn.discordapp.com/avatars/{user_data['id']}/{user_data['avatar']}.png",
-        )
-    if request.method == "POST":
-        print(request.args)
-        return "hello"
+    user_data = Helpers.get_user_data()
+    if any(
+        item in request.args
+        for item in ["gemini_api_key", "elevenlabs_api_key", "discord_token"]
+    ):  # this checks to see if any of the items that can change have changed, if so we need to check to see which one of these is none
+        # then we need to check to see if any of these items have a corresponding value in a databank, if they do and the request argument is none
+        # then we can safely ignore it and retain the original item
+        print("Checking to see which item is not none")
+        for item in request.args:
+            if request.args.get(item) == "":
+                print(f"{item} is none")
+
+            Helpers.save_config(nugget, config=request.args.to_dict())
+
+    return render_template(
+        "dashboard/authentication/api-keys.html",
+        nugget_alias=nugget,
+        username=user_data["username"],
+        avatar_url=f"https://cdn.discordapp.com/avatars/{user_data['id']}/{user_data['avatar']}.png",
+    )
