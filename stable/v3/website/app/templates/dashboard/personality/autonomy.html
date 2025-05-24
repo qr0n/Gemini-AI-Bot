@@ -1,0 +1,259 @@
+{% from "components/save-button.html" import save_button %}
+
+{% extends "base.html" %}
+
+{% block title %}Autonomy Settings - Nugget Tech{% endblock %}
+
+{% block page_title %}🤖 Autonomy Settings{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="page-header">
+        <p class="page-description">Configure your bot's autonomous behavior and interaction patterns.</p>
+    </div>
+
+    <form class="settings-form" id="autonomySettingsForm">
+        <div class="settings-group">
+            <div class="settings-card">
+                <h2 class="card-title">Agentic Features</h2>
+                
+                <div class="form-group">
+                    <label for="deepContext" class="switch-label">
+                        <div class="switch-label-text">Deep Context</div>
+                        <div class="switch">
+                            <input type="checkbox" id="deepContext" name="deepContext">
+                            <span class="slider"></span>
+                        </div>
+                    </label>
+                    <div class="input-description">Allows nuggets to gather a deeper understanding of conversations</div>
+                </div>
+            </div>
+
+            <div class="settings-card">
+                <div class="form-group">
+                    <label for="freewill" class="switch-label">
+                        <div class="switch-label-text">Freewill</div>
+                        <div class="switch">
+                            <input type="checkbox" id="freewill" name="freewill">
+                            <span class="slider"></span>
+                        </div>
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label for="textFrequency">Text Frequency</label>
+                    <div class="input-with-suffix">
+                        <input type="number" class="input number" id="textFrequency" name="textFrequency" 
+                               value="5" min="0" max="100" step="1">
+                        <span class="input-suffix">%</span>
+                    </div>
+                    <div class="input-description">This determines the random rate at which nugget will pop into chats</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="keywordChance">Keyword Added Chance</label>
+                    <div class="input-with-suffix">
+                        <input type="number" class="input number" id="keywordChance" name="keywordChance" 
+                               value="10" min="0" max="100" step="1">
+                        <span class="input-suffix">%</span>
+                    </div>
+                    <div class="input-description">The chance increase modifier for when a keyword is detected in a message</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="keywords">Keywords</label>
+                    <textarea class="input textarea" id="keywords" name="keywords" rows="4"
+                              placeholder="Enter keywords separated by commas..."></textarea>
+                    <div class="input-description">Keywords that trigger increased interaction chance</div>
+                </div>
+            </div>
+        </div>
+
+        {{ save_button() }}
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-content {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .settings-group {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .settings-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .card-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        background: linear-gradient(45deg, #fff, #7289da);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .card-header .card-title {
+        margin-bottom: 0;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 5px;
+        color: #FFFFFF;
+    }
+
+    .input-description {
+        font-size: 0.85rem;
+        color: #8e8ea0;
+        margin-bottom: 8px;
+    }
+
+    .input {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #FFFFFF;
+        font-size: 0.95rem;
+    }
+
+    .input.textarea {
+        min-height: 100px;
+        resize: vertical;
+        font-family: 'Inter', sans-serif;
+        line-height: 1.5;
+    }
+
+    .input-with-suffix {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .input-suffix {
+        color: #b4b4d1;
+        font-size: 0.85rem;
+    }
+
+    /* Switch styling */
+    .switch-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .switch-label-text {
+        font-weight: 500;
+        color: #FFFFFF;
+    }
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 48px;
+        height: 24px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(255, 255, 255, 0.1);
+        transition: 0.4s;
+        border-radius: 24px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: #fff;
+        transition: 0.4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider {
+        background-color: #5865F2;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(24px);
+    }
+
+    .button {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+
+    .button-primary {
+        background: #5865F2;
+        color: #FFFFFF;
+        border: none;
+    }
+
+    .button-primary:hover {
+        background: #4752C4;
+        box-shadow: 0 0 15px rgba(88, 101, 242, 0.4);
+    }
+
+    .button-icon {
+        font-size: 1.1rem;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 20px;
+    }
+
+    .freewill-switch {
+        margin-left: 15px;
+    }
+</style>
+{% endblock %}

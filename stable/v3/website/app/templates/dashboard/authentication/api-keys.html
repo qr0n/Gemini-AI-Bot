@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% from "components/save-button.html" import save_button %}
+
+{% block title %}API Keys - Nugget Tech{% endblock %}
+{% block page_title %}🔑 API Keys{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="page-header">
+        <p class="page-description">Configure and manage API keys for various AI services used by your bot.</p>
+    </div>
+    
+    <form id="api-keys-form" class="settings-form">
+        <div class="settings-group">
+            <div class="settings-card">
+                <h2 class="card-title">AI Service Keys</h2>
+                
+                <div class="form-group">
+                    <label for="gemini_api_key">Google Gemini API Key</label>
+                    <div class="input-with-button">
+                        <input type="password" id="gemini_api_key" name="gemini_api_key" class="input" value="{{ request.args.get('gemini_api_key', '') }}">
+                        <button type="button" class="button button-icon toggle-visibility" aria-label="Toggle visibility">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="input-description">Your Gemini key for Gemini models</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="elevenlabs_api_key">ElevenLabs API Key</label>
+                    <div class="input-with-button">
+                        <input type="password" id="elevenlabs_api_key" name="elevenlabs_api_key" class="input" value="{{ request.args.get('elevenlabs_api_key', '') }}">
+                        <button type="button" class="button button-icon toggle-visibility" aria-label="Toggle visibility">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="input-description">Your ElevenLabs API key for voice models</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="discord_token">Discord Bot Token</label>
+                    <div class="input-with-button">
+                        <input type="password" id="discord_token" name="discord_token" class="input" value="{{ request.args.get('discord_token', '') }}">
+                        <button type="button" class="button button-icon toggle-visibility" aria-label="Toggle visibility">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="input-description">Your Discord bot token</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            {{ save_button() }}
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-content {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .settings-group {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .settings-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .card-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        background: linear-gradient(45deg, #fff, #7289da);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 5px;
+        color: #FFFFFF;
+    }
+
+    .input-description {
+        font-size: 0.85rem;
+        color: #8e8ea0;
+        margin-bottom: 8px;
+    }
+
+    .input {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #FFFFFF;
+        font-size: 0.95rem;
+    }
+
+    .input-with-button {
+        display: flex;
+        gap: 10px;
+    }
+
+    .button {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+
+    .button-primary {
+        background: #5865F2;
+        color: #FFFFFF;
+        border: none;
+    }
+
+    .button-icon {
+        padding: 10px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #FFFFFF;
+    }
+
+    .button-primary:hover {
+        background: #4752C4;
+        box-shadow: 0 0 15px rgba(88, 101, 242, 0.4);
+    }
+
+    .button-icon:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+// Toggle password visibility
+document.querySelectorAll('.toggle-visibility').forEach(button => {
+    button.addEventListener('click', () => {
+        const input = button.parentElement.querySelector('input');
+        const icon = button.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    });
+});
+
+document.getElementById('api-keys-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Get form data and convert to URL parameters
+    const formData = new FormData(e.target);
+    const params = new URLSearchParams();
+    for (const [key, value] of formData.entries()) {
+        if (value) params.append(key, value);
+    }
+    
+    // Construct URL with parameters
+    const baseUrl = '/dashboard/auth/api-keys/save';
+    const url = `${baseUrl}?${params.toString()}`;
+    
+    // Update the browser's URL to include the parameters
+    window.history.pushState({}, '', url);
+    
+    // Submit the form
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(Object.fromEntries(formData))
+        });
+
+        if (response.ok) {
+            alert('API keys saved successfully!');
+        } else {
+            throw new Error('Failed to save API keys');
+        }
+    } catch (error) {
+        console.error('Error saving API keys:', error);
+        alert('Error saving API keys. Please try again.');
+    }
+});
+
+// Load values from URL parameters on page load
+document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    for (const [key, value] of params) {
+        const input = document.querySelector(`input[name="${key}"]`);
+        if (input) input.value = value;
+    }
+});
+{% endblock %}

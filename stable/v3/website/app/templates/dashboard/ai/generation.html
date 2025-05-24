@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% from "components/save-button.html" import save_button %}
+
+{% block title %}Generation Settings - Nugget Tech{% endblock %}
+
+{% block page_title %}⚙️ Generation Settings{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="page-header">
+        <p class="page-description">Configure the generation parameters that control how your bot generates responses.</p>
+    </div>
+
+    <form class="settings-form" id="generationSettingsForm">
+        <div class="settings-group">
+            <div class="settings-card">
+                <h2 class="card-title">Generation Config</h2>
+                
+                <div class="form-group">
+                    <label for="temperature">Temperature</label>
+                    <div class="input-description">Controls randomness in responses. Higher values make output more creative but less focused.</div>
+                    <div class="input-with-suffix">
+                        <input type="number" class="input number" id="temperature" name="temperature" 
+                               value="0.7" min="0" max="2" step="0.1">
+                        <span class="input-suffix">0-2</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="topP">Top P</label>
+                    <div class="input-description">Nucleus sampling threshold. Lower values make output more focused.</div>
+                    <div class="input-with-suffix">
+                        <input type="number" class="input number" id="topP" name="topP" 
+                               value="0.95" min="0" max="1" step="0.01">
+                        <span class="input-suffix">0-1</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="topK">Top K</label>
+                    <div class="input-description">Limits vocabulary to top K tokens. Lower values make output more predictable.</div>
+                    <div class="input-with-suffix">
+                        <input type="number" class="input number" id="topK" name="topK" 
+                               value="40" min="1" max="100">
+                        <span class="input-suffix">tokens</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-card">
+                <h2 class="card-title">Context and Memory</h2>
+                
+                <div class="form-group">
+                    <label for="memoryWindow">Memory Window</label>
+                    <div class="input-description">Number of past conversations to keep in long-term memory</div>
+                    <div class="input-with-suffix">
+                        <input type="number" class="input number" id="memoryWindow" name="memoryWindow" 
+                               value="50" min="1" max="1000">
+                        <span class="input-suffix">messages</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="contextWindow">Context Window</label>
+                    <div class="input-description">Number of tokens to include in immediate conversation context</div>
+                    <div class="input-with-suffix">
+                        <input type="number" class="input number" id="contextWindow" name="contextWindow" 
+                               value="8192" min="1" max="32768">
+                        <span class="input-suffix">tokens</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            {{ save_button() }}
+        </div>
+    </form>
+</div>
+
+{% block extra_css %}
+<style>
+    .page-content {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .settings-group {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .settings-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .card-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        background: linear-gradient(45deg, #fff, #7289da);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 5px;
+        color: #FFFFFF;
+    }
+
+    .input-description {
+        font-size: 0.85rem;
+        color: #8e8ea0;
+        margin-bottom: 8px;
+    }
+
+    .input {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #FFFFFF;
+        font-size: 0.95rem;
+    }
+
+    .input-with-suffix {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .input-suffix {
+        color: #b4b4d1;
+        font-size: 0.85rem;
+    }
+
+    .button {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+
+    .button-primary {
+        background: #5865F2;
+        color: #FFFFFF;
+        border: none;
+    }
+
+    .button-primary:hover {
+        background: #4752C4;
+        box-shadow: 0 0 15px rgba(88, 101, 242, 0.4);
+    }
+
+    .button-icon {
+        font-size: 1.1rem;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 20px;
+    }
+</style>
+{% endblock extra_css %}
+{% endblock %}

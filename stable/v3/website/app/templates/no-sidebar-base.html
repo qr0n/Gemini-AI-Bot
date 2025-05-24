@@ -4,16 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Nugget Tech{% endblock %}</title>    
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/no-sidebar-style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     {% block extra_css %}{% endblock %}
 </head>
-<body>    
-    {% from "components/sidebar.html" import sidebar %}
-    {% block sidebar_block %}
-        {{ sidebar(nugget_alias) }}
-    {% endblock %}
+<body>
 
     <div class="top-nav">
         <h1 class="page-title">{% block page_title %}{% endblock %}</h1>

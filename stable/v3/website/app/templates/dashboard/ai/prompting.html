@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+{% from "components/save-button.html" import save_button %}
+
+{% block title %}Prompting Configuration - Nugget Tech{% endblock %}
+
+{% block page_title %}💭 Prompting Configuration{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="page-header">
+        <p class="page-description">Configure how your bot understands and responds to prompts, including personality, tone, and response style.</p>
+    </div>
+
+    <form class="settings-form" id="promptingSettingsForm">
+        <div class="settings-group">
+            <div class="settings-card">
+                <h2 class="card-title">Personality & Tone</h2>
+                
+                <div class="form-group">
+                    <label for="personality">Base Personality</label>
+                    <div class="input-description">Define the core personality traits of your bot</div>
+                    <select class="input select" id="personality" name="personality">
+                        <option value="friendly">Friendly & Helpful</option>
+                        <option value="professional">Professional & Formal</option>
+                        <option value="casual">Casual & Relaxed</option>
+                        <option value="witty">Witty & Humorous</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="responseStyle">Response Style</label>
+                    <div class="input-description">How your bot should structure and present its responses</div>
+                    <select class="input select" id="responseStyle" name="responseStyle">
+                        <option value="concise">Concise & Direct</option>
+                        <option value="detailed">Detailed & Thorough</option>
+                        <option value="conversational">Conversational</option>
+                        <option value="analytical">Analytical</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="settings-card">
+                <h2 class="card-title">Custom Instructions</h2>
+                
+                <div class="form-group">
+                    <label for="systemPrompt">System Prompt</label>
+                    <div class="input-description">Base instructions that define your bot's behavior and capabilities</div>
+                    <textarea class="input textarea" id="systemPrompt" name="systemPrompt" rows="4" 
+                              placeholder="You are a helpful AI assistant..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="customInstructions">Additional Instructions</label>
+                    <div class="input-description">Specific guidelines or rules for your bot to follow</div>
+                    <textarea class="input textarea" id="customInstructions" name="customInstructions" rows="4"
+                              placeholder="Always respond in a way that..."></textarea>
+                </div>
+            </div>
+
+            <div class="settings-card">
+                <h2 class="card-title">Response Configuration</h2>
+                
+                <div class="form-group">
+                    <label for="maxResponseLength">Maximum Response Length</label>
+                    <div class="input-description">Limit the length of bot responses</div>
+                    <div class="input-with-suffix">
+                        <input type="number" class="input number" id="maxResponseLength" name="maxResponseLength" 
+                               value="500" min="50" max="2000">
+                        <span class="input-suffix">tokens</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="formatPreference">Output Format</label>
+                    <div class="input-description">Preferred formatting style for responses</div>
+                    <select class="input select" id="formatPreference" name="formatPreference">
+                        <option value="markdown">Markdown</option>
+                        <option value="plain">Plain Text</option>
+                        <option value="html">HTML</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="button button-primary">
+                <span class="button-icon">💾</span>
+                Save Changes
+            </button>
+        </div>
+    </form>
+    {{ save_button() }}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-content {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .settings-group {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .settings-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .card-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        background: linear-gradient(45deg, #fff, #7289da);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .input.textarea {
+        min-height: 100px;
+        resize: vertical;
+        font-family: 'Inter', sans-serif;
+        line-height: 1.5;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 5px;
+        color: #FFFFFF;
+    }
+
+    .input-description {
+        font-size: 0.85rem;
+        color: #8e8ea0;
+        margin-bottom: 8px;
+    }
+
+    .input {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #FFFFFF;
+        font-size: 0.95rem;
+    }
+
+    .input-with-suffix {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .input-suffix {
+        color: #b4b4d1;
+        font-size: 0.85rem;
+    }
+
+    .button {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+
+    .button-primary {
+        background: #5865F2;
+        color: #FFFFFF;
+        border: none;
+    }
+
+    .button-primary:hover {
+        background: #4752C4;
+        box-shadow: 0 0 15px rgba(88, 101, 242, 0.4);
+    }
+
+    .button-icon {
+        font-size: 1.1rem;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}

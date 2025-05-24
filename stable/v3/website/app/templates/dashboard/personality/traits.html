@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% from "components/save-button.html" import save_button %}
+
+{% block title %}Personality Traits - Nugget Tech{% endblock %}
+
+{% block page_title %}🎭 Personality Traits{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="page-header">
+        <p class="page-description">Define your bot's core personality traits and characteristics.</p>
+    </div>
+
+    <form class="settings-form" id="personalityTraitsForm">
+        <div class="settings-group">
+            <div class="settings-card">
+                <h2 class="card-title">Core Identity</h2>
+                
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <div class="input-description">The name your bot identifies with</div>
+                    <input type="text" class="input text" id="name" name="name" placeholder="Enter bot name">
+                </div>
+
+                <div class="form-group">
+                    <label for="age">Age</label>
+                    <div class="input-description">Bot's perceived or roleplay age</div>
+                    <div class="input-with-suffix">
+                        <input type="number" class="input number" id="age" name="age" 
+                               value="100" min="0" max="1000">
+                        <span class="input-suffix">years</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="role">Role</label>
+                    <div class="input-description">Primary role or function of your bot</div>
+                    <input type="text" class="input text" id="role" name="role" placeholder="e.g., Assistant, Guide, Expert">
+                </div>
+            </div>
+
+            <div class="settings-card">
+                <h2 class="card-title">Personality Details</h2>
+                
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <div class="input-description">A detailed description of your bot's personality and traits</div>
+                    <textarea class="input textarea" id="description" name="description" rows="4" 
+                           placeholder="Describe your bot's personality, mannerisms, and behavior..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="likes">Likes</label>
+                    <div class="input-description">Things your bot shows interest in or enjoys</div>
+                    <textarea class="input textarea" id="likes" name="likes" rows="3"
+                           placeholder="List things your bot likes or enjoys..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="dislikes">Dislikes</label>
+                    <div class="input-description">Things your bot shows aversion to or dislikes</div>
+                    <textarea class="input textarea" id="dislikes" name="dislikes" rows="3"
+                           placeholder="List things your bot dislikes or avoids..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            {{ save_button() }}
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-content {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .settings-group {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .settings-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .card-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        background: linear-gradient(45deg, #fff, #7289da);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .input.textarea {
+        min-height: 100px;
+        resize: vertical;
+        font-family: 'Inter', sans-serif;
+        line-height: 1.5;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 5px;
+        color: #FFFFFF;
+    }
+
+    .input-description {
+        font-size: 0.85rem;
+        color: #8e8ea0;
+        margin-bottom: 8px;
+    }
+
+    .input {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #FFFFFF;
+        font-size: 0.95rem;
+    }
+
+    .input-with-suffix {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .input-suffix {
+        color: #b4b4d1;
+        font-size: 0.85rem;
+    }
+
+    .button {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+
+    .button-primary {
+        background: #5865F2;
+        color: #FFFFFF;
+        border: none;
+    }
+
+    .button-primary:hover {
+        background: #4752C4;
+        box-shadow: 0 0 15px rgba(88, 101, 242, 0.4);
+    }
+
+    .button-icon {
+        font-size: 1.1rem;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}

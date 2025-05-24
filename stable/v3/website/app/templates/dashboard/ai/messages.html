@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container">
+    <div class="settings-card">
+        <h2 class="card-title">💬 Customized Messages</h2>
+        <p class="text-description">Configure custom bot messages for different scenarios</p>
+
+        <form class="settings-form">
+            <div class="form-group">
+                <label for="wack_message">Wack Message</label>
+                <input type="text" id="wack_message" name="wack_message" class="input">
+                <div class="input-description">The message the bot will say when a user reset's its context window</div>
+            </div>
+
+            <div class="form-group">
+                <label for="wack_error">Wack Error</label>
+                <input type="text" id="wack_error" name="wack_error" class="input">
+                <div class="input-description">For when someone tries to clear the context window when it is already clear</div>
+            </div>
+
+            <div class="form-group">
+                <label for="error_message">Error</label>
+                <input type="text" id="error_message" name="error_message" class="input">
+                <div class="input-description">For when your bot encounters an issue weather it be downstream or in the bot itself</div>
+            </div>
+
+            <div class="form-group">
+                <label for="activate_message">Activate Message</label>
+                <input type="text" id="activate_message" name="activate_message" class="input">
+                <div class="input-description">The message the bot says as soon as it's activated in a channel</div>
+            </div>
+
+            <div class="form-group">
+                <label for="deactivate_message">Deactivate Message</label>
+                <input type="text" id="deactivate_message" name="deactivate_message" class="input">
+                <div class="input-description">The message the bot says when it's deactivated from a channel</div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="save-button">
+                    <span class="save-icon">💾</span>
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.settings-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 2rem;
+}
+
+.card-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #FFFFFF;
+    margin-bottom: 0.5rem;
+}
+
+.text-description {
+    color: #8e8ea0;
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+}
+
+.settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    color: #FFFFFF;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 10px;
+    color: #FFFFFF;
+    font-size: 0.95rem;
+    width: 97.5% !important;
+    transition: border-color 0.2s;
+}
+
+.input:hover, .input:focus {
+    border-color: #5865F2;
+    outline: none;
+}
+
+.input-description {
+    color: #8e8ea0;
+    font-size: 0.85rem;
+}
+
+.form-actions {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.save-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #5865F2;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.save-button:hover {
+    background: #4752C4;
+}
+
+.save-icon {
+    font-size: 1.1rem;
+}
+</style>
+{% endblock %}

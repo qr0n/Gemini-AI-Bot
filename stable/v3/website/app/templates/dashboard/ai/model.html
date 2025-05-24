@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% from "components/save-button.html" import save_button %}
+
+{% block title %}AI Model Settings - Nugget Tech{% endblock %}
+
+{% block page_title %}🤖 AI Model Settings{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="page-header">
+        <p class="page-description">Configure the core AI model settings that determine how your bot thinks and responds.</p>
+    </div>
+
+    <form class="settings-form" id="modelSettingsForm">
+        <div class="settings-group">
+            <div class="settings-card">
+                <h2 class="card-title">Model Configuration</h2>
+                
+                <div class="form-group">
+                    <label for="aiModel">AI Model</label>
+                    <div class="input-description">Select which AI model to use for your bot</div>
+                    <select class="input select" id="aiModel" name="aiModel">
+    {% for model in models %}
+        <option value="{{ model }}">{{ model }}</option>
+    {% endfor %}
+</select>
+                </div>
+
+                <div class="form-group">
+                    <label for="maxContext">Maximum Context Window</label>
+                    <div class="input-description">Number of previous messages to keep in context</div>
+                    <div class="input-with-suffix">
+                        <input type="number" class="input number" id="maxContext" name="maxContext" 
+                               value="20" min="1" max="100">
+                        <span class="input-suffix">messages</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            {{ save_button() }}
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-content {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .page-description {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+        line-height: 1.5;
+    }
+
+    .settings-group {
+        margin-bottom: 30px;
+    }
+
+    .settings-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 25px;
+        backdrop-filter: blur(10px);
+    }
+
+    .card-title {
+        font-size: 1.4rem;
+        color: var(--text);
+        margin: 0 0 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-group:last-child {
+        margin-bottom: 0;
+    }
+
+    label {
+        display: block;
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--text);
+        margin-bottom: 8px;
+    }
+
+    .input-description {
+        font-size: 0.9rem;
+        color: var(--text-description);
+        margin-bottom: 8px;
+    }
+
+    .input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text);
+        font-size: 1rem;
+        font-family: 'Inter', sans-serif;
+        transition: border-color 0.3s ease;
+    }
+
+    .input:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+
+    .input.select {
+        appearance: none;
+        padding-right: 35px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23b4b4d1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 15px center;
+    }
+
+    .input.select option {
+        background-color: #1e1e2f; /* Match your site's dark background */
+        color: #ffffff; /* Text color */
+        border: 1px solid #444; /* Optional: to match your theme */
+    }
+
+    .input.number {
+        width: 120px;
+    }
+
+    .input-with-suffix {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .input-suffix {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .form-actions {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+    }
+
+    .button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('modelSettingsForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const data = {
+        aiModel: document.getElementById('aiModel').value,
+        maxContextWindow: parseInt(document.getElementById('maxContext').value)
+    };
+
+    try {
+        // TODO: Add API call to save settings
+        console.log('Settings to save:', data);
+        alert('Settings saved successfully!');
+    } catch (error) {
+        console.error('Error saving settings:', error);
+        alert('Error saving settings. Please try again.');
+    }
+});
+</script>
+{% endblock %}

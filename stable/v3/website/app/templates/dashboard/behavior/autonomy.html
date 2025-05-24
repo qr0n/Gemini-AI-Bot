@@ -1,0 +1,708 @@
+{% extends "base.html" %}
+{% from "components/save-button.html" import save_button %}
+
+{% block title %}Autonomy Settings - Nugget Tech{% endblock %}
+
+{% block content %}
+{% include 'components/save-bar.html' %}
+
+<div class="page-content">
+    <div class="page-header">
+        <h1>🤖 Autonomy Settings</h1>
+        <p class="page-description">Configure how independently your AI can operate and make decisions</p>
+    </div>
+
+    <div class="settings-grid">
+        <!-- Decision Making -->
+        <div class="settings-card primary">
+            <div class="card-header">
+                <h2>Decision Making</h2>
+                <p class="section-desc">Control how your AI makes independent decisions</p>
+            </div>
+            
+            <form class="settings-form">
+                <div class="setting-group">
+                    <label for="autonomyLevel">
+                        Autonomy Level
+                        <span class="value-badge" id="autonomyValue">0.5</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="autonomyLevel" 
+                               class="slider" min="0" max="1" 
+                               step="0.1" value="0.5">
+                        <div class="slider-labels">
+                            <span>Conservative</span>
+                            <span>Independent</span>
+                        </div>
+                    </div>
+                    <span class="setting-desc">Balance between requiring confirmation and making independent decisions</span>
+                </div>
+
+                <div class="setting-group">
+                    <label for="decisionMode">Operating Mode</label>
+                    <select id="decisionMode" class="select-input">
+                        <option value="assisted">Assisted (Always Ask)</option>
+                        <option value="balanced" selected>Balanced (Smart Decisions)</option>
+                        <option value="autonomous">Autonomous (Self-Directed)</option>
+                    </select>
+                    <span class="setting-desc">How the AI approaches decision-making</span>
+                </div>
+
+                <div class="setting-group">
+                    <label for="confidenceThreshold">
+                        Confidence Threshold
+                        <span class="value-badge" id="confidenceValue">0.85</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="confidenceThreshold" 
+                               class="slider" min="0" max="1" 
+                               step="0.05" value="0.85">
+                        <div class="slider-labels">
+                            <span>More Actions</span>
+                            <span>Higher Accuracy</span>
+                        </div>
+                    </div>
+                    <span class="setting-desc">Minimum confidence required for autonomous actions</span>
+                </div>
+
+                {{ save_button() }}
+            </form>
+        </div>
+
+        <!-- Action Permissions -->
+        <div class="settings-card">
+            <div class="card-header">
+                <h2>Action Permissions</h2>
+                <p class="section-desc">Define what actions the AI can take independently</p>
+            </div>
+            
+            <form class="settings-form">
+                <div class="toggle-group">
+                    <label class="toggle-label">
+                        <span>File Operations</span>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="allowFileOps" checked>
+                            <span class="toggle-slider"></span>
+                        </div>
+                    </label>
+                    <span class="setting-desc">Create, modify, and delete files</span>
+                </div>
+
+                <div class="toggle-group">
+                    <label class="toggle-label">
+                        <span>External Commands</span>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="allowCommands">
+                            <span class="toggle-slider"></span>
+                        </div>
+                    </label>
+                    <span class="setting-desc">Execute terminal commands and scripts</span>
+                </div>
+
+                <div class="toggle-group">
+                    <label class="toggle-label">
+                        <span>API Calls</span>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="allowApiCalls" checked>
+                            <span class="toggle-slider"></span>
+                        </div>
+                    </label>
+                    <span class="setting-desc">Make external API requests</span>
+                </div>
+
+                <div class="toggle-group">
+                    <label class="toggle-label">
+                        <span>Workspace Changes</span>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="allowWorkspaceChanges">
+                            <span class="toggle-slider"></span>
+                        </div>
+                    </label>
+                    <span class="setting-desc">Modify workspace settings and configuration</span>
+                </div>
+            </form>
+        </div>
+
+        <!-- Safety Controls -->
+        <div class="settings-card">
+            <div class="card-header">
+                <h2>Safety Controls</h2>
+                <p class="section-desc">Set boundaries and safety measures</p>
+            </div>
+            
+            <form class="settings-form">
+                <div class="setting-group">
+                    <label for="maxActionPerMinute">Rate Limiting</label>
+                    <div class="number-input">
+                        <input type="number" id="maxActionPerMinute" 
+                               value="10" min="1" max="60">
+                        <span class="input-suffix">actions/min</span>
+                    </div>
+                    <span class="setting-desc">Maximum number of autonomous actions per minute</span>
+                </div>
+
+                <div class="setting-group">
+                    <label for="maxImpactLevel">Impact Threshold</label>
+                    <select id="maxImpactLevel" class="select-input">
+                        <option value="low">Low (Safe Operations Only)</option>
+                        <option value="medium" selected>Medium (Limited System Access)</option>
+                        <option value="high">High (Full System Access)</option>
+                    </select>
+                    <span class="setting-desc">Maximum allowed impact level for autonomous actions</span>
+                </div>
+
+                <div class="toggle-group">
+                    <label class="toggle-label">
+                        <span>Require Confirmation</span>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="requireConfirmation" checked>
+                            <span class="toggle-slider"></span>
+                        </div>
+                    </label>
+                    <span class="setting-desc">Ask before high-impact actions</span>
+                </div>
+            </form>
+        </div>
+
+        <!-- Monitoring -->
+        <div class="settings-card">
+            <div class="card-header">
+                <h2>Monitoring</h2>
+                <p class="section-desc">Track and log autonomous activities</p>
+            </div>
+            
+            <form class="settings-form">
+                <div class="setting-group">
+                    <label for="logLevel">Logging Level</label>
+                    <select id="logLevel" class="select-input">
+                        <option value="basic">Basic (Actions Only)</option>
+                        <option value="detailed" selected>Detailed (With Context)</option>
+                        <option value="debug">Debug (Full Details)</option>
+                    </select>
+                    <span class="setting-desc">How much detail to record in activity logs</span>
+                </div>
+
+                <div class="setting-group">
+                    <label for="retentionPeriod">Log Retention</label>
+                    <div class="number-input">
+                        <input type="number" id="retentionPeriod" 
+                               value="30" min="1" max="365">
+                        <span class="input-suffix">days</span>
+                    </div>
+                    <span class="setting-desc">How long to keep activity logs</span>
+                </div>
+
+                <div class="toggle-group">
+                    <label class="toggle-label">
+                        <span>Alert on Actions</span>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="enableAlerts" checked>
+                            <span class="toggle-slider"></span>
+                        </div>
+                    </label>
+                    <span class="setting-desc">Send notifications for autonomous actions</span>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize sliders
+    const autonomySlider = document.getElementById('autonomyLevel');
+    const autonomyValue = document.getElementById('autonomyValue');
+    const confidenceSlider = document.getElementById('confidenceThreshold');
+    const confidenceValue = document.getElementById('confidenceValue');
+    
+    if (autonomySlider && autonomyValue) {
+        autonomySlider.addEventListener('input', () => {
+            autonomyValue.textContent = autonomySlider.value;
+        });
+    }
+    
+    if (confidenceSlider && confidenceValue) {
+        confidenceSlider.addEventListener('input', () => {
+            confidenceValue.textContent = confidenceSlider.value;
+        });
+    }
+
+    // Store original values for change detection
+    document.querySelectorAll('input, select, textarea').forEach(input => {
+        input.dataset.originalValue = input.type === 'checkbox' ? input.checked : input.value;
+        
+        // Add change detection
+        input.addEventListener('input', () => {
+            const currentValue = input.type === 'checkbox' ? input.checked : input.value;
+            if (currentValue !== input.dataset.originalValue) {
+                window.saveBar?.show();
+            } else {
+                // Check if all inputs match their original values
+                const allUnchanged = Array.from(document.querySelectorAll('input, select, textarea'))
+                    .every(el => {
+                        const original = el.dataset.originalValue;
+                        const current = el.type === 'checkbox' ? el.checked : el.value;
+                        return original === String(current);
+                    });
+
+                if (allUnchanged) {
+                    window.saveBar?.hide();
+                }
+            }
+        });
+    });
+});
+
+async function saveSettings() {
+    try {
+        const formData = new FormData();
+        document.querySelectorAll('input, select, textarea').forEach(input => {
+            formData.append(input.name, input.type === 'checkbox' ? input.checked : input.value);
+        });
+
+        const response = await fetch('/api/settings/autonomy', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) throw new Error('Failed to save settings');
+        
+        // Update original values after successful save
+        document.querySelectorAll('input, select, textarea').forEach(input => {
+            input.dataset.originalValue = input.type === 'checkbox' ? input.checked : input.value;
+        });
+
+        return true;
+    } catch (error) {
+        console.error('Error saving settings:', error);
+        return false;
+    }
+}
+
+async function resetDefaults() {
+    if (!confirm('Reset all autonomy settings to their defaults?')) return;
+
+    try {
+        const response = await fetch('/api/settings/autonomy/defaults');
+        if (response.ok) {
+            const defaults = await response.json();
+            
+            // Apply decision making defaults
+            document.getElementById('autonomyLevel').value = defaults.decisionMaking.autonomyLevel;
+            document.getElementById('decisionMode').value = defaults.decisionMaking.mode;
+            document.getElementById('confidenceThreshold').value = defaults.decisionMaking.confidenceThreshold;
+            autonomyValue.textContent = defaults.decisionMaking.autonomyLevel;
+            confidenceValue.textContent = defaults.decisionMaking.confidenceThreshold;
+
+            // Apply permission defaults
+            document.getElementById('allowFileOps').checked = defaults.permissions.fileOperations;
+            document.getElementById('allowCommands').checked = defaults.permissions.externalCommands;
+            document.getElementById('allowApiCalls').checked = defaults.permissions.apiCalls;
+            document.getElementById('allowWorkspaceChanges').checked = defaults.permissions.workspaceChanges;
+
+            // Apply safety defaults
+            document.getElementById('maxActionPerMinute').value = defaults.safety.maxActionsPerMinute;
+            document.getElementById('maxImpactLevel').value = defaults.safety.maxImpactLevel;
+            document.getElementById('requireConfirmation').checked = defaults.safety.requireConfirmation;
+
+            // Apply monitoring defaults
+            document.getElementById('logLevel').value = defaults.monitoring.logLevel;
+            document.getElementById('retentionPeriod').value = defaults.monitoring.retentionPeriod;
+            document.getElementById('enableAlerts').checked = defaults.monitoring.enableAlerts;
+
+            window.saveBar?.hide();
+        } else {
+            throw new Error('Failed to reset settings');
+        }
+    } catch (error) {
+        console.error('Error resetting settings:', error);
+    }
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(45deg, var(--text-primary), var(--primary));
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .page-description {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+    }
+
+    .settings-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 500px), 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .settings-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px var(--shadow-subtle);
+    }
+
+    .settings-card.primary {
+        background: linear-gradient(135deg, 
+            var(--bg-card) 0%,
+            color-mix(in srgb, var(--primary) 8%, var(--bg-card)) 100%);
+    }
+
+    .card-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .card-header h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .section-desc {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .settings-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .setting-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    label {
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .value-badge {
+        background: var(--primary);
+        color: white;
+        padding: 0.15rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .setting-desc {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+    }
+
+    /* Slider Styling */
+    .slider-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .slider {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 6px;
+        border-radius: 3px;
+        background: var(--bg-button-secondary);
+        outline: none;
+    }
+
+    .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--primary);
+        cursor: pointer;
+        border: 2px solid var(--bg-card);
+        box-shadow: 0 2px 4px var(--shadow-subtle);
+        transition: all 0.2s ease;
+    }
+
+    .slider::-webkit-slider-thumb:hover {
+        transform: scale(1.1);
+    }
+
+    .slider-labels {
+        display: flex;
+        justify-content: space-between;
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+    }
+
+    /* Input Styling */
+    .number-input {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .number-input input,
+    .select-input {
+        background: var(--bg-input);
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        padding: 0.5rem 0.75rem;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+    }
+
+    .number-input input {
+        width: 120px;
+    }
+
+    .input-suffix {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    /* Toggle Switch */
+    .toggle-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .toggle-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .toggle-switch {
+        position: relative;
+        width: 44px;
+        height: 24px;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--bg-button-secondary);
+        border-radius: 24px;
+        transition: 0.4s;
+    }
+
+    .toggle-slider:before {
+        content: "";
+        position: absolute;
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background: var(--text-primary);
+        border-radius: 50%;
+        transition: 0.4s;
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+        background: var(--primary);
+    }
+
+    .toggle-switch input:checked + .toggle-slider:before {
+        transform: translateX(20px);
+        background: white;
+    }
+
+    /* Action Buttons */
+    .actions-bar {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+    }
+
+    .button {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .button.primary {
+        background: var(--primary);
+        color: white;
+    }
+
+    .button.primary:hover {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
+    }
+
+    .button.secondary {
+        background: var(--bg-button-secondary);
+        color: var(--text-primary);
+    }
+
+    .button.secondary:hover {
+        background: var(--bg-button-secondary-hover);
+    }
+
+    /* Focus States */
+    input:focus,
+    select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px var(--primary-shadow);
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize sliders
+    const autonomySlider = document.getElementById('autonomyLevel');
+    const autonomyValue = document.getElementById('autonomyValue');
+    const confidenceSlider = document.getElementById('confidenceThreshold');
+    const confidenceValue = document.getElementById('confidenceValue');
+    
+    if (autonomySlider && autonomyValue) {
+        autonomySlider.addEventListener('input', () => {
+            autonomyValue.textContent = autonomySlider.value;
+        });
+    }
+    
+    if (confidenceSlider && confidenceValue) {
+        confidenceSlider.addEventListener('input', () => {
+            confidenceValue.textContent = confidenceSlider.value;
+        });
+    }
+
+    // Store original values for change detection
+    document.querySelectorAll('input, select, textarea').forEach(input => {
+        input.dataset.originalValue = input.type === 'checkbox' ? input.checked : input.value;
+        
+        // Add change detection
+        input.addEventListener('input', () => {
+            const currentValue = input.type === 'checkbox' ? input.checked : input.value;
+            if (currentValue !== input.dataset.originalValue) {
+                window.saveBar?.show();
+            } else {
+                // Check if all inputs match their original values
+                const allUnchanged = Array.from(document.querySelectorAll('input, select, textarea'))
+                    .every(el => {
+                        const original = el.dataset.originalValue;
+                        const current = el.type === 'checkbox' ? el.checked : el.value;
+                        return original === String(current);
+                    });
+
+                if (allUnchanged) {
+                    window.saveBar?.hide();
+                }
+            }
+        });
+    });
+});
+
+async function saveSettings() {
+    try {
+        const formData = new FormData();
+        document.querySelectorAll('input, select, textarea').forEach(input => {
+            formData.append(input.name, input.type === 'checkbox' ? input.checked : input.value);
+        });
+
+        const response = await fetch('/api/settings/autonomy', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) throw new Error('Failed to save settings');
+        
+        // Update original values after successful save
+        document.querySelectorAll('input, select, textarea').forEach(input => {
+            input.dataset.originalValue = input.type === 'checkbox' ? input.checked : input.value;
+        });
+
+        return true;
+    } catch (error) {
+        console.error('Error saving settings:', error);
+        return false;
+    }
+}
+
+async function resetDefaults() {
+    if (!confirm('Reset all autonomy settings to their defaults?')) return;
+
+    try {
+        const response = await fetch('/api/settings/autonomy/defaults');
+        if (response.ok) {
+            const defaults = await response.json();
+            
+            // Apply decision making defaults
+            document.getElementById('autonomyLevel').value = defaults.decisionMaking.autonomyLevel;
+            document.getElementById('decisionMode').value = defaults.decisionMaking.mode;
+            document.getElementById('confidenceThreshold').value = defaults.decisionMaking.confidenceThreshold;
+            autonomyValue.textContent = defaults.decisionMaking.autonomyLevel;
+            confidenceValue.textContent = defaults.decisionMaking.confidenceThreshold;
+
+            // Apply permission defaults
+            document.getElementById('allowFileOps').checked = defaults.permissions.fileOperations;
+            document.getElementById('allowCommands').checked = defaults.permissions.externalCommands;
+            document.getElementById('allowApiCalls').checked = defaults.permissions.apiCalls;
+            document.getElementById('allowWorkspaceChanges').checked = defaults.permissions.workspaceChanges;
+
+            // Apply safety defaults
+            document.getElementById('maxActionPerMinute').value = defaults.safety.maxActionsPerMinute;
+            document.getElementById('maxImpactLevel').value = defaults.safety.maxImpactLevel;
+            document.getElementById('requireConfirmation').checked = defaults.safety.requireConfirmation;
+
+            // Apply monitoring defaults
+            document.getElementById('logLevel').value = defaults.monitoring.logLevel;
+            document.getElementById('retentionPeriod').value = defaults.monitoring.retentionPeriod;
+            document.getElementById('enableAlerts').checked = defaults.monitoring.enableAlerts;
+
+            window.saveBar?.hide();
+        } else {
+            throw new Error('Failed to reset settings');
+        }
+    } catch (error) {
+        console.error('Error resetting settings:', error);
+    }
+}
+</script>
+{% endblock %}

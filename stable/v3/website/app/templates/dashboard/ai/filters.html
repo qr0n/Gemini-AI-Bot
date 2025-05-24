@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+{% from "components/save-button.html" import save_button %}
+
+{% block title %}Content Filters - Nugget Tech{% endblock %}
+
+{% block page_title %}🛡️ Content Filters{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="page-header">
+        <p class="page-description">Configure how your bot handles different types of content. These filters help ensure appropriate responses.</p>
+    </div>
+
+    <form class="settings-form" id="filterSettingsForm">
+        <div class="settings-group">
+            <div class="settings-card">
+                <h2 class="card-title">Content Filter Settings</h2>
+                
+                <div class="form-group">
+                    <label for="filterSexuallyExplicit">Sexually Explicit Content</label>
+                    <div class="input-description">How to handle sexually explicit content in responses</div>
+                    <select class="input select" id="filterSexuallyExplicit" name="filterSexuallyExplicit">
+                        <option value="BLOCK_NONE">Block None</option>
+                        <option value="BLOCK_SOME">Block Some</option>
+                        <option value="BLOCK_ALL">Block All</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="filterHarassment">Harassment</label>
+                    <div class="input-description">How to handle harassing content in responses</div>
+                    <select class="input select" id="filterHarassment" name="filterHarassment">
+                        <option value="BLOCK_NONE">Block None</option>
+                        <option value="BLOCK_SOME">Block Some</option>
+                        <option value="BLOCK_ALL">Block All</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="filterDangerous">Dangerous Content</label>
+                    <div class="input-description">How to handle potentially dangerous content</div>
+                    <select class="input select" id="filterDangerous" name="filterDangerous">
+                        <option value="BLOCK_NONE">Block None</option>
+                        <option value="BLOCK_SOME">Block Some</option>
+                        <option value="BLOCK_ALL">Block All</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="filterHateSpeech">Hate Speech</label>
+                    <div class="input-description">How to handle hate speech in responses</div>
+                    <select class="input select" id="filterHateSpeech" name="filterHateSpeech">
+                        <option value="BLOCK_NONE">Block None</option>
+                        <option value="BLOCK_SOME">Block Some</option>
+                        <option value="BLOCK_ALL">Block All</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="filterUnspecified">Unspecified Content</label>
+                    <div class="input-description">How to handle other potentially inappropriate content</div>
+                    <select class="input select" id="filterUnspecified" name="filterUnspecified">
+                        <option value="BLOCK_NONE">Block None</option>
+                        <option value="BLOCK_MEDIUM_AND_ABOVE" selected>Block Medium & Above</option>
+                        <option value="BLOCK_ALL">Block All</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            {{ save_button() }}
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-content {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .page-description {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+        line-height: 1.5;
+    }
+
+    .settings-group {
+        margin-bottom: 30px;
+    }
+
+    .settings-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 25px;
+        backdrop-filter: blur(10px);
+    }
+
+    .card-title {
+        font-size: 1.4rem;
+        color: var(--text);
+        margin: 0 0 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+        padding-bottom: 25px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .form-group:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+
+    label {
+        display: block;
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--text);
+        margin-bottom: 8px;
+    }
+
+    .input-description {
+        font-size: 0.9rem;
+        color: var(--text-description);
+        margin-bottom: 8px;
+    }
+
+    .input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text);
+        font-size: 1rem;
+        font-family: 'Inter', sans-serif;
+        transition: border-color 0.3s ease;
+    }
+
+    .input:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+
+    .input.select {
+        appearance: none;
+        padding-right: 35px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23b4b4d1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 15px center;
+    }
+
+    .form-actions {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+    }
+
+    .button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .button-primary {
+        background: var(--primary);
+        color: var(--text);
+        box-shadow: 0 4px 15px rgba(88, 101, 242, 0.4);
+    }
+
+    .button-primary:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(88, 101, 242, 0.6);
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('filterSettingsForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const data = {
+        filters: {
+            sexuallyExplicit: document.getElementById('filterSexuallyExplicit').value,
+            harassment: document.getElementById('filterHarassment').value,
+            dangerousContent: document.getElementById('filterDangerous').value,
+            hateSpeech: document.getElementById('filterHateSpeech').value,
+            unspecified: document.getElementById('filterUnspecified').value
+        }
+    };
+
+    try {
+        // TODO: Add API call to save settings
+        console.log('Settings to save:', data);
+        alert('Settings saved successfully!');
+    } catch (error) {
+        console.error('Error saving settings:', error);
+        alert('Error saving settings. Please try again.');
+    }
+});
+</script>
+{% endblock %}

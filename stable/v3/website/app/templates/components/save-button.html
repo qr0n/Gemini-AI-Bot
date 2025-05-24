@@ -1,0 +1,39 @@
+{% macro save_button() %}
+<div class="form-actions">
+    <button type="submit" class="save-button">
+        <span class="save-icon">💾</span>
+        Save Changes
+    </button>
+</div>
+
+<style>
+.form-actions {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.save-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #5865F2;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.save-button:hover {
+    background: #4752C4;
+}
+
+.save-icon {
+    font-size: 1.1rem;
+}
+</style>
+{% endmacro %}

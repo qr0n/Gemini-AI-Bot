@@ -1,0 +1,441 @@
+🎨 Nugget Tech Website Theme Guide
+
+🎯 Core Design Philosophy
+- Modern, clean interface with glassmorphic elements
+- Consistent spacing and alignment
+- Clear visual hierarchy
+- Smooth animations and transitions
+- Responsive design principles
+
+🎨 Color Palette
+Primary Colors:
+- Primary Blue: #5865F2 (Discord-style blue)
+- Hover Blue: #4752C4
+- Text White: #FFFFFF
+- Muted Text: #b4b4d1
+- Description Text: #8e8ea0
+
+UI Elements:
+- Card Background: rgba(255, 255, 255, 0.05)
+- Border Color: rgba(255, 255, 255, 0.1)
+- Hover Shadow: rgba(0, 0, 0, 0.2)
+- Danger Red: rgba(240, 71, 71, 0.2)
+- Success Green: rgba(67, 181, 129, 0.2)
+
+Gradients:
+- Header Text: linear-gradient(45deg, #fff, #7289da)
+- Button Glow: rgba(88, 101, 242, 0.4)
+
+🔤 Typography
+Font Family: 'Inter', sans-serif
+Font Weights:
+- Regular: 400
+- Medium: 500
+- Semi-bold: 600
+- Bold: 700
+
+Font Sizes:
+- Page Title: 2.5rem
+- Card Title: 1.4rem
+- Subtitle: 1.1rem
+- Body Text: 0.95rem
+- Small Text: 0.85rem
+
+🎯 Common Components
+
+Cards:
+```css
+.card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 25px;
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.settings-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.card-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    background: linear-gradient(45deg, #fff, #7289da);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+```
+
+Buttons:
+```css
+.button {
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    border: none;
+}
+
+.primary-button {
+    background: #5865F2;
+    color: white;
+    box-shadow: 0 4px 15px rgba(88, 101, 242, 0.4);
+}
+
+.primary-button:hover {
+    background: #4752C4;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(88, 101, 242, 0.6);
+}
+
+.button {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.button-primary {
+    background: #5865F2;
+    color: #FFFFFF;
+    border: none;
+}
+
+.button-primary:hover {
+    background: #4752C4;
+    box-shadow: 0 0 15px rgba(88, 101, 242, 0.4);
+}
+```
+
+Form Inputs:
+```css
+.input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.3s ease;
+}
+
+.input:focus {
+    outline: none;
+    border-color: #5865F2;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 5px;
+    color: #FFFFFF;
+}
+
+.input-description {
+    font-size: 0.85rem;
+    color: #8e8ea0;
+    margin-bottom: 8px;
+}
+
+.input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #FFFFFF;
+}
+
+.input-with-suffix {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.input-suffix {
+    color: #b4b4d1;
+    font-size: 0.85rem;
+}
+```
+
+Modal:
+```css
+.modal {
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: #2a2a4a;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+```
+
+🎭 Animations
+Fade In:
+```css
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+```
+
+Transitions:
+- All UI elements: transition: all 0.3s ease;
+- Transform effects on hover
+- Smooth color transitions
+- Subtle scaling effects
+
+📱 Responsive Design
+- Fluid grid system with auto-fit/auto-fill
+- Minimum card width: 300-350px
+- Flexible spacing using relative units
+- Mobile-first approach
+- Breakpoint considerations for sidebar
+
+🌈 Special Effects
+- Glassmorphic cards with backdrop-filter
+- Gradient text for headers
+- Subtle shadows for depth
+- Hover lift effects
+- Glow effects on primary buttons
+
+📝 Page Layout Patterns
+
+Settings Pages:
+1. Page Header
+   - Title with emoji icon (e.g., "⚙️ Generation Settings")
+   - Description text explaining the page's purpose
+   
+2. Form Structure
+   - Wrapped in .settings-form with unique ID
+   - Settings grouped in .settings-group
+   - Each section in .settings-card
+   - Form groups (.form-group) for individual settings
+   - Input descriptions for clarity
+   - Suffix texts for input ranges/units
+   
+3. Action Bar
+   - Right-aligned save button
+   - Icon + text combination
+   - Primary button styling
+   
+4. Responsive Behavior
+   - Max width 800px for content
+   - Proper spacing between elements
+   - Flexible input containers
+   
+5. Input Patterns
+   - Number inputs with min/max/step
+   - Select dropdowns for options
+   - Clear labeling and descriptions
+   - Unit suffixes where applicable
+
+📄 Page Structure Patterns
+
+Basic Page Template:
+```html
+{% extends "base.html" %}
+
+{% block title %}Page Name - Nugget Tech{% endblock %}
+
+{% block page_title %}🔵 Page Name{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="page-header">
+        <p class="page-description">Clear description of the page's purpose.</p>
+    </div>
+
+    <form class="settings-form" id="formId">
+        <div class="settings-group">
+            <!-- Cards go here -->
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="button button-primary">
+                <span class="button-icon">💾</span>
+                Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+```
+
+Common Card Layouts:
+
+1. Basic Settings Card:
+```html
+<div class="settings-card">
+    <h2 class="card-title">Section Title</h2>
+    <div class="form-group">
+        <!-- Form elements -->
+    </div>
+</div>
+```
+
+2. Toggle Section Card:
+```html
+<div class="settings-card">
+    <h2 class="card-title">Section Title</h2>
+    <div class="form-group">
+        <label for="toggleId" class="switch-label">
+            <div class="switch-label-text">Toggle Label</div>
+            <div class="switch">
+                <input type="checkbox" id="toggleId" name="toggleId">
+                <span class="slider"></span>
+            </div>
+        </label>
+        <div class="input-description">Description of what this toggle does</div>
+    </div>
+</div>
+```
+
+3. Input Group Card:
+```html
+<div class="settings-card">
+    <h2 class="card-title">Section Title</h2>
+    
+    <div class="form-group">
+        <label for="inputId">Input Label</label>
+        <div class="input-with-suffix">
+            <input type="number" class="input number" id="inputId" name="inputId" 
+                   value="0" min="0" max="100" step="1">
+            <span class="input-suffix">unit</span>
+        </div>
+        <div class="input-description">Description of this input's purpose</div>
+    </div>
+</div>
+```
+
+4. Text Area Card:
+```html
+<div class="settings-card">
+    <h2 class="card-title">Section Title</h2>
+    
+    <div class="form-group">
+        <label for="textareaId">Textarea Label</label>
+        <textarea class="input textarea" id="textareaId" name="textareaId" rows="4"
+                  placeholder="Helpful placeholder text..."></textarea>
+        <div class="input-description">Description of this textarea's purpose</div>
+    </div>
+</div>
+```
+
+Common Input Types:
+1. Number with suffix:
+```html
+<div class="input-with-suffix">
+    <input type="number" class="input number" id="inputId" name="inputId" 
+           value="0" min="0" max="100" step="1">
+    <span class="input-suffix">%</span>
+</div>
+```
+
+2. Select dropdown:
+```html
+<select class="input select" id="selectId" name="selectId">
+    <option value="value1">Option 1</option>
+    <option value="value2">Option 2</option>
+</select>
+```
+
+3. Text input:
+```html
+<input type="text" class="input text" id="textId" name="textId" 
+       placeholder="Enter text...">
+```
+
+Common Spacing:
+- Between cards: 20px (using gap in settings-group)
+- Between form groups: 20px (margin-bottom)
+- Input padding: 10px
+- Card padding: 25px
+- Page max-width: 800px
+
+Icons & Emojis:
+Common section icons:
+- Settings: ⚙️
+- AI/Model: 🤖
+- Security: 🛡️
+- Messages: 💬
+- Knowledge: 📚
+- Profile: 👤
+- Voice: 🎤
+- Save: 💾
+- Warning: ⚠️
+- Success: ✅
+
+Color Usage:
+- Primary actions: #5865F2 (Discord blue)
+- Success states: rgba(67, 181, 129, 0.2)
+- Warning states: rgba(240, 71, 71, 0.2)
+- Card backgrounds: rgba(255, 255, 255, 0.05)
+- Border colors: rgba(255, 255, 255, 0.1)
+
+Accessibility Guidelines:
+- Always include input descriptions
+- Use proper label associations
+- Maintain color contrast (light text on dark backgrounds)
+- Provide hover states for interactive elements
+- Use semantic HTML structure
+
+JavaScript Patterns:
+```javascript
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('formId');
+    
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        // Form submission logic
+    });
+
+    // For dynamic elements:
+    const container = document.getElementById('containerId');
+    container.addEventListener('click', function(e) {
+        if (e.target.matches('.target-class')) {
+            // Handle click
+        }
+    });
+});
+```
+
+These patterns ensure consistency across:
+- Page layout and structure
+- Form element styling and behavior
+- Spacing and typography
+- Interactive elements
+- Error and success states
+- Accessibility standards
