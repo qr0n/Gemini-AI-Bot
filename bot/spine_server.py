@@ -21,7 +21,7 @@ def create_app(bot: commands.Bot):
                 print("[SPINE SERVER] [CRITICAL] | Analyzing config")
                 print(config)
                 print("updating config keys... please hold")
-                config_path = f"/app/data/{os.getenv('BOT_ID')}-config.json"
+                config_path = f"data/{os.getenv('BOT_ID')}-config.json"
 
                 # Read existing config
                 existing_config = {}
@@ -48,7 +48,7 @@ def create_app(bot: commands.Bot):
                 print(f"Type: {type(personality)}")
                 print(personality)
                 print("updating personality keys... please hold")
-                prompt_path = f"/app/data/{os.getenv('BOT_ID')}-prompt.json"
+                prompt_path = f"data/{os.getenv('BOT_ID')}-prompt.json"
 
                 # Read existing personality
                 existing_personality = {}

@@ -9,7 +9,7 @@ from modules.ManagedMessages import ManagedMessages
 from modules.CommonCalls import CommonCalls
 
 allowed_mentions = AllowedMentions(everyone=False, users=False, roles=False)
-activation_path = f"/app/data/{CommonCalls.config()['alias']}-activation.json"
+activation_path = f"data/{CommonCalls.config()['alias']}-activation.json"
 
 
 class Freewill(commands.Cog):
@@ -27,7 +27,7 @@ class Freewill(commands.Cog):
 
     @commands.Cog.listener("on_message")
     async def freewill(self, message: Message) -> None:
-        if CommonCalls.config()["freewill"]:  # TODO implement
+        if CommonCalls.config()["freewill"] == "on":  # TODO implement
 
             ctx = await self.bot.get_context(message)
 
@@ -37,13 +37,15 @@ class Freewill(commands.Cog):
             if self.bot.user.mentioned_in(message) or self.is_activated(ctx.channel.id):
                 return
 
-            text_frequency = float(CommonCalls.config().get("textFrequency", 0))
-            keywords = CommonCalls.config().get(keywords, [])
+            text_frequency = float(CommonCalls.config().get("textFrequency", 0)) * 0.01
+            keywords = CommonCalls.config().get("keywords", [])
             keyword_added_chance = 0
 
             for i in keywords:
                 if i.lower() in message.content.lower():
-                    keyword_added_chance = float(CommonCalls.config()["keywordChance"])
+                    keyword_added_chance = (
+                        float(CommonCalls.config()["keywordChance"]) * 0.01
+                    )
 
             if random.random() < min(text_frequency + keyword_added_chance, 1.0):
                 response = await Gemini.generate_response(

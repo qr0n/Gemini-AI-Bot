@@ -8,7 +8,7 @@ from modules.ManagedMessages import ManagedMessages
 from discord import Message, AllowedMentions, Reaction, Member
 
 allowed_mentions = AllowedMentions(everyone=False, users=False, roles=False)
-activation_path = f"/app/data/{CommonCalls.config()['alias']}-activation.json"
+activation_path = f"data/{CommonCalls.config()['alias']}-activation.json"
 
 
 class GeminiCog(commands.Cog):
@@ -21,7 +21,7 @@ class GeminiCog(commands.Cog):
             with open(activation_path, "r") as ul_activation:
                 activated: dict = json.load(ul_activation)
                 print(
-                    "Activated channels function call `is_activated` (Message from line 22 @ cogs/gemini.py)"
+                    "[BOT][INFO] | Activated channels function call `is_activated` (Message from line 24 @ cogs/gemini.py)"
                 )
                 return bool(activated.get(str(channel_id), False))
         except FileNotFoundError:

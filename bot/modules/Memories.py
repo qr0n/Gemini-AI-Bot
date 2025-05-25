@@ -17,7 +17,7 @@ client = genai.Client(api_key=CommonCalls.config()["gemini_api_key"])
 
 
 # JSON storage paths
-MEMORIES_FILE = f"/app/data/{CommonCalls.config()['alias']}-memories.json"
+MEMORIES_FILE = f"data/{CommonCalls.config()['alias']}-memories.json"
 
 
 class Memories:

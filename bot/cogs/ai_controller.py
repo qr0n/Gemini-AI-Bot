@@ -7,7 +7,7 @@ from modules.ManagedMessages import ManagedMessages
 from modules.Memories import Memories
 from modules.CommonCalls import CommonCalls
 
-activation_path = f"/app/data/{CommonCalls.config()['alias']}-activation.json"
+activation_path = f"data/{CommonCalls.config()['alias']}-activation.json"
 
 
 class AIController(commands.Cog, name="AI-Controller"):

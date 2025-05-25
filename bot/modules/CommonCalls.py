@@ -75,7 +75,7 @@ class CommonCalls:
         Returns -
         Dict[str, str]
         """
-        prompt_path = f"/app/data/{os.getenv('BOT_ID')}-prompt.json"
+        prompt_path = f"data/{os.getenv('BOT_ID')}-prompt.json"
 
         try:
             with open(prompt_path, "r") as unloaded_prompt_json:
@@ -153,9 +153,10 @@ class CommonCalls:
 
                 # Write the updated config back to file
                 with open(
-                    f"{config_path}/{os.getenv("BOT_ID")}-config.json", "r"
+                    f"{config_path}/{os.getenv("BOT_ID")}-config.json", "w"
                 ) as config_file:
                     json.dump(checker, config_file, indent=4)
+                    return sample_config
 
                 # Create the configured flag file
                 with open(

@@ -11,8 +11,8 @@ intents.members = True
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-mem_path = f"/app/data/{CommonCalls.config()['alias']}-memories.json"
-act_path = f"/app/data/{CommonCalls.config()['alias']}-activation.json"
+mem_path = f"data/{CommonCalls.config()['alias']}-memories.json"
+act_path = f"data/{CommonCalls.config()['alias']}-activation.json"
 
 
 @bot.listen("on_ready")

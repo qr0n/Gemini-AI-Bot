@@ -1,0 +1,12 @@
+[
+    {
+        "name": "Iron Nugget",
+        "discord_token": "MTI0NTkyMTYwOTQzMzQ4MTIzNg.GcSWZf.KmkbYjWUzy2DKuW6MCEkbxbiuDUQrsKgPdWltA",
+        "avatar_url": "",
+        "gemini_api_key": "AIzaSyAVmHt4hnwEv373_T1GsQ4TGubOkVpJNqo",
+        "elevenlabs_api_key": "sk_9bbd4e611b27b24f8b1e988d2dc6315acfd9baf65a27e487",
+        "bot_name": "Iron Nugget",
+        "alias": "3a567f8c-f29e-43cd-af2e-ae3df9998e44",
+        "port": "52592"
+    }
+]
