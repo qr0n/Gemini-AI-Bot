@@ -302,6 +302,7 @@ def personality_autonomy(nugget):
         new_config = {}
         for item in request.args:
             if request.args.get(item) != "":
+
                 new_config[item] = request.args.get(item)
         Helpers.save_config(nugget, config=new_config)
     return render_template(
