@@ -1,5 +1,0 @@
-flask
-requests
-python-dotenv
-google-genai
-docker
