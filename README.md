@@ -1,3 +1,5 @@
+# Note this repository is not maintained, find the newest version at https://github.com/Nugget-Tech
+
 # Nugget: A Discord Chatbot Inspired by the Human Brain 🧠
 # README AND WIKI COMING SOON!
 Nugget is a unique Discord chatbot designed to mimic the functionality of the human brain. Using advanced AI and intuitive features, it creates an engaging and personalized experience for users.
